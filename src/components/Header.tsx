@@ -21,7 +21,6 @@ import { UserProfile } from '../types';
 interface HeaderProps {
   darkMode: boolean;
   setDarkMode: (val: boolean) => void;
-  onOpenBookingEngine: () => void;
   onOpenMyBookings: () => void;
   onOpenWeatherSecurity?: () => void;
   onOpenTerms?: () => void;
@@ -38,7 +37,6 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({
   darkMode,
   setDarkMode,
-  onOpenBookingEngine,
   onOpenMyBookings,
   onOpenWeatherSecurity,
   activeSection,
@@ -83,7 +81,6 @@ export const Header: React.FC<HeaderProps> = ({
     { id: 'destinations', label: 'Destinations', icon: MapPin },
     { id: 'homestays', label: 'Handpicked Stays', icon: Home },
     { id: 'custom-packages', label: 'Custom Itineraries', icon: Sparkles },
-    { id: 'transit', label: 'Volvo & Flights', icon: Compass },
     { id: 'peak-feed', label: 'The Peak Feed', icon: Film },
     { id: 'guides', label: 'Local Guides', icon: Compass }
   ];
@@ -213,12 +210,12 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
 
             {/* Quick Book Direct */}
-            <button
-              onClick={onOpenBookingEngine}
-              className="px-4 py-1.5 rounded-xl text-xs font-extrabold bg-pine-700 hover:bg-pine-800 text-white shadow-md hover:shadow transition-all cursor-pointer"
+            <a
+              href="#custom-packages"
+              className="px-4 py-1.5 rounded-xl text-xs font-extrabold bg-pine-700 hover:bg-pine-800 text-white shadow-md hover:shadow transition-all cursor-pointer inline-flex items-center justify-center"
             >
               Book Direct
-            </button>
+            </a>
 
             {/* Dark/Light Toggle */}
             <button
@@ -264,15 +261,13 @@ export const Header: React.FC<HeaderProps> = ({
               );
             })}
             <div className="pt-2 flex flex-col gap-2">
-              <button
-                onClick={() => {
-                  onOpenBookingEngine();
-                  setMobileMenuOpen(false);
-                }}
-                className="w-full py-2.5 rounded-xl bg-pine-700 text-white font-extrabold text-sm text-center"
+              <a
+                href="#custom-packages"
+                onClick={() => setMobileMenuOpen(false)}
+                className="w-full py-2.5 rounded-xl bg-pine-700 text-white font-extrabold text-sm text-center block"
               >
-                Book Volvo Sleeper / Flight
-              </button>
+                Explore Curated Expeditions
+              </a>
               <button
                 onClick={() => {
                   onOpenMyBookings();

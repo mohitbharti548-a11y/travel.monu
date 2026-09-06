@@ -2656,10 +2656,9 @@ export const AdminPanelPage: React.FC<AdminPanelPageProps> = ({
                   defaultValue="all"
                   className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white"
                 >
-                  <option value="all">All Services (Packages + Homestays + Transits)</option>
+                  <option value="all">All Services (Packages + Homestays)</option>
                   <option value="package">Tour Packages Only</option>
                   <option value="stay">Homestays Only</option>
-                  <option value="transit">Volvo & Transits Only</option>
                 </select>
               </div>
 

@@ -96,8 +96,7 @@ export const Footer: React.FC<FooterProps> = ({
             <ul className="space-y-2 text-slate-400">
               <li><a href="#custom-packages" className="hover:text-white transition-colors">6-Day Spiti & Kaza Circuit</a></li>
               <li><a href="#custom-packages" className="hover:text-white transition-colors">Manali Slow Living & Glamping</a></li>
-              <li><a href="#custom-packages" className="hover:text-white transition-colors">Triund & Kangra Soul Retreat</a></li>
-              <li><a href="#transit" className="hover:text-white transition-colors">Premier 9600 Volvo Sleepers</a></li>
+              <li><a href="#homestays" className="hover:text-white transition-colors">Handpicked Mountain Homestays</a></li>
               <li><a href="#peak-feed" className="hover:text-white transition-colors">The Peak Feed (Stories & Reels)</a></li>
             </ul>
           </div>

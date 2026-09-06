@@ -5,8 +5,6 @@ import {
   Calendar, 
   Users, 
   MapPin, 
-  Bus, 
-  Plane, 
   Sparkles, 
   Home, 
   Volume2, 
@@ -19,15 +17,13 @@ import { DestinationId } from '../types';
 interface HeroSectionProps {
   onSearch: (params: { destination: string; date: string; travelers: number; category: string }) => void;
   onSelectDestination: (id: DestinationId) => void;
-  onOpenBookingEngine: () => void;
 }
 
 export const HeroSection: React.FC<HeroSectionProps> = ({
   onSearch,
-  onSelectDestination,
-  onOpenBookingEngine
+  onSelectDestination
 }) => {
-  const [activeTab, setActiveTab] = useState<'packages' | 'buses' | 'flights' | 'stays'>('packages');
+  const [activeTab, setActiveTab] = useState<'packages' | 'stays'>('packages');
   const [selectedDest, setSelectedDest] = useState<string>('spiti');
   const [travelDate, setTravelDate] = useState<string>('2026-09-15');
   const [travelers, setTravelers] = useState<number>(2);
@@ -153,17 +149,15 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
         <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 mb-6">
           {[
             { id: 'packages', label: 'Curated Itineraries', icon: Sparkles },
-            { id: 'buses', label: 'Premier Volvo', icon: Bus },
-            { id: 'flights', label: 'Scenic Flights', icon: Plane },
-            { id: 'stays', label: 'Handpicked Stays', icon: Home }
+            { id: 'stays', label: 'Handpicked Homestays', icon: Home }
           ].map((tab) => {
             const Icon = tab.icon;
             const isSelected = activeTab === tab.id;
             return (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+                onClick={() => setActiveTab(tab.id as 'packages' | 'stays')}
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
                   isSelected
                     ? 'bg-pine-700 text-white shadow-lg scale-105 border border-pine-600'
                     : 'bg-white/90 text-slate-800 hover:bg-white border border-white/40 shadow-sm'

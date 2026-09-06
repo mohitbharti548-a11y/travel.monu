@@ -28,7 +28,6 @@ import { DestinationDetailModal } from './components/DestinationDetailModal';
 import { HandpickedStaysSection } from './components/HandpickedStaysSection';
 import { StayBookingModal } from './components/StayBookingModal';
 import { CustomPackageBuilder } from './components/CustomPackageBuilder';
-import { BookingEngineModal } from './components/BookingEngineModal';
 import { CheckoutDrawer } from './components/CheckoutDrawer';
 import { PeakFeedReels } from './components/PeakFeedReels';
 import { PostMemoryModal } from './components/PostMemoryModal';
@@ -182,7 +181,6 @@ export function App() {
   const [selectedDestDetail, setSelectedDestDetail] = useState<Destination | null>(null);
   const [selectedBookingStay, setSelectedBookingStay] = useState<Stay | null>(null);
   const [isStayBookingOpen, setIsStayBookingOpen] = useState<boolean>(false);
-  const [isBookingEngineOpen, setIsBookingEngineOpen] = useState<boolean>(false);
   const [isRefundModalOpen, setIsRefundModalOpen] = useState<boolean>(false);
   const [isTermsModalOpen, setIsTermsModalOpen] = useState<boolean>(false);
   const [isMyBookingsOpen, setIsMyBookingsOpen] = useState<boolean>(false);
@@ -369,9 +367,7 @@ export function App() {
   };
 
   const handleHeroSearch = (params: { destination: string; date: string; travelers: number; category: string }) => {
-    if (params.category === 'buses' || params.category === 'flights') {
-      setIsBookingEngineOpen(true);
-    } else if (params.category === 'stays') {
+    if (params.category === 'stays') {
       const elem = document.getElementById('homestays');
       if (elem) elem.scrollIntoView({ behavior: 'smooth' });
     } else {
@@ -487,29 +483,6 @@ export function App() {
       return;
     }
     launchCustomTripCheckout();
-  };
-
-  const handleTransitSelect = (transit: TransitOption, travelers: number, date: string) => {
-    const launchTransitCheckout = () => {
-      setActivePayingCustomReq(null);
-      setIsBookingEngineOpen(false);
-      setCheckoutData({
-        itemType: 'transit',
-        title: `${transit.operator} (${transit.route})`,
-        destination: transit.route.split('→')[1]?.trim() || 'Himachal',
-        totalAmount: transit.price * travelers,
-        travelers: travelers,
-        travelDate: date,
-        transitItem: transit
-      });
-      setIsCheckoutOpen(true);
-    };
-
-    if (!userProfile?.isLoggedIn) {
-      handleOpenAuth("Please log in with your phone number to secure your transit pass.", launchTransitCheckout);
-      return;
-    }
-    launchTransitCheckout();
   };
 
   // When payment is authorized and confirmed -> Syncs to Server & Dispatches PDF pass
@@ -650,7 +623,6 @@ export function App() {
       <Header
         darkMode={darkMode}
         setDarkMode={setDarkMode}
-        onOpenBookingEngine={() => setIsBookingEngineOpen(true)}
         onOpenMyBookings={() => {
           if (!userProfile?.isLoggedIn) {
             handleOpenAuth("Sign in with your phone number to access your confirmed passes & custom itineraries.");
@@ -697,7 +669,6 @@ export function App() {
         <HeroSection
           onSearch={handleHeroSearch}
           onSelectDestination={handleOpenDestination}
-          onOpenBookingEngine={() => setIsBookingEngineOpen(true)}
         />
 
         {/* 2. 7 Destination Hubs Showcase (Customizable from Admin) */}
@@ -797,12 +768,6 @@ export function App() {
         }}
       />
 
-      {/* 2. Direct Transit Booking Engine Modal */}
-      <BookingEngineModal
-        isOpen={isBookingEngineOpen}
-        onClose={() => setIsBookingEngineOpen(false)}
-        onSelectTransit={handleTransitSelect}
-      />
 
       {/* 3. Seamless Slide-In Checkout Drawer with Nomad Code Step */}
       <CheckoutDrawer
