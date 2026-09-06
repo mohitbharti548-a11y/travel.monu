@@ -13,8 +13,25 @@ import {
   Play, 
   Film,
   Volume2,
-  VolumeX
+  VolumeX,
+  ExternalLink
 } from 'lucide-react';
+
+const InstagramIcon: React.FC<{ className?: string }> = ({ className = 'w-4 h-4' }) => (
+  <svg 
+    viewBox="0 0 24 24" 
+    stroke="currentColor" 
+    strokeWidth="2" 
+    fill="none" 
+    strokeLinecap="round" 
+    strokeLinejoin="round" 
+    className={className}
+  >
+    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+  </svg>
+);
 
 interface PeakFeedReelsProps {
   onOpenUploadModal: () => void;
@@ -108,14 +125,28 @@ export const PeakFeedReels: React.FC<PeakFeedReelsProps> = ({
           </p>
         </div>
 
-        {/* Post Memory Button */}
-        <button
-          onClick={onOpenUploadModal}
-          className="px-5 py-3 rounded-2xl font-extrabold text-xs sm:text-sm bg-pine-700 hover:bg-pine-800 text-white shadow-md flex items-center gap-2 transition-all self-start md:self-auto cursor-pointer"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Post Your Mountain Memory</span>
-        </button>
+        {/* Instagram Admin Profile & Post Memory Buttons */}
+        <div className="flex flex-wrap items-center gap-2.5 self-start md:self-auto">
+          <a
+            href="https://www.instagram.com/travel_monu?stkn=MWU1YXc0bXZ4ZnBwcg=="
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-3d px-4 py-2.5 rounded-2xl font-extrabold text-xs bg-gradient-to-r from-pink-600 via-rose-500 to-amber-500 text-white shadow-lg flex items-center gap-2 hover:opacity-95 hover:scale-105 transition-all cursor-pointer"
+            title="Follow Admin Monu on Instagram"
+          >
+            <InstagramIcon className="w-4 h-4" />
+            <span>Follow @travel_monu</span>
+            <ExternalLink className="w-3 h-3" />
+          </a>
+
+          <button
+            onClick={onOpenUploadModal}
+            className="px-5 py-3 rounded-2xl font-extrabold text-xs sm:text-sm bg-pine-700 hover:bg-pine-800 text-white shadow-md flex items-center gap-2 transition-all self-start md:self-auto cursor-pointer"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Post Your Mountain Memory</span>
+          </button>
+        </div>
       </div>
 
       {/* Location Filter Pills ("Show Manali Reels", "Show Spiti Reels", etc.) */}
@@ -268,7 +299,19 @@ export const PeakFeedReels: React.FC<PeakFeedReelsProps> = ({
                       <CheckCircle2 className="w-3.5 h-3.5 text-sky-400 fill-current" />
                     )}
                   </div>
-                  <span className="text-[10px] text-slate-300">{activeReel.authorHandle} • {activeReel.datePosted}</span>
+                  <div className="flex items-center gap-1.5 text-[10px] text-slate-300">
+                    <a 
+                      href="https://www.instagram.com/travel_monu?stkn=MWU1YXc0bXZ4ZnBwcg==" 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      onClick={(e) => e.stopPropagation()}
+                      className="text-amber-300 hover:text-amber-200 font-bold hover:underline flex items-center gap-0.5"
+                    >
+                      <span>{activeReel.authorHandle}</span>
+                      <ExternalLink className="w-2.5 h-2.5" />
+                    </a>
+                    <span>• {activeReel.datePosted}</span>
+                  </div>
                 </div>
               </div>
 
@@ -369,6 +412,28 @@ export const PeakFeedReels: React.FC<PeakFeedReelsProps> = ({
                 </div>
               );
             })}
+          </div>
+
+          {/* Official Instagram Feed Callout */}
+          <div className="p-4 rounded-3xl bg-gradient-to-r from-slate-900 to-slate-950 border border-slate-800 flex flex-wrap items-center justify-between gap-3 text-xs">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-2xl bg-gradient-to-br from-pink-600 to-amber-500 text-white shadow-md">
+                <InstagramIcon className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="font-extrabold text-white text-sm">Official Creator Feed • @travel_monu</h4>
+                <p className="text-slate-400 text-xs">Watch daily high-altitude trail updates, road statuses & snow conditions.</p>
+              </div>
+            </div>
+            <a
+              href="https://www.instagram.com/travel_monu?stkn=MWU1YXc0bXZ4ZnBwcg=="
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 font-extrabold text-xs flex items-center gap-1.5 border border-slate-700 transition-colors"
+            >
+              <span>Visit Instagram</span>
+              <ExternalLink className="w-3.5 h-3.5" />
+            </a>
           </div>
 
           {/* Social Proof Stats */}

@@ -217,7 +217,7 @@ export const AdminPanelPage: React.FC<AdminPanelPageProps> = ({
   const [newReelCaption, setNewReelCaption] = useState<string>('');
   const [newReelLocation, setNewReelLocation] = useState<string>('Spiti Valley');
   const [newReelAuthor, setNewReelAuthor] = useState<string>('Monu Thakur');
-  const [newReelHandle, setNewReelHandle] = useState<string>('@himachal.nomad');
+  const [newReelHandle, setNewReelHandle] = useState<string>('@travel_monu');
 
   // Tour Package extra state (overview, highlights, itinerary)
   const [pkgOverview, setPkgOverview] = useState<string>('');

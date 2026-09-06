@@ -3,6 +3,22 @@ import { Compass, MessageCircle, Heart, ShieldCheck, FileText, Radio } from 'luc
 import { DESTINATIONS } from '../data/mockData';
 import { DestinationId } from '../types';
 
+const InstagramIcon: React.FC<{ className?: string }> = ({ className = 'w-4 h-4' }) => (
+  <svg 
+    viewBox="0 0 24 24" 
+    stroke="currentColor" 
+    strokeWidth="2" 
+    fill="none" 
+    strokeLinecap="round" 
+    strokeLinejoin="round" 
+    className={className}
+  >
+    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+  </svg>
+);
+
 interface FooterProps {
   onSelectDestination: (id: DestinationId) => void;
   onOpenWeatherSecurity: () => void;
@@ -56,7 +72,17 @@ export const Footer: React.FC<FooterProps> = ({
               A localized boutique travel project by creator Monu, crafted to share authentic Himalayan soul, secret valley trails, and zero-commission stays with conscious nomads.
             </p>
 
-            <div className="pt-2">
+            <div className="pt-2 flex flex-wrap gap-2">
+              <a
+                href="https://www.instagram.com/travel_monu?stkn=MWU1YXc0bXZ4ZnBwcg=="
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-pink-600 via-rose-500 to-amber-500 hover:opacity-90 text-white shadow transition-all"
+              >
+                <InstagramIcon className="w-4 h-4" />
+                <span>@travel_monu</span>
+              </a>
+
               <a
                 href="https://wa.me/919653240540?text=Hi%20Monu!%20I%20have%20a%20question%20about%20Himachal."
                 target="_blank"
