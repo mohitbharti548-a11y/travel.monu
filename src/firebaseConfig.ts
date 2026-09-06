@@ -10,7 +10,8 @@ export const firebaseConfig = {
   storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "travel-monu.firebasestorage.app",
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "731219330063",
   appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:731219330063:web:fcff5678086c4363060f7a",
-  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || "G-D3KGFHFGGG"
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || "G-D3KGFHFGGG",
+  vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY || "BBU26HGALDvv33Cy6eFk3EBA4FGDZJ142ij48dSuGh2VmV8wlXCJZFLKxVIOseiU5nys7GCnXdc0996C0yRaVQ"
 };
 
 export const isFirebaseConfigured = (): boolean => {
