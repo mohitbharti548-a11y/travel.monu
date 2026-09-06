@@ -7,15 +7,14 @@ interface ParallaxBannerProps {
   onExplorePackages: () => void;
 }
 
-// Multi-destination 3D cinematic video and visual reels across Himachal
+// Multi-destination 3D cinematic visual reels across Himachal with custom curated photography
 const CINEMATIC_EXPERIENCES = [
   {
     id: 'spiti-kaza',
     title: 'Spiti Valley & 1000-Yr Key Gompa',
     region: 'Kaza & Spiti (3,800m)',
     circuit: 'Spiti • Kaza',
-    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-aerial-view-of-a-himalayan-valley-41568-large.mp4',
-    poster: 'https://images.unsplash.com/photo-1596701062351-8c2c14d1fdd0?auto=format&fit=crop&w=2000&q=85',
+    imageUrl: 'https://cdn1.matadornetwork.com/blogs/1/2021/03/Dhankar-Gompa-monastery-1200x853.jpg',
     description: 'At 4,166m, time stands still. Watch morning clouds dance over Key Monastery, cross Asia highest suspension bridge at Chicham, and touch 50-million-year-old marine fossils in Langza.',
     accentColor: 'from-amber-400 via-amber-200 to-emerald-200'
   },
@@ -24,8 +23,7 @@ const CINEMATIC_EXPERIENCES = [
     title: 'Dharamshala, McLeodGanj & Triund Ridge',
     region: 'Kangra & Dhauladhar (2,828m)',
     circuit: 'Dharamshala • Kangra',
-    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-fog-over-the-mountain-forest-41565-large.mp4',
-    poster: 'https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=2000&q=85',
+    imageUrl: 'https://anthilladventures.com/wp-content/uploads/2018/07/2.png',
     description: 'Misty pine ridges, Tibetan chanting bowls, and the sheer granite walls of the Dhauladhar. Trek through rhododendron forests to camp under the Milky Way on Triund top.',
     accentColor: 'from-sky-300 via-teal-200 to-emerald-300'
   },
@@ -34,8 +32,7 @@ const CINEMATIC_EXPERIENCES = [
     title: 'Manali, Solang & Rohtang Heights',
     region: 'Kullu & Pir Panjal (3,978m)',
     circuit: 'Manali • Solang',
-    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-flying-over-snow-capped-mountains-41566-large.mp4',
-    poster: 'https://images.unsplash.com/photo-1581793745862-99fde7fa73d2?auto=format&fit=crop&w=2000&q=85',
+    imageUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSrYGRuLVn-ZIXoxJPIRMGHQsR-HyrseGmcWSXcwFZQ9Q&s=10',
     description: 'Ancient deodar forests in Old Manali, engineering wonders through the Atal Tunnel, and majestic snow walls at Rohtang Pass connecting green valleys with cold deserts.',
     accentColor: 'from-emerald-300 via-emerald-100 to-amber-200'
   },
@@ -44,8 +41,7 @@ const CINEMATIC_EXPERIENCES = [
     title: 'Chamba, Khajjiar & Saach Pass',
     region: 'Chamba & Ravi Canyon (4,414m)',
     circuit: 'Chamba • Khajjiar',
-    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-pine-trees-covered-with-snow-in-a-forest-42512-large.mp4',
-    poster: 'https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?auto=format&fit=crop&w=2000&q=85',
+    imageUrl: 'https://s7ap1.scene7.com/is/image/incredibleindia/manimahesh-lake-chamba-himachal-pradesh-1-attr-hero?qlt=82&ts=1726730465417',
     description: 'The Mini Switzerland of India, 10th-century royal shikhara temples, emerald waters of Chamera Lake, and the extreme high-altitude cliff roads of Saach Pass.',
     accentColor: 'from-amber-300 via-rose-200 to-amber-100'
   }
@@ -72,22 +68,17 @@ export const ParallaxBanner: React.FC<ParallaxBannerProps> = ({ onExplorePackage
         ref={containerRef} 
         className="perspective-container relative min-h-[620px] sm:min-h-[720px] w-full overflow-hidden my-16 flex flex-col items-center justify-between p-6 sm:p-10 rounded-3xl max-w-7xl mx-auto shadow-2xl border border-slate-700/80"
       >
-        {/* Zooming Background Video with 3D Depth */}
+        {/* Zooming Background Image with 3D Depth */}
         <motion.div 
           style={{ scale, rotateX }}
-          className="absolute inset-0 w-full h-full z-0 origin-center"
+          className="absolute inset-0 w-full h-full z-0 origin-center overflow-hidden"
         >
-          <video
+          <img
             key={activeExp.id}
-            autoPlay
-            loop
-            muted
-            playsInline
-            poster={activeExp.poster}
-            className="w-full h-full object-cover object-center filter brightness-[0.7] animate-fadeIn transition-all duration-1000"
-          >
-            <source src={activeExp.videoUrl} type="video/mp4" />
-          </video>
+            src={activeExp.imageUrl}
+            alt={activeExp.title}
+            className="w-full h-full object-cover object-center filter brightness-[0.75] animate-fadeIn transition-all duration-700"
+          />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/45 to-slate-950/70"></div>
           <div className="absolute inset-0 bg-topo-pattern opacity-30"></div>
         </motion.div>
