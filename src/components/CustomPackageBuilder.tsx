@@ -19,7 +19,9 @@ import {
   Sliders,
   Compass,
   TrendingUp,
-  Tag
+  Tag,
+  Minus,
+  Users
 } from 'lucide-react';
 
 interface CustomPackageBuilderProps {
@@ -468,16 +470,88 @@ export const CustomPackageBuilder: React.FC<CustomPackageBuilderProps> = ({
                 </div>
 
                 {/* Travelers & Departure Date Inputs */}
-                <div className="space-y-3.5 text-xs">
-                  <div>
-                    <label className="block text-slate-700 dark:text-slate-300 font-bold mb-1">Number of Travelers</label>
-                    <div className="flex items-center gap-2">
-                      {[1, 2, 3, 4, 6].map((num) => (
+                <div className="space-y-4 text-xs">
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <label className="text-slate-700 dark:text-slate-300 font-bold flex items-center gap-1.5">
+                        <Users className="w-3.5 h-3.5 text-pine-700 dark:text-pine-400" />
+                        <span>Number of Travelers</span>
+                      </label>
+                      <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-pine-100 dark:bg-pine-950 text-pine-800 dark:text-pine-300 border border-pine-200 dark:border-pine-800">
+                        {travelersCount === 1 ? 'Solo Nomad' : travelersCount === 2 ? 'Duo Couple / Friends' : travelersCount <= 5 ? `${travelersCount} Small Group` : `${travelersCount} Nomads Tribe`}
+                      </span>
+                    </div>
+
+                    {/* Manual Stepper & Input Count Box */}
+                    <div className="flex items-center gap-2 bg-slate-50 dark:bg-slatehimachal-800 p-1.5 rounded-2xl border border-slate-200 dark:border-slate-700">
+                      <button
+                        type="button"
+                        onClick={() => setTravelersCount(Math.max(1, travelersCount - 1))}
+                        disabled={travelersCount <= 1}
+                        className="w-9 h-9 rounded-xl flex items-center justify-center font-bold bg-white dark:bg-slatehimachal-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slatehimachal-700 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer shadow-sm text-base"
+                        title="Decrease Travelers"
+                      >
+                        <Minus className="w-4 h-4" />
+                      </button>
+
+                      <div className="flex-1 flex items-center justify-center gap-1.5 px-2">
+                        <input
+                          type="number"
+                          min="1"
+                          max="30"
+                          value={travelersCount}
+                          onChange={(e) => {
+                            const val = parseInt(e.target.value, 10);
+                            if (!isNaN(val) && val >= 1) {
+                              setTravelersCount(Math.min(30, val));
+                            } else if (e.target.value === '') {
+                              setTravelersCount(1);
+                            }
+                          }}
+                          className="w-14 text-center font-extrabold text-base text-slate-900 dark:text-white bg-transparent focus:outline-none focus:ring-1 focus:ring-pine-500 rounded-lg py-1 border border-slate-300/60 dark:border-slate-600 font-mono"
+                        />
+                        <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">Nomads</span>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => setTravelersCount(Math.min(30, travelersCount + 1))}
+                        disabled={travelersCount >= 30}
+                        className="w-9 h-9 rounded-xl flex items-center justify-center font-bold bg-pine-700 hover:bg-pine-800 text-white disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer shadow-sm text-base"
+                        title="Increase Travelers"
+                      >
+                        <Plus className="w-4 h-4" />
+                      </button>
+                    </div>
+
+                    {/* Interactive Slider Bar */}
+                    <div className="px-1 pt-1">
+                      <input
+                        type="range"
+                        min="1"
+                        max="20"
+                        step="1"
+                        value={travelersCount}
+                        onChange={(e) => setTravelersCount(parseInt(e.target.value, 10))}
+                        className="w-full accent-pine-600 dark:accent-pine-400 cursor-pointer h-1.5 bg-slate-200 dark:bg-slatehimachal-700 rounded-lg appearance-none"
+                      />
+                      <div className="flex justify-between text-[9px] text-slate-400 font-mono mt-0.5">
+                        <span>1 Nomad</span>
+                        <span>5</span>
+                        <span>10</span>
+                        <span>15</span>
+                        <span>20+</span>
+                      </div>
+                    </div>
+
+                    {/* Quick-Pick Preset Chips */}
+                    <div className="flex items-center gap-1.5 pt-1">
+                      {[1, 2, 4, 6, 8, 12].map((num) => (
                         <button
                           key={num}
                           type="button"
                           onClick={() => setTravelersCount(num)}
-                          className={`flex-1 py-1.5 rounded-xl font-bold transition-all cursor-pointer ${
+                          className={`flex-1 py-1 rounded-lg font-bold text-[11px] transition-all cursor-pointer ${
                             travelersCount === num
                               ? 'bg-pine-700 text-white shadow-sm'
                               : 'bg-slate-100 dark:bg-slatehimachal-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slatehimachal-700'
