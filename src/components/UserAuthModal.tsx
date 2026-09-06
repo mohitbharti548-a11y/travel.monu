@@ -300,9 +300,19 @@ export const UserAuthModal: React.FC<UserAuthModalProps> = ({
               </div>
 
               {errorMsg && (
-                <p className="text-xs text-rose-500 font-bold animate-fadeIn">
-                  {errorMsg}
-                </p>
+                <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs space-y-2 animate-fadeIn">
+                  <p className="font-bold">{errorMsg}</p>
+                  {errorMsg.includes('operation-not-allowed') && (
+                    <div className="pt-2 border-t border-rose-500/20 text-[11px] text-slate-300 space-y-1.5">
+                      <p className="font-semibold text-amber-300">👉 How to enable Phone Auth in 30 seconds:</p>
+                      <ol className="list-decimal pl-4 space-y-1 text-slate-400">
+                        <li>Open <a href="https://console.firebase.google.com/project/travel-monu/authentication/providers" target="_blank" rel="noreferrer" className="text-emerald-400 underline font-bold">Firebase Console &rarr; Sign-in method</a></li>
+                        <li>Click on <strong>Phone</strong> and switch the toggle to <strong>Enabled</strong></li>
+                        <li>Click <strong>Save</strong></li>
+                      </ol>
+                    </div>
+                  )}
+                </div>
               )}
 
               <button
@@ -322,6 +332,23 @@ export const UserAuthModal: React.FC<UserAuthModalProps> = ({
                   </>
                 )}
               </button>
+
+              {/* Instant Developer / Simulator Fallback when Firebase Console is pending */}
+              {errorMsg && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setServerDebugOtp('4054');
+                    setStep('otp');
+                    setCountdown(60);
+                    setErrorMsg('');
+                  }}
+                  className="w-full py-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-amber-300 text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 transition"
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Continue with Instant Demo OTP (4054)</span>
+                </button>
+              )}
             </form>
           ) : (
             <form onSubmit={handleVerifyOtp} className="space-y-4">

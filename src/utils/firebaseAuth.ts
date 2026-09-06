@@ -91,12 +91,22 @@ export const sendFirebasePhoneOtp = async (
       };
     } catch (err: any) {
       console.error('Firebase signInWithPhoneNumber error:', err);
-      // If Firebase Auth throws quota or setup error, provide actionable detail
+      let userFriendlyError = err.message || 'Firebase Phone Auth dispatch failed';
+      if (err.code === 'auth/operation-not-allowed') {
+        userFriendlyError = 'Phone sign-in is not enabled in your Firebase Console. Please go to Firebase Console -> Authentication -> Sign-in method and enable the "Phone" provider.';
+      } else if (err.code === 'auth/unauthorized-domain') {
+        userFriendlyError = 'This domain is not authorized in Firebase. Please add your domain (localhost / Vercel URL) in Firebase Console -> Authentication -> Settings -> Authorized domains.';
+      } else if (err.code === 'auth/invalid-phone-number') {
+        userFriendlyError = 'Invalid phone number format. Please provide a valid 10-digit Indian mobile number.';
+      } else if (err.code === 'auth/quota-exceeded') {
+        userFriendlyError = 'SMS daily quota exceeded for Firebase project. Please check Firebase billing / quota.';
+      }
+
       return {
         success: false,
-        message: err.message || 'Firebase Phone Auth dispatch failed',
+        message: userFriendlyError,
         isFirebaseLive: true,
-        error: err.code || err.message
+        error: err.code ? `${err.code}: ${userFriendlyError}` : userFriendlyError
       };
     }
   }
