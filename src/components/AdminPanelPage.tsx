@@ -324,14 +324,14 @@ export const AdminPanelPage: React.FC<AdminPanelPageProps> = ({
     const form = e.target as any;
     const newCode: PromoCode = {
       id: `promo-${Date.now()}`,
-      code: form.code.value.toUpperCase().trim(),
-      discountPercent: Number(form.discount.value),
-      minTravelers: Number(form.minTravelers.value) || 1,
-      maxUses: Number(form.maxUses.value) || 100,
+      code: (form.code?.value || 'DISCOUNT10').toUpperCase().trim(),
+      discountPercent: Number(form.discount?.value) || 10,
+      minTravelers: Number(form.minTravelers?.value) || 1,
+      maxUses: Number(form.maxUses?.value) || 100,
       usedCount: 0,
-      validUntil: form.validUntil.value || '2026-12-31',
+      validUntil: form.validUntil?.value || '2026-12-31',
       isActive: true,
-      applicableCategory: form.category.value
+      applicableCategory: form.category?.value || 'all'
     };
     const updated = [newCode, ...promoCodes];
     setPromoCodes(updated);
@@ -515,29 +515,68 @@ export const AdminPanelPage: React.FC<AdminPanelPageProps> = ({
   const handleSavePackage = (e: React.FormEvent) => {
     e.preventDefault();
     if (editingPackage) {
-      const updated = {
+      const form = e.target as any;
+      const title = form.pkgTitle?.value || editingPackage.title;
+      const destination = form.pkgDestination?.value || editingPackage.destination;
+      const duration = form.pkgDuration?.value || editingPackage.duration;
+      const price = form.pkgPrice?.value ? Number(form.pkgPrice.value) : editingPackage.basePrice;
+
+      let destId: DestinationId = editingPackage.destinationId || 'spiti';
+      const destLower = destination.toLowerCase();
+      if (destLower.includes('manali')) destId = 'manali';
+      else if (destLower.includes('dharamshala') || destLower.includes('mcleod')) destId = 'dharamshala';
+      else if (destLower.includes('shimla')) destId = 'shimla';
+      else if (destLower.includes('kasol') || destLower.includes('kullu') || destLower.includes('jibhi')) destId = 'kullu';
+      else if (destLower.includes('kinnaur')) destId = 'kinnaur';
+      else if (destLower.includes('chamba')) destId = 'chamba';
+
+      const updated: TourPackage = {
         ...editingPackage,
+        title,
+        destination,
+        destinationId: destId,
+        duration,
+        basePrice: price,
         image: pkgImage || editingPackage.image
       };
       onUpdatePackage(updated);
       setEditingPackage(null);
+      setPkgImage('');
     }
   };
 
   const handleCreatePackageSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const form = e.target as any;
+    const pkgTitle = form.pkgTitle?.value || 'Himachal Expedition';
+    const pkgDest = form.pkgDestination?.value || 'Spiti Valley';
+
+    let destId: DestinationId = 'spiti';
+    const destLower = pkgDest.toLowerCase();
+    if (destLower.includes('manali')) destId = 'manali';
+    else if (destLower.includes('dharamshala') || destLower.includes('mcleod')) destId = 'dharamshala';
+    else if (destLower.includes('shimla')) destId = 'shimla';
+    else if (destLower.includes('kasol') || destLower.includes('kullu') || destLower.includes('jibhi')) destId = 'kullu';
+    else if (destLower.includes('kinnaur')) destId = 'kinnaur';
+    else if (destLower.includes('chamba')) destId = 'chamba';
+
     const newPkg: TourPackage = {
       id: `pkg-${Date.now()}`,
-      title: form.pkgTitle.value,
-      destination: form.pkgDestination.value,
-      destinationId: form.pkgDestinationId.value as DestinationId,
-      duration: form.pkgDuration.value,
-      basePrice: Number(form.pkgPrice.value),
+      title: pkgTitle,
+      destination: pkgDest,
+      destinationId: destId,
+      duration: form.pkgDuration?.value || '5 Days / 4 Nights',
+      basePrice: Number(form.pkgPrice?.value) || 14999,
       image: pkgImage || 'https://images.unsplash.com/photo-1581793745862-99fde7fa73d2?auto=format&fit=crop&w=1200&q=80',
-      badge: form.pkgBadge.value || 'Creator Special',
-      overview: form.pkgOverview.value,
-      highlights: form.pkgHighlights.value.split('\n').filter((h: string) => h.trim().length > 0),
+      badge: form.pkgBadge?.value || 'Creator Special',
+      overview: form.pkgOverview?.value || `Authentic guided expedition across ${pkgDest}. Handcrafted route, homestay stays, and local mountain expertise.`,
+      highlights: form.pkgHighlights?.value
+        ? form.pkgHighlights.value.split('\n').filter((h: string) => h.trim().length > 0)
+        : [
+            'Scenic high-altitude circuits and secret viewpoints',
+            'Handpicked homestay stays with traditional meals',
+            'Verified local mountain guide & 4x4 transit support'
+          ],
       itinerary: []
     };
     onCreatePackage(newPkg);
@@ -548,36 +587,76 @@ export const AdminPanelPage: React.FC<AdminPanelPageProps> = ({
   const handleSaveStay = (e: React.FormEvent) => {
     e.preventDefault();
     if (editingStay) {
+      const form = e.target as any;
+      const stayName = form.stayName?.value || editingStay.name;
+      const stayLocation = form.stayLocation?.value || editingStay.location;
+      const stayType = form.stayType?.value || editingStay.type;
+      const stayPrice = form.stayPrice?.value ? Number(form.stayPrice.value) : editingStay.pricePerNight;
+
+      let destId: DestinationId = editingStay.destinationId || 'spiti';
+      const locLower = stayLocation.toLowerCase();
+      if (locLower.includes('manali')) destId = 'manali';
+      else if (locLower.includes('dharamshala') || locLower.includes('mcleod')) destId = 'dharamshala';
+      else if (locLower.includes('shimla')) destId = 'shimla';
+      else if (locLower.includes('kasol') || locLower.includes('kullu') || locLower.includes('jibhi')) destId = 'kullu';
+      else if (locLower.includes('kinnaur')) destId = 'kinnaur';
+      else if (locLower.includes('chamba')) destId = 'chamba';
+
+      const chosenImage = stayImage || editingStay.imageUrl || editingStay.image || '';
+
       const updated: Stay = {
         ...editingStay,
-        imageUrl: stayImage || editingStay.imageUrl || editingStay.image || '',
-        image: stayImage || editingStay.image || editingStay.imageUrl || '',
-        galleryImages: stayGalleryImages,
-        videoUrl: stayVideoUrl,
+        name: stayName,
+        location: stayLocation,
+        destinationId: destId,
+        type: stayType,
+        pricePerNight: stayPrice,
+        imageUrl: chosenImage,
+        image: chosenImage,
+        galleryImages: stayGalleryImages.length > 0 ? stayGalleryImages : (editingStay.galleryImages || (chosenImage ? [chosenImage] : [])),
+        videoUrl: stayVideoUrl !== undefined ? stayVideoUrl : editingStay.videoUrl,
         amenities: stayAmenities.length > 0 ? stayAmenities : editingStay.amenities
       };
       onUpdateStay(updated);
       setEditingStay(null);
+      setStayImage('');
+      setStayGalleryImages([]);
+      setStayVideoUrl('');
+      setStayAmenities([]);
     }
   };
 
   const handleCreateStaySubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const form = e.target as any;
+    const stayName = form.stayName?.value || 'Handpicked Stay';
+    const stayLoc = form.stayLocation?.value || 'Himachal';
+
+    let destId: DestinationId = 'spiti';
+    const locLower = stayLoc.toLowerCase();
+    if (locLower.includes('manali')) destId = 'manali';
+    else if (locLower.includes('dharamshala') || locLower.includes('mcleod')) destId = 'dharamshala';
+    else if (locLower.includes('shimla')) destId = 'shimla';
+    else if (locLower.includes('kasol') || locLower.includes('kullu') || locLower.includes('jibhi')) destId = 'kullu';
+    else if (locLower.includes('kinnaur')) destId = 'kinnaur';
+    else if (locLower.includes('chamba')) destId = 'chamba';
+
+    const chosenImage = stayImage || (stayGalleryImages.length > 0 ? stayGalleryImages[0] : 'https://images.unsplash.com/photo-1587061949409-02df41d5e562?auto=format&fit=crop&w=1000&q=80');
+
     const newStay: Stay = {
       id: `stay-${Date.now()}`,
-      name: form.stayName.value,
-      location: form.stayLocation.value,
-      destinationId: (form.stayDestinationId?.value || 'spiti') as DestinationId,
-      type: form.stayType.value,
-      pricePerNight: Number(form.stayPrice.value),
+      name: stayName,
+      location: stayLoc,
+      destinationId: destId,
+      type: form.stayType?.value || 'Boutique Homestay',
+      pricePerNight: Number(form.stayPrice?.value) || 3500,
       rating: 4.9,
       reviewsCount: 1,
-      imageUrl: stayImage || 'https://images.unsplash.com/photo-1587061949409-02df41d5e562?auto=format&fit=crop&w=1000&q=80',
-      image: stayImage || 'https://images.unsplash.com/photo-1587061949409-02df41d5e562?auto=format&fit=crop&w=1000&q=80',
-      galleryImages: stayGalleryImages,
-      videoUrl: stayVideoUrl,
-      amenities: stayAmenities.length > 0 ? stayAmenities : ['Mountain View', 'Room Heater / Bukhari', 'High-Speed Workation WiFi'],
+      imageUrl: chosenImage,
+      image: chosenImage,
+      galleryImages: stayGalleryImages.length > 0 ? stayGalleryImages : [chosenImage],
+      videoUrl: stayVideoUrl || '',
+      amenities: stayAmenities.length > 0 ? stayAmenities : ['Panoramic Mountain View', 'Room Heater / Bukhari', 'High-Speed Workation WiFi'],
       creatorNote: 'Handpicked authentic stay with panoramic mountain views and local hospitality.',
       isHandpicked: true
     };
@@ -592,14 +671,22 @@ export const AdminPanelPage: React.FC<AdminPanelPageProps> = ({
   const handleSaveGuide = (e: React.FormEvent) => {
     e.preventDefault();
     if (editingGuide) {
-      const updated = {
+      const form = e.target as any;
+      const updated: LocalGuide = {
         ...editingGuide,
+        name: form.guideName?.value || editingGuide.name,
+        nickname: form.guideNickname?.value || editingGuide.nickname,
+        destination: form.guideDestination?.value || editingGuide.destination,
+        specialty: form.guideSpecialty?.value || editingGuide.specialty,
         avatar: guideAvatar || editingGuide.avatar,
         videoIntroUrl: guideVideo || editingGuide.videoIntroUrl,
         languages: guideLanguages.length > 0 ? guideLanguages : editingGuide.languages
       };
       onUpdateGuide(updated);
       setEditingGuide(null);
+      setGuideAvatar('');
+      setGuideVideo('');
+      setGuideLanguages([]);
     }
   };
 
@@ -608,16 +695,16 @@ export const AdminPanelPage: React.FC<AdminPanelPageProps> = ({
     const form = e.target as any;
     const newGuide: LocalGuide = {
       id: `guide-${Date.now()}`,
-      name: form.guideName.value,
-      nickname: form.guideNickname.value,
-      destination: form.guideDestination.value,
-      experienceYears: Number(form.guideExp.value) || 5,
+      name: form.guideName?.value || 'Local Mountain Guide',
+      nickname: form.guideNickname?.value || 'Chacha',
+      destination: form.guideDestination?.value || 'Manali & Spiti',
+      experienceYears: Number(form.guideExp?.value) || 5,
       languages: guideLanguages.length > 0 ? guideLanguages : ['Hindi', 'Pahadi', 'English'],
-      specialty: form.guideSpecialty.value,
+      specialty: form.guideSpecialty?.value || 'High Pass 4x4 & Monastery Lore',
       avatar: guideAvatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
       videoIntroUrl: guideVideo || '',
-      bio: form.guideBio.value,
-      badge: form.guideBadge.value || 'Certified Mountain Guide'
+      bio: form.guideBio?.value || 'Lifelong Himachal local with deep knowledge of high altitude passes and trails.',
+      badge: form.guideBadge?.value || 'Certified Mountain Guide'
     };
     onCreateGuide(newGuide);
     setIsCreatingGuide(false);
