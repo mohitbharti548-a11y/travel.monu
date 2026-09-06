@@ -22,6 +22,7 @@ import { MediaUploader } from './MediaUploader';
 import { HomestayGalleryUploader } from './HomestayGalleryUploader';
 import { AdminInvoiceModal } from './AdminInvoiceModal';
 import { AdminAuthLock } from './AdminAuthLock';
+import { validateAdminSession } from '../utils/securityGuard';
 import { 
   Settings, 
   DollarSign, 
@@ -167,11 +168,9 @@ export const AdminPanelPage: React.FC<AdminPanelPageProps> = ({
     try {
       const saved = sessionStorage.getItem('hn_admin_session_v4');
       if (!saved) return null;
-      const parsed: AdminSession = JSON.parse(saved);
-      const loginTime = new Date(parsed.loginTime).getTime();
-      const now = Date.now();
-      if (now - loginTime < 8 * 60 * 60 * 1000 && parsed.token?.startsWith('HN-MASTER-')) {
-        return parsed;
+      const parsed = JSON.parse(saved);
+      if (validateAdminSession(parsed)) {
+        return parsed as AdminSession;
       }
       sessionStorage.removeItem('hn_admin_session_v4');
       return null;

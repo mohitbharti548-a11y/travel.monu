@@ -8,6 +8,11 @@ import {
   ShieldAlert
 } from 'lucide-react';
 import { AdminSession } from '../types';
+import { 
+  verifyAdminPasskey, 
+  createSignedAdminSession, 
+  validateAdminSession 
+} from '../utils/securityGuard';
 
 interface AdminAuthLockProps {
   onAuthenticated: (session: AdminSession) => void;
@@ -17,9 +22,6 @@ interface AdminAuthLockProps {
 const AUTH_STORAGE_KEY = 'hn_admin_session_v4';
 const LOCKOUT_STORAGE_KEY = 'hn_admin_lockout_v4';
 const FAILED_ATTEMPTS_KEY = 'hn_admin_failed_attempts_v4';
-
-// Hardened Master Passkey
-const MASTER_PASSKEY = '963210';
 
 export const AdminAuthLock: React.FC<AdminAuthLockProps> = ({ onAuthenticated, onExit }) => {
   const [passkey, setPasskey] = useState('');
@@ -39,11 +41,8 @@ export const AdminAuthLock: React.FC<AdminAuthLockProps> = ({ onAuthenticated, o
     try {
       const savedSession = sessionStorage.getItem(AUTH_STORAGE_KEY);
       if (savedSession) {
-        const parsed: AdminSession = JSON.parse(savedSession);
-        const loginTime = new Date(parsed.loginTime).getTime();
-        const now = Date.now();
-        // Verify session not older than 8 hours
-        if (now - loginTime < 8 * 60 * 60 * 1000 && parsed.token?.startsWith('HN-MASTER-')) {
+        const parsed = JSON.parse(savedSession);
+        if (validateAdminSession(parsed)) {
           onAuthenticated(parsed);
           return;
         } else {
@@ -91,22 +90,15 @@ export const AdminAuthLock: React.FC<AdminAuthLockProps> = ({ onAuthenticated, o
       return;
     }
 
-    const cleanPasskey = passkey.trim();
-
-    if (cleanPasskey === MASTER_PASSKEY) {
+    if (verifyAdminPasskey(passkey)) {
       // Reset lockout counter on success
       localStorage.removeItem(LOCKOUT_STORAGE_KEY);
       localStorage.removeItem(FAILED_ATTEMPTS_KEY);
       setFailedAttempts(0);
 
-      const session: AdminSession = {
-        role: 'super_admin',
-        adminName: 'Monu (Master Creator)',
-        loginTime: new Date().toISOString(),
-        token: `HN-MASTER-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
-      };
+      const session = createSignedAdminSession('Monu (Master Creator)');
       sessionStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(session));
-      onAuthenticated(session);
+      onAuthenticated(session as AdminSession);
     } else {
       const newAttempts = failedAttempts + 1;
       setFailedAttempts(newAttempts);

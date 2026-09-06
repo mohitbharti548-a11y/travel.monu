@@ -18,6 +18,7 @@ import { REEL_POSTS } from './data/mockData';
 import { storageService } from './utils/storageService';
 import { syncService } from './utils/syncService';
 import { notificationEngine } from './services/notificationEngine';
+import { enforceFrameIsolation } from './utils/securityGuard';
 
 // Components
 import { Header } from './components/Header';
@@ -42,6 +43,11 @@ import { UserAuthModal } from './components/UserAuthModal';
 import { Footer } from './components/Footer';
 
 export function App() {
+  // Enforce frame isolation & anti-clickjacking
+  useEffect(() => {
+    enforceFrameIsolation();
+  }, []);
+
   // Routing State: 'user' | 'admin'
   const [currentRoute, setCurrentRoute] = useState<'user' | 'admin'>(() => {
     if (typeof window !== 'undefined') {

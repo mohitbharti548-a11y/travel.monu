@@ -394,9 +394,11 @@ const sendJSON = (res, statusCode, data, headers = {}) => {
     'Access-Control-Allow-Methods': 'GET, POST, PATCH, PUT, DELETE, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization, If-None-Match',
     'X-Content-Type-Options': 'nosniff',
-    'X-Frame-Options': 'SAMEORIGIN',
+    'X-Frame-Options': 'DENY',
     'X-XSS-Protection': '1; mode=block',
+    'Strict-Transport-Security': 'max-age=63072000; includeSubDomains; preload',
     'Referrer-Policy': 'strict-origin-when-cross-origin',
+    'Permissions-Policy': 'camera=(), microphone=(), geolocation=(self)',
     ...headers
   });
   res.end(typeof data === 'string' ? data : JSON.stringify(data, null, 2));
@@ -462,6 +464,67 @@ const readBodyJSON = (req, maxBytes = MAX_BODY_SIZE) => {
 };
 
 // ==========================================
+// 3.5. ENTERPRISE WAF FIREWALL & RATE LIMITER
+// ==========================================
+const ipRequestCounts = new Map();
+
+// Periodic cleanup of rate limit map every 60s
+setInterval(() => {
+  const now = Date.now();
+  for (const [ip, data] of ipRequestCounts.entries()) {
+    if (now - data.windowStart > 60000) {
+      ipRequestCounts.delete(ip);
+    }
+  }
+}, 60000);
+
+const checkFirewall = (req, res, pathname) => {
+  const ip = req.headers['x-forwarded-for']?.split(',')[0].trim() || req.socket.remoteAddress || '127.0.0.1';
+  const now = Date.now();
+
+  // 1. Path Traversal & Injection Pattern Guard
+  const rawUrl = req.url || '';
+  if (
+    rawUrl.includes('..') || 
+    rawUrl.includes('%2e%2e') || 
+    rawUrl.includes('<script') || 
+    rawUrl.includes('eval(') ||
+    /(\%27)|(\')|(\-\-)|(\%23)|(#)/i.test(pathname) && pathname.includes('/api/auth')
+  ) {
+    console.warn(`🛡️ [WAF BLOCKED] Malicious probe from IP ${ip} targeting ${rawUrl}`);
+    res.writeHead(403, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ error: 'Forbidden: Security WAF Blocked Request' }));
+    return false;
+  }
+
+  // 2. Sliding Window IP Rate Limiter
+  let ipRecord = ipRequestCounts.get(ip);
+  if (!ipRecord || now - ipRecord.windowStart > 60000) {
+    ipRecord = { windowStart: now, count: 0, adminCount: 0 };
+    ipRequestCounts.set(ip, ipRecord);
+  }
+
+  ipRecord.count += 1;
+  const isSensitive = pathname.startsWith('/api/admin') || pathname.includes('/approve') || pathname.includes('/pricing-rules');
+  if (isSensitive) {
+    ipRecord.adminCount += 1;
+  }
+
+  // Max 180 requests/min general, Max 25 requests/min for sensitive admin routes
+  if (ipRecord.count > 180 || ipRecord.adminCount > 25) {
+    console.warn(`🚨 [RATE LIMIT EXCEEDED] IP ${ip} hit threshold (${ipRecord.count} reqs)`);
+    res.writeHead(429, { 
+      'Content-Type': 'application/json',
+      'Retry-After': '60'
+    });
+    res.end(JSON.stringify({ error: 'Too Many Requests. Firewall cooldown active.' }));
+    return false;
+  }
+
+  return true;
+};
+
+// ==========================================
 // 4. MAIN HTTP REQUEST HANDLER
 // ==========================================
 const requestHandler = async (req, res) => {
@@ -474,9 +537,15 @@ const requestHandler = async (req, res) => {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'GET, POST, PATCH, PUT, DELETE, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type, Authorization, If-None-Match',
-      'X-Content-Type-Options': 'nosniff'
+      'X-Content-Type-Options': 'nosniff',
+      'X-Frame-Options': 'DENY'
     });
     return res.end();
+  }
+
+  // Enforce WAF Firewall check
+  if (!checkFirewall(req, res, pathname)) {
+    return;
   }
 
   // --- API ROUTES ---
