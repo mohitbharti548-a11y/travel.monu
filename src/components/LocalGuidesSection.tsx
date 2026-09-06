@@ -1,13 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { LocalGuide } from '../types';
 import { ScrollReveal } from './ScrollReveal';
 import { 
   Compass, 
   Award, 
   Languages, 
-  Play, 
-  MessageCircle, 
-  X 
+  MessageCircle 
 } from 'lucide-react';
 
 interface LocalGuidesSectionProps {
@@ -15,7 +13,6 @@ interface LocalGuidesSectionProps {
 }
 
 export const LocalGuidesSection: React.FC<LocalGuidesSectionProps> = ({ guides }) => {
-  const [selectedGuideVideo, setSelectedGuideVideo] = useState<LocalGuide | null>(null);
 
   return (
     <section id="guides" className="relative py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-slate-200/80 dark:border-slate-800 overflow-hidden">
@@ -67,15 +64,6 @@ export const LocalGuidesSection: React.FC<LocalGuidesSectionProps> = ({ guides }
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent"></div>
-
-                {/* Video Intro Play Button with 3D Pulse */}
-                <button
-                  onClick={() => setSelectedGuideVideo(guide)}
-                  className="absolute inset-0 m-auto w-12 h-12 rounded-full bg-white/90 hover:bg-pine-700 text-pine-900 hover:text-white backdrop-blur-md flex items-center justify-center shadow-xl group-hover:scale-115 transition-all cursor-pointer border border-white/50"
-                  title="Watch Video Intro"
-                >
-                  <Play className="w-5 h-5 fill-current ml-0.5" />
-                </button>
 
                 {/* Destination & Assignment Badge */}
                 <div className="absolute top-4 left-4 flex flex-col gap-1.5">
@@ -146,55 +134,6 @@ export const LocalGuidesSection: React.FC<LocalGuidesSectionProps> = ({ guides }
           </ScrollReveal>
         ))}
       </div>
-
-      {/* Guide Video Intro Modal */}
-      {selectedGuideVideo && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 animate-fadeIn">
-          <div className="relative w-full max-w-2xl bg-slate-950 rounded-3xl overflow-hidden shadow-2xl border border-slate-800 p-6 text-white">
-            <button
-              onClick={() => setSelectedGuideVideo(null)}
-              className="absolute top-4 right-4 p-2 rounded-full bg-slate-800 hover:bg-slate-700 text-white cursor-pointer"
-            >
-              <X className="w-5 h-5" />
-            </button>
-
-            <div className="flex items-center gap-3 mb-4">
-              <img
-                src={selectedGuideVideo.avatar}
-                alt={selectedGuideVideo.name}
-                className="w-12 h-12 rounded-full object-cover border-2 border-amber-400"
-              />
-              <div>
-                <h4 className="text-lg font-extrabold">{selectedGuideVideo.name}</h4>
-                <p className="text-xs text-amber-300 font-medium">{selectedGuideVideo.nickname} • {selectedGuideVideo.destination}</p>
-              </div>
-            </div>
-
-            {/* Video Player */}
-            <div className="aspect-video w-full rounded-2xl overflow-hidden bg-black relative mb-4">
-              <video
-                src="https://assets.mixkit.co/videos/preview/mixkit-aerial-view-of-a-himalayan-valley-41568-large.mp4"
-                autoPlay
-                controls
-                className="w-full h-full object-cover"
-              />
-            </div>
-
-            <p className="text-xs text-slate-300 leading-relaxed mb-4">
-              "{selectedGuideVideo.bio}"
-            </p>
-
-            <div className="flex justify-end">
-              <button
-                onClick={() => setSelectedGuideVideo(null)}
-                className="px-5 py-2 rounded-xl text-xs font-bold bg-amber-400 text-slate-950 cursor-pointer"
-              >
-                Close Video
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </section>
   );
 };
