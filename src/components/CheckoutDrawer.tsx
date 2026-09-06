@@ -26,6 +26,7 @@ import {
   Percent
 } from 'lucide-react';
 import { UserProfile } from '../types';
+import { DynamicUpiQrPayment } from './DynamicUpiQrPayment';
 
 interface CheckoutDrawerProps {
   isOpen: boolean;
@@ -98,6 +99,61 @@ export const CheckoutDrawer: React.FC<CheckoutDrawerProps> = ({
     if (isNomadCodeComplete) {
       setStep('payment');
     }
+  };
+
+  const handleUpiPaymentVerified = (paymentData: {
+    utrNumber: string;
+    upiVpa: string;
+    screenshotUrl?: string;
+    paidAmount: number;
+  }) => {
+    const generatedRef = `HN-${Math.floor(100000 + Math.random() * 900000)}`;
+    const newBooking: BookingItem = {
+      id: `book-${Date.now()}`,
+      bookingRef: generatedRef,
+      itemType: checkoutData.itemType,
+      title: checkoutData.title,
+      destination: checkoutData.destination,
+      travelDate: checkoutData.travelDate,
+      passengers: checkoutData.travelers,
+      totalAmount: checkoutData.totalAmount,
+      paidAmount: paymentData.paidAmount,
+      paymentMethod: paymentPlan === 'split' 
+        ? `Smart UPI Direct (50% Advance - UTR: ${paymentData.utrNumber})` 
+        : `Smart UPI Direct (Full 100% - UTR: ${paymentData.utrNumber})`,
+      paymentDate: new Date().toISOString().split('T')[0],
+      status: 'Confirmed',
+      utrNumber: paymentData.utrNumber,
+      upiVpaUsed: paymentData.upiVpa,
+      paymentScreenshot: paymentData.screenshotUrl,
+      splitPayment: {
+        isSplit: paymentPlan === 'split',
+        advancePaid: paymentData.paidAmount,
+        balanceDue: checkoutData.totalAmount - paymentData.paidAmount
+      },
+      customizationDetails: {
+        upgrades: checkoutData.customizedDays 
+          ? checkoutData.customizedDays.filter(d => d.selectedStay === 'luxury').map(d => `Day ${d.dayNumber}: ${d.stayOption.luxuryUpgrade}`)
+          : [],
+        addOns: checkoutData.customizedDays
+          ? checkoutData.customizedDays.flatMap(d => d.activities.filter(a => !a.included && a.selected).map(a => a.name))
+          : []
+      },
+      contactEmail: travelerEmail,
+      contactPhone: travelerPhone,
+      primaryTraveler: travelerName
+    };
+
+    setCompletedBooking(newBooking);
+    setStep('confirmed');
+    onBookingSuccess(newBooking);
+
+    // Trigger Confetti Celebration
+    confetti({
+      particleCount: 140,
+      spread: 85,
+      origin: { y: 0.6 }
+    });
   };
 
   const handlePayNow = async (e: React.FormEvent) => {
@@ -406,9 +462,9 @@ export const CheckoutDrawer: React.FC<CheckoutDrawerProps> = ({
           </div>
         )}
 
-        {/* STEP 3: Payment Method & Razorpay Checkout */}
+        {/* STEP 3: Dynamic Smart UPI QR & Direct Instant Pay */}
         {step === 'payment' && (
-          <form onSubmit={handlePayNow} className="p-6 space-y-6 flex-1 animate-fadeIn">
+          <div className="p-6 space-y-5 flex-1 animate-fadeIn">
             {/* Payment Plan Selector (Full vs 50% Split) */}
             <div className="space-y-2">
               <label className="text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 block">
@@ -420,15 +476,15 @@ export const CheckoutDrawer: React.FC<CheckoutDrawerProps> = ({
                   onClick={() => setPaymentPlan('full')}
                   className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer relative ${
                     paymentPlan === 'full'
-                      ? 'border-pine-700 bg-pine-50/70 dark:bg-pine-950/50 dark:border-pine-500 shadow-sm ring-2 ring-pine-500/20'
+                      ? 'border-emerald-500 bg-emerald-50/70 dark:bg-emerald-950/50 dark:border-emerald-400 shadow-sm ring-2 ring-emerald-500/20'
                       : 'border-slate-200 dark:border-slate-700 hover:border-slate-300'
                   }`}
                 >
                   <div className="flex items-center justify-between mb-1">
                     <span className="font-extrabold text-xs text-slate-900 dark:text-white">100% Full Payment</span>
-                    {paymentPlan === 'full' && <CheckCircle2 className="w-4 h-4 text-pine-700 dark:text-emerald-400" />}
+                    {paymentPlan === 'full' && <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />}
                   </div>
-                  <div className="text-base font-black text-pine-800 dark:text-pine-300">
+                  <div className="text-base font-black text-emerald-800 dark:text-emerald-300">
                     ₹{checkoutData.totalAmount.toLocaleString('en-IN')}
                   </div>
                   <span className="text-[10px] text-slate-500 dark:text-slate-400 block mt-0.5">
@@ -441,7 +497,7 @@ export const CheckoutDrawer: React.FC<CheckoutDrawerProps> = ({
                   onClick={() => setPaymentPlan('split')}
                   className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer relative ${
                     paymentPlan === 'split'
-                      ? 'border-pine-700 bg-pine-50/70 dark:bg-pine-950/50 dark:border-pine-500 shadow-sm ring-2 ring-pine-500/20'
+                      ? 'border-emerald-500 bg-emerald-50/70 dark:bg-emerald-950/50 dark:border-emerald-400 shadow-sm ring-2 ring-emerald-500/20'
                       : 'border-slate-200 dark:border-slate-700 hover:border-slate-300'
                   }`}
                 >
@@ -450,9 +506,9 @@ export const CheckoutDrawer: React.FC<CheckoutDrawerProps> = ({
                       <Percent className="w-3.5 h-3.5 text-amber-500" />
                       50% Advance Deposit
                     </span>
-                    {paymentPlan === 'split' && <CheckCircle2 className="w-4 h-4 text-pine-700 dark:text-emerald-400" />}
+                    {paymentPlan === 'split' && <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />}
                   </div>
-                  <div className="text-base font-black text-emerald-700 dark:text-emerald-400">
+                  <div className="text-base font-black text-amber-600 dark:text-amber-400">
                     ₹{effectivePayableNow.toLocaleString('en-IN')}
                   </div>
                   <span className="text-[10px] text-amber-600 dark:text-amber-400 font-bold block mt-0.5">
@@ -462,150 +518,19 @@ export const CheckoutDrawer: React.FC<CheckoutDrawerProps> = ({
               </div>
             </div>
 
-            {/* Amount Summary */}
-            <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slatehimachal-800/80 border border-slate-200 dark:border-slate-700 flex items-center justify-between">
-              <div>
-                <span className="text-[10px] uppercase font-bold text-slate-400 block">
-                  {paymentPlan === 'split' ? 'Advance Deposit Due Now' : 'Total Payable'}
-                </span>
-                <span className="text-2xl font-extrabold text-pine-800 dark:text-pine-400">
-                  ₹{effectivePayableNow.toLocaleString('en-IN')}
-                </span>
-                {paymentPlan === 'split' && (
-                  <span className="text-[11px] text-slate-500 dark:text-slate-400 block font-medium">
-                    (Remaining ₹{balanceDueOnArrival.toLocaleString('en-IN')} payable directly upon check-in)
-                  </span>
-                )}
-              </div>
-              <span className="px-2.5 py-1 rounded bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 text-xs font-bold flex items-center gap-1">
-                <CheckCircle2 className="w-3.5 h-3.5" /> Nomad Code Signed
-              </span>
-            </div>
-
-            {/* Seamless Payment Methods */}
-            <div className="space-y-3">
-              <h5 className="text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                Select Seamless Payment Method
-              </h5>
-
-              <div className="grid grid-cols-3 gap-2">
-                <button
-                  type="button"
-                  onClick={() => setPaymentMethod('upi')}
-                  className={`p-3 rounded-2xl border text-center transition-all flex flex-col items-center gap-1.5 cursor-pointer ${
-                    paymentMethod === 'upi'
-                      ? 'border-pine-700 bg-pine-50 dark:bg-pine-950/60 dark:border-pine-500 shadow-sm'
-                      : 'border-slate-200 dark:border-slate-700 hover:border-slate-300'
-                  }`}
-                >
-                  <Smartphone className="w-5 h-5 text-pine-700 dark:text-amber-400" />
-                  <span className="text-xs font-bold text-slate-900 dark:text-white">UPI / GPay</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setPaymentMethod('card')}
-                  className={`p-3 rounded-2xl border text-center transition-all flex flex-col items-center gap-1.5 cursor-pointer ${
-                    paymentMethod === 'card'
-                      ? 'border-pine-700 bg-pine-50 dark:bg-pine-950/60 dark:border-pine-500 shadow-sm'
-                      : 'border-slate-200 dark:border-slate-700 hover:border-slate-300'
-                  }`}
-                >
-                  <CreditCard className="w-5 h-5 text-pine-700 dark:text-amber-400" />
-                  <span className="text-xs font-bold text-slate-900 dark:text-white">Cards</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setPaymentMethod('netbanking')}
-                  className={`p-3 rounded-2xl border text-center transition-all flex flex-col items-center gap-1.5 cursor-pointer ${
-                    paymentMethod === 'netbanking'
-                      ? 'border-pine-700 bg-pine-50 dark:bg-pine-950/60 dark:border-pine-500 shadow-sm'
-                      : 'border-slate-200 dark:border-slate-700 hover:border-slate-300'
-                  }`}
-                >
-                  <Building className="w-5 h-5 text-pine-700 dark:text-amber-400" />
-                  <span className="text-xs font-bold text-slate-900 dark:text-white">NetBanking</span>
-                </button>
-              </div>
-
-              {/* UPI Custom Form */}
-              {paymentMethod === 'upi' && (
-                <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slatehimachal-800/80 border border-slate-200 dark:border-slate-700 text-xs space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-slate-900 dark:text-white">Instant UPI QR / Virtual ID</span>
-                    <span className="text-[10px] text-emerald-700 dark:text-emerald-400 font-bold">Auto-Verify</span>
-                  </div>
-                  <div>
-                    <label className="block text-slate-500 dark:text-slate-400 font-medium mb-1">Enter UPI ID</label>
-                    <input
-                      type="text"
-                      value={upiId}
-                      onChange={(e) => setUpiId(e.target.value)}
-                      placeholder="e.g. mobile@upi or username@okhdfcbank"
-                      className="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slatehimachal-900 font-bold text-slate-900 dark:text-white focus:outline-none"
-                    />
-                  </div>
-                  <div className="flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400">
-                    <QrCode className="w-4 h-4 text-pine-700 dark:text-amber-400" />
-                    <span>Google Pay, PhonePe, Paytm, BHIM, Cred UPI</span>
-                  </div>
-                </div>
-              )}
-
-              {/* Card Form */}
-              {paymentMethod === 'card' && (
-                <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slatehimachal-800/80 border border-slate-200 dark:border-slate-700 text-xs space-y-3">
-                  <div>
-                    <label className="block text-slate-500 dark:text-slate-400 font-medium mb-1">Card Number</label>
-                    <input
-                      type="text"
-                      defaultValue="4532 •••• •••• 8892"
-                      className="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slatehimachal-900 font-bold text-slate-900 dark:text-white focus:outline-none"
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    <input
-                      type="text"
-                      defaultValue="12/28"
-                      placeholder="MM/YY"
-                      className="p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slatehimachal-900 font-bold text-slate-900 dark:text-white focus:outline-none"
-                    />
-                    <input
-                      type="password"
-                      defaultValue="•••"
-                      placeholder="CVV"
-                      className="p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slatehimachal-900 font-bold text-slate-900 dark:text-white focus:outline-none"
-                    />
-                  </div>
-                </div>
-              )}
-
-              {/* NetBanking Form */}
-              {paymentMethod === 'netbanking' && (
-                <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slatehimachal-800/80 border border-slate-200 dark:border-slate-700 text-xs space-y-2">
-                  <label className="block text-slate-500 dark:text-slate-400 font-medium mb-1">Select Bank</label>
-                  <select className="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slatehimachal-900 font-bold text-slate-900 dark:text-white">
-                    <option>HDFC Bank</option>
-                    <option>State Bank of India (SBI)</option>
-                    <option>ICICI Bank</option>
-                    <option>Axis Bank</option>
-                  </select>
-                </div>
-              )}
-            </div>
-
-            {/* Pay Button */}
-            <div className="pt-2">
-              <button
-                type="submit"
-                className="btn-3d w-full py-4 rounded-2xl font-extrabold text-sm bg-emerald-600 hover:bg-emerald-700 text-white shadow-xl flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <Lock className="w-4 h-4" />
-                <span>Pay ₹{effectivePayableNow.toLocaleString('en-IN')} Securely</span>
-              </button>
-            </div>
-          </form>
+            {/* Dynamic Smart UPI QR Gateway Component */}
+            <DynamicUpiQrPayment
+              amount={effectivePayableNow}
+              bookingRef={`HN-${Math.floor(100000 + Math.random() * 900000)}`}
+              travelerName={travelerName}
+              travelerPhone={travelerPhone}
+              destination={checkoutData.destination}
+              defaultUpiVpa="9653240540@axl"
+              businessName="The Himachal Nomad"
+              onPaymentVerified={handleUpiPaymentVerified}
+              onCancel={() => setStep('nomadCode')}
+            />
+          </div>
         )}
 
         {/* STEP 4: Processing State */}

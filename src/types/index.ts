@@ -128,6 +128,14 @@ export interface BookingItem {
   paymentMethod: string;
   paymentDate: string;
   status: 'Confirmed' | 'Completed' | 'Cancelled';
+  utrNumber?: string;
+  upiVpaUsed?: string;
+  paymentScreenshot?: string;
+  splitPayment?: {
+    isSplit: boolean;
+    advancePaid: number;
+    balanceDue: number;
+  };
   customizationDetails?: {
     upgrades: string[];
     addOns: string[];
@@ -246,6 +254,8 @@ export interface AdminSession {
 }
 
 export interface PricingRules {
+  defaultUpiVpa?: string;
+  businessName?: string;
   globalMultiplierPercent: number; // e.g., +15% or -10%
   packageModifierPercent: number;
   stayModifierPercent: number;

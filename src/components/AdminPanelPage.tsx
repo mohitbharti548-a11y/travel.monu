@@ -73,7 +73,8 @@ import {
   Sun,
   Snowflake,
   CloudRain,
-  Leaf
+  Leaf,
+  QrCode
 } from 'lucide-react';
 
 interface AdminPanelPageProps {
@@ -1190,6 +1191,69 @@ export const AdminPanelPage: React.FC<AdminPanelPageProps> = ({
                     </div>
                   </div>
                 ))}
+              </div>
+            </div>
+
+            {/* Dynamic Smart UPI Payment Gateway Settings */}
+            <div className="bg-slate-900 p-6 rounded-3xl border border-slate-800 space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="text-base font-extrabold text-white flex items-center gap-2">
+                    <QrCode className="w-4 h-4 text-emerald-400" />
+                    <span>Dynamic Smart UPI Payment Gateway (0% Fee)</span>
+                  </h4>
+                  <p className="text-xs text-slate-400">
+                    Direct-to-bank UPI VPA used for generating dynamic QR codes, deep links, and UTR verifications.
+                  </p>
+                </div>
+                <span className="px-2.5 py-1 rounded-full bg-emerald-950 text-emerald-300 text-[10px] font-bold border border-emerald-800 flex items-center gap-1">
+                  <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                  <span>ACTIVE 0% FEE UPI</span>
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-950 p-4 rounded-2xl border border-slate-800 text-xs">
+                <div>
+                  <label className="block text-slate-400 font-bold mb-1">Business UPI VPA (Payee Address)</label>
+                  <input
+                    type="text"
+                    defaultValue={pricingRules.defaultUpiVpa || '9653240540@axl'}
+                    onBlur={(e) => {
+                      const updated = {
+                        ...pricingRules,
+                        defaultUpiVpa: e.target.value.trim() || '9653240540@axl',
+                        updatedAt: new Date().toISOString()
+                      };
+                      handleSavePricingRules(updated);
+                    }}
+                    placeholder="e.g. 9653240540@axl or yourname@okaxis"
+                    className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl font-mono text-emerald-400 font-bold outline-none focus:border-emerald-500"
+                  />
+                  <p className="text-[10px] text-slate-500 mt-1">
+                    All traveler UPI QR codes & mobile deep links will direct funds straight to this UPI ID.
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-slate-400 font-bold mb-1">Business / Payee Display Name</label>
+                  <input
+                    type="text"
+                    defaultValue={pricingRules.businessName || 'The Himachal Nomad'}
+                    onBlur={(e) => {
+                      const updated = {
+                        ...pricingRules,
+                        businessName: e.target.value.trim() || 'The Himachal Nomad',
+                        updatedAt: new Date().toISOString()
+                      };
+                      handleSavePricingRules(updated);
+                    }}
+                    placeholder="e.g. The Himachal Nomad"
+                    className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white font-bold outline-none focus:border-emerald-500"
+                  />
+                  <p className="text-[10px] text-slate-500 mt-1">
+                    Display name shown inside Google Pay, PhonePe, and Paytm receipts.
+                  </p>
+                </div>
               </div>
             </div>
 
