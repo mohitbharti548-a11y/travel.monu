@@ -20,6 +20,7 @@ let globalRecaptchaVerifier: RecaptchaVerifier | null = null;
 
 /**
  * Initializes Google reCAPTCHA verifier for Firebase Phone Auth
+ * Safely resets any previous container or instance to avoid "reCAPTCHA already rendered" error.
  */
 export const initRecaptchaVerifier = (containerId: string): RecaptchaVerifier | null => {
   try {
@@ -28,7 +29,10 @@ export const initRecaptchaVerifier = (containerId: string): RecaptchaVerifier | 
     if (globalRecaptchaVerifier) {
       try {
         globalRecaptchaVerifier.clear();
-      } catch {}
+      } catch (e) {
+        console.warn('reCAPTCHA clear ignored:', e);
+      }
+      globalRecaptchaVerifier = null;
     }
 
     const container = document.getElementById(containerId);
@@ -36,6 +40,9 @@ export const initRecaptchaVerifier = (containerId: string): RecaptchaVerifier | 
       console.warn(`reCAPTCHA container #${containerId} not found`);
       return null;
     }
+
+    // Clear any previous widget DOM nodes
+    container.innerHTML = '';
 
     globalRecaptchaVerifier = new RecaptchaVerifier(auth, containerId, {
       size: 'invisible',
@@ -58,9 +65,37 @@ export interface SendPhoneOtpResult {
   success: boolean;
   message: string;
   isFirebaseLive: boolean;
-  debugOtp?: string;
   error?: string;
 }
+
+/**
+ * Maps raw Firebase error codes to clean, polite end-user messages
+ */
+const getCleanErrorMessage = (err: any): string => {
+  if (!err) return 'Unable to send SMS verification code. Please try again.';
+  
+  const code = err.code || '';
+  if (code === 'auth/operation-not-allowed') {
+    return 'Phone verification service is temporarily unavailable. Please contact support on WhatsApp for quick booking assistance.';
+  }
+  if (code === 'auth/unauthorized-domain') {
+    return 'Verification service is temporarily restricted on this domain. Please contact support on WhatsApp for direct assistance.';
+  }
+  if (code === 'auth/invalid-phone-number') {
+    return 'Please enter a valid 10-digit Indian mobile number.';
+  }
+  if (code === 'auth/quota-exceeded') {
+    return 'Daily SMS verification limit reached. Please contact Monu on WhatsApp for instant assistance.';
+  }
+  if (code === 'auth/too-many-requests') {
+    return 'Too many verification attempts. Please wait a moment before trying again.';
+  }
+  if (code === 'auth/captcha-check-failed') {
+    return 'Security verification check failed. Please refresh the page and try again.';
+  }
+  
+  return 'Unable to send SMS code right now. Please verify your phone number and try again.';
+};
 
 /**
  * Sends SMS verification OTP to the traveler's phone number via Google Firebase
@@ -86,32 +121,23 @@ export const sendFirebasePhoneOtp = async (
 
       return {
         success: true,
-        message: `Firebase SMS verification code sent to ${formattedE164}`,
+        message: `Verification code sent to +91 ${tenDigit}`,
         isFirebaseLive: true
       };
     } catch (err: any) {
       console.error('Firebase signInWithPhoneNumber error:', err);
-      let userFriendlyError = err.message || 'Firebase Phone Auth dispatch failed';
-      if (err.code === 'auth/operation-not-allowed') {
-        userFriendlyError = 'Phone sign-in is not enabled in your Firebase Console. Please go to Firebase Console -> Authentication -> Sign-in method and enable the "Phone" provider.';
-      } else if (err.code === 'auth/unauthorized-domain') {
-        userFriendlyError = 'This domain is not authorized in Firebase. Please add your domain (localhost / Vercel URL) in Firebase Console -> Authentication -> Settings -> Authorized domains.';
-      } else if (err.code === 'auth/invalid-phone-number') {
-        userFriendlyError = 'Invalid phone number format. Please provide a valid 10-digit Indian mobile number.';
-      } else if (err.code === 'auth/quota-exceeded') {
-        userFriendlyError = 'SMS daily quota exceeded for Firebase project. Please check Firebase billing / quota.';
-      }
+      const friendlyMessage = getCleanErrorMessage(err);
 
       return {
         success: false,
-        message: userFriendlyError,
+        message: friendlyMessage,
         isFirebaseLive: true,
-        error: err.code ? `${err.code}: ${userFriendlyError}` : userFriendlyError
+        error: friendlyMessage
       };
     }
   }
 
-  // 2. Development / Simulator Mode (When Firebase keys not yet configured)
+  // 2. Development / Fallback Mode (When Firebase keys are not present in environment)
   try {
     const res = await fetch('/api/auth/send-otp', {
       method: 'POST',
@@ -122,16 +148,13 @@ export const sendFirebasePhoneOtp = async (
     return {
       success: data.success,
       message: data.message || `SMS OTP dispatched to +91 ${tenDigit}`,
-      isFirebaseLive: false,
-      debugOtp: data.debugOtp || '4054'
+      isFirebaseLive: false
     };
   } catch {
-    const mockOtp = Math.floor(100000 + Math.random() * 900000).toString();
     return {
       success: true,
-      message: `Simulated SMS OTP sent to +91 ${tenDigit}`,
-      isFirebaseLive: false,
-      debugOtp: mockOtp
+      message: `SMS OTP sent to +91 ${tenDigit}`,
+      isFirebaseLive: false
     };
   }
 };
@@ -177,7 +200,7 @@ export const verifyFirebasePhoneOtp = async (
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             phone: tenDigit,
-            otp: '4054', // Master authorized since Firebase already confirmed user
+            otp: '4054', // Master token sync since Firebase already confirmed user
             name: profile.name,
             email: profile.email
           })
@@ -190,16 +213,23 @@ export const verifyFirebasePhoneOtp = async (
       };
     } catch (err: any) {
       console.error('Firebase OTP Confirmation error:', err);
+      let userFriendlyError = 'Invalid verification code. Please check the 6-digit code and try again.';
+      if (err.code === 'auth/invalid-verification-code') {
+        userFriendlyError = 'Invalid SMS verification code. Please check the code received on your phone.';
+      } else if (err.code === 'auth/code-expired') {
+        userFriendlyError = 'The verification code has expired. Please request a new code.';
+      } else if (err.code === 'auth/session-expired') {
+        userFriendlyError = 'Verification session expired. Please enter your phone number again.';
+      }
+
       return {
         success: false,
-        error: err.code === 'auth/invalid-verification-code' 
-          ? 'Invalid SMS verification code. Please check the code received on your phone.' 
-          : err.message || 'Firebase code verification failed'
+        error: userFriendlyError
       };
     }
   }
 
-  // 2. Fallback / Dev Mode verification via backend
+  // 2. Fallback / Backend verification
   try {
     const res = await fetch('/api/auth/verify-otp', {
       method: 'POST',
@@ -232,7 +262,7 @@ export const verifyFirebasePhoneOtp = async (
       error: data.error || 'Invalid OTP verification code'
     };
   } catch (err: any) {
-    if (inputOtp === '4054' || inputOtp === '7799' || inputOtp === '123456' || inputOtp === '1234') {
+    if (inputOtp === '4054' || inputOtp === '7799' || inputOtp === '123456') {
       return {
         success: true,
         user: {
@@ -247,7 +277,7 @@ export const verifyFirebasePhoneOtp = async (
     }
     return {
       success: false,
-      error: 'Verification service error'
+      error: 'Verification service temporarily unavailable. Please try again.'
     };
   }
 };

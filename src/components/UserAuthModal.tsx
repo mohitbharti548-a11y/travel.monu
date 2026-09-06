@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { 
   X, 
-  Phone, 
   User, 
   Mail, 
   ShieldCheck, 
@@ -12,7 +11,7 @@ import {
   RefreshCw,
   Clock,
   Radio,
-  Flame
+  Lock
 } from 'lucide-react';
 import { UserProfile } from '../types';
 import { notificationEngine } from '../services/notificationEngine';
@@ -37,8 +36,6 @@ export const UserAuthModal: React.FC<UserAuthModalProps> = ({
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
-  const [serverDebugOtp, setServerDebugOtp] = useState<string | null>(null);
-  const [isFirebaseLive, setIsFirebaseLive] = useState<boolean>(isFirebaseConfigured());
   const [errorMsg, setErrorMsg] = useState('');
   const [isSendingOtp, setIsSendingOtp] = useState(false);
   const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
@@ -61,17 +58,26 @@ export const UserAuthModal: React.FC<UserAuthModalProps> = ({
     return () => clearInterval(timer);
   }, [step, countdown]);
 
+  // Reset state when modal closes
+  const handleModalClose = () => {
+    setErrorMsg('');
+    setOtp('');
+    setIsSendingOtp(false);
+    setIsVerifyingOtp(false);
+    onClose();
+  };
+
   if (!isOpen) return null;
 
   const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     const cleanPhone = phone.replace(/\D/g, '');
     if (cleanPhone.length < 10) {
-      setErrorMsg('Please enter a valid 10-digit mobile number');
+      setErrorMsg('Please enter a valid 10-digit Indian mobile number.');
       return;
     }
     if (!name.trim()) {
-      setErrorMsg('Please enter your full name');
+      setErrorMsg('Please enter your full name.');
       return;
     }
 
@@ -83,16 +89,9 @@ export const UserAuthModal: React.FC<UserAuthModalProps> = ({
       const res = await sendFirebasePhoneOtp(cleanPhone, 'firebase-recaptcha-container');
 
       if (!res.success) {
-        setErrorMsg(res.error || res.message || 'Could not send SMS OTP via Firebase. Please verify number.');
+        setErrorMsg(res.error || res.message || 'Unable to send SMS verification code. Please try again.');
         setIsSendingOtp(false);
         return;
-      }
-
-      setIsFirebaseLive(res.isFirebaseLive);
-      if (res.debugOtp) {
-        setServerDebugOtp(res.debugOtp);
-      } else {
-        setServerDebugOtp(null);
       }
 
       setCountdown(60);
@@ -115,12 +114,10 @@ export const UserAuthModal: React.FC<UserAuthModalProps> = ({
     try {
       const res = await sendFirebasePhoneOtp(cleanPhone, 'firebase-recaptcha-container');
       if (res.success) {
-        setIsFirebaseLive(res.isFirebaseLive);
-        if (res.debugOtp) setServerDebugOtp(res.debugOtp);
         setCountdown(60);
         setCanResend(false);
       } else {
-        setErrorMsg(res.error || res.message || 'Failed to resend Firebase OTP.');
+        setErrorMsg(res.error || res.message || 'Failed to resend SMS code. Please try again.');
       }
     } catch {
       setErrorMsg('Network error. Please try again.');
@@ -135,7 +132,7 @@ export const UserAuthModal: React.FC<UserAuthModalProps> = ({
     const cleanOtp = otp.trim();
 
     if (!cleanOtp) {
-      setErrorMsg('Please enter the 6-digit verification code');
+      setErrorMsg('Please enter the 6-digit verification code.');
       return;
     }
 
@@ -161,31 +158,22 @@ export const UserAuthModal: React.FC<UserAuthModalProps> = ({
         notificationEngine.addNotification({
           type: 'system_broadcast',
           title: `Welcome Aboard, ${result.user.name}! 🏔️`,
-          message: `Your mobile number +${result.user.phone} is verified with Firebase Auth. Your custom trips, passes, and receipts are now securely synced.`,
+          message: `Your mobile number +${result.user.phone} is verified. Your custom trips, passes, and receipts are now securely synced.`,
           priority: 'urgent',
           data: { linkAction: 'open_bookings' }
         });
 
         onLoginSuccess(result.user);
-        onClose();
+        handleModalClose();
         return;
       }
 
-      setErrorMsg(result.error || 'Invalid OTP code. Please enter the correct 6-digit code.');
+      setErrorMsg(result.error || 'Invalid verification code. Please enter the correct 6-digit code.');
     } catch (err: any) {
       setErrorMsg(err.message || 'Verification failed. Please check the code.');
     } finally {
       setIsVerifyingOtp(false);
     }
-  };
-
-  const handleAutoFillOtp = () => {
-    if (serverDebugOtp) {
-      setOtp(serverDebugOtp);
-    } else {
-      setOtp('123456');
-    }
-    setErrorMsg('');
   };
 
   return (
@@ -195,7 +183,7 @@ export const UserAuthModal: React.FC<UserAuthModalProps> = ({
         {/* Invisible reCAPTCHA container for Google Firebase Auth */}
         <div id="firebase-recaptcha-container"></div>
 
-        {/* Header with Mountain Texture */}
+        {/* Header with Mountain Styling */}
         <div className="relative p-6 bg-slate-900 text-white overflow-hidden">
           <div className="absolute inset-0 bg-topo-pattern opacity-20 pointer-events-none" />
           <div className="relative z-10 flex items-center justify-between">
@@ -208,15 +196,15 @@ export const UserAuthModal: React.FC<UserAuthModalProps> = ({
                   Nomad Traveler Sign In
                 </h3>
                 <div className="flex items-center gap-1.5 mt-0.5">
-                  <Flame className="w-3 h-3 text-amber-400" />
-                  <span className="text-[10px] font-extrabold text-amber-300 uppercase tracking-wider">
-                    Google Firebase Phone Auth
+                  <Lock className="w-3 h-3 text-emerald-400" />
+                  <span className="text-[10px] font-bold text-slate-300 uppercase tracking-wider">
+                    Secure SMS Verification
                   </span>
                 </div>
               </div>
             </div>
             <button
-              onClick={onClose}
+              onClick={handleModalClose}
               className="p-1.5 rounded-full hover:bg-slate-800 text-slate-400 hover:text-white transition-colors"
             >
               <X className="w-5 h-5" />
@@ -279,7 +267,7 @@ export const UserAuthModal: React.FC<UserAuthModalProps> = ({
                   />
                 </div>
                 <p className="text-[10px] text-slate-500 mt-1">
-                  Google Firebase sends a 6-digit SMS code directly to your mobile phone.
+                  A 6-digit SMS verification code will be sent to your mobile phone.
                 </p>
               </div>
 
@@ -300,18 +288,8 @@ export const UserAuthModal: React.FC<UserAuthModalProps> = ({
               </div>
 
               {errorMsg && (
-                <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs space-y-2 animate-fadeIn">
-                  <p className="font-bold">{errorMsg}</p>
-                  {errorMsg.includes('operation-not-allowed') && (
-                    <div className="pt-2 border-t border-rose-500/20 text-[11px] text-slate-300 space-y-1.5">
-                      <p className="font-semibold text-amber-300">👉 How to enable Phone Auth in 30 seconds:</p>
-                      <ol className="list-decimal pl-4 space-y-1 text-slate-400">
-                        <li>Open <a href="https://console.firebase.google.com/project/travel-monu/authentication/providers" target="_blank" rel="noreferrer" className="text-emerald-400 underline font-bold">Firebase Console &rarr; Sign-in method</a></li>
-                        <li>Click on <strong>Phone</strong> and switch the toggle to <strong>Enabled</strong></li>
-                        <li>Click <strong>Save</strong></li>
-                      </ol>
-                    </div>
-                  )}
+                <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-500 dark:text-rose-400 text-xs font-semibold animate-fadeIn">
+                  {errorMsg}
                 </div>
               )}
 
@@ -323,55 +301,26 @@ export const UserAuthModal: React.FC<UserAuthModalProps> = ({
                 {isSendingOtp ? (
                   <>
                     <RefreshCw className="w-4 h-4 animate-spin" />
-                    <span>Connecting to Firebase SMS...</span>
+                    <span>Sending SMS Code...</span>
                   </>
                 ) : (
                   <>
-                    <span>Send SMS Code via Firebase</span>
+                    <span>Send SMS Code</span>
                     <ArrowRight className="w-4 h-4" />
                   </>
                 )}
               </button>
-
-              {/* Instant Developer / Simulator Fallback when Firebase Console is pending */}
-              {errorMsg && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setServerDebugOtp('4054');
-                    setStep('otp');
-                    setCountdown(60);
-                    setErrorMsg('');
-                  }}
-                  className="w-full py-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-amber-300 text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 transition"
-                >
-                  <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                  <span>Continue with Instant Demo OTP (4054)</span>
-                </button>
-              )}
             </form>
           ) : (
             <form onSubmit={handleVerifyOtp} className="space-y-4">
               <div className="p-3.5 bg-slate-100 dark:bg-slate-900 rounded-2xl text-center space-y-1.5 border border-slate-200 dark:border-slate-800">
                 <div className="flex items-center justify-center gap-1.5 text-xs text-slate-600 dark:text-slate-400">
                   <Radio className="w-3.5 h-3.5 text-pine-600 animate-pulse" />
-                  <span>Google Firebase SMS verification dispatched to:</span>
+                  <span>SMS verification code dispatched to:</span>
                 </div>
                 <p className="text-sm font-extrabold font-mono text-pine-800 dark:text-amber-400">
                   +91 {phone}
                 </p>
-                {serverDebugOtp && (
-                  <div className="pt-1.5">
-                    <button
-                      type="button"
-                      onClick={handleAutoFillOtp}
-                      className="inline-flex items-center gap-1.5 text-[11px] font-bold text-emerald-700 dark:text-emerald-400 hover:underline bg-emerald-100 dark:bg-emerald-950/70 px-3 py-1 rounded-lg border border-emerald-300 dark:border-emerald-800"
-                    >
-                      <Sparkles className="w-3 h-3 text-emerald-500" />
-                      <span>Auto-Fill Test OTP: {serverDebugOtp}</span>
-                    </button>
-                  </div>
-                )}
               </div>
 
               <div>
@@ -402,7 +351,7 @@ export const UserAuthModal: React.FC<UserAuthModalProps> = ({
                   <button
                     type="button"
                     onClick={handleResendOtp}
-                    className="font-bold text-pine-600 dark:text-amber-400 hover:underline flex items-center gap-1"
+                    className="font-bold text-pine-600 dark:text-amber-400 hover:underline flex items-center gap-1 cursor-pointer"
                   >
                     <RefreshCw className="w-3 h-3" />
                     <span>Resend Code</span>
@@ -415,9 +364,9 @@ export const UserAuthModal: React.FC<UserAuthModalProps> = ({
               </div>
 
               {errorMsg && (
-                <p className="text-xs text-rose-500 font-bold text-center animate-fadeIn">
+                <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-500 dark:text-rose-400 text-xs font-semibold text-center animate-fadeIn">
                   {errorMsg}
-                </p>
+                </div>
               )}
 
               <button
@@ -428,7 +377,7 @@ export const UserAuthModal: React.FC<UserAuthModalProps> = ({
                 {isVerifyingOtp ? (
                   <>
                     <RefreshCw className="w-4 h-4 animate-spin" />
-                    <span>Verifying with Firebase...</span>
+                    <span>Verifying Code...</span>
                   </>
                 ) : (
                   <>
@@ -441,8 +390,8 @@ export const UserAuthModal: React.FC<UserAuthModalProps> = ({
               <div className="text-center pt-1">
                 <button
                   type="button"
-                  onClick={() => { setStep('phone'); setOtp(''); }}
-                  className="text-xs text-slate-500 hover:text-slate-800 dark:hover:text-white underline"
+                  onClick={() => { setStep('phone'); setOtp(''); setErrorMsg(''); }}
+                  className="text-xs text-slate-500 hover:text-slate-800 dark:hover:text-white underline cursor-pointer"
                 >
                   Change Mobile Number
                 </button>
@@ -453,7 +402,7 @@ export const UserAuthModal: React.FC<UserAuthModalProps> = ({
           {/* Security Guarantee */}
           <div className="pt-2 text-center text-[10px] text-slate-500 flex items-center justify-center gap-1.5">
             <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
-            <span>Google Firebase Authentication • 256-Bit Encrypted Direct Access</span>
+            <span>Secure Direct Verification • 256-Bit Encrypted</span>
           </div>
 
         </div>
