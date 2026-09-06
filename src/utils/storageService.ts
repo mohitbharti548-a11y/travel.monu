@@ -16,13 +16,13 @@ import {
 } from '../data/mockData';
 
 const STORAGE_KEYS = {
-  DESTINATIONS: 'hn_destinations_v5',
-  PACKAGES: 'hn_packages_v5',
-  STAYS: 'hn_stays_v5',
-  GUIDES: 'hn_guides_v5',
-  BOOKINGS: 'hn_bookings_v5',
-  CUSTOM_REQUESTS: 'hn_custom_requests_v5',
-  ROAD_ALERT: 'hn_road_alert_v5'
+  DESTINATIONS: 'hn_destinations_v4',
+  PACKAGES: 'hn_packages_v4',
+  STAYS: 'hn_stays_v4',
+  GUIDES: 'hn_guides_v4',
+  BOOKINGS: 'hn_bookings_v4',
+  CUSTOM_REQUESTS: 'hn_custom_requests_v4',
+  ROAD_ALERT: 'hn_road_alert_v4'
 };
 
 export const storageService = {
@@ -32,26 +32,8 @@ export const storageService = {
       const data = localStorage.getItem(STORAGE_KEYS.DESTINATIONS);
       if (!data) return DESTINATIONS;
       const parsed: Destination[] = JSON.parse(data);
-      if (!Array.isArray(parsed) || parsed.length === 0) return DESTINATIONS;
-
-      // Merge standard destinations with any user/admin customized or new hubs
-      const map = new Map<string, Destination>();
-      DESTINATIONS.forEach(d => map.set(d.id, d));
-      parsed.forEach(d => {
-        if (d && d.id) {
-          const defaultItem = map.get(d.id);
-          if (defaultItem) {
-            // Filter out stale placeholder sunglasses photo if it was saved in client cache
-            const heroImage = (d.heroImage && !d.heroImage.includes('photo-1596701062351-8c2c14d1fdd0')) 
-              ? d.heroImage 
-              : defaultItem.heroImage;
-            map.set(d.id, { ...defaultItem, ...d, heroImage });
-          } else {
-            map.set(d.id, d);
-          }
-        }
-      });
-      return Array.from(map.values());
+      if (!Array.isArray(parsed)) return DESTINATIONS;
+      return parsed;
     } catch {
       return DESTINATIONS;
     }
