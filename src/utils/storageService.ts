@@ -156,6 +156,7 @@ export const storageService = {
         transitModifierPercent: 0,
         fuelSurchargePercent: 0,
         seasonPreset: 'normal',
+        defaultUpiVpa: 'rajeshnov1988@okhdfcbank',
         isDynamicPricingActive: true,
         updatedAt: new Date().toISOString()
       };
@@ -167,6 +168,7 @@ export const storageService = {
         transitModifierPercent: 0,
         fuelSurchargePercent: 0,
         seasonPreset: 'normal',
+        defaultUpiVpa: 'rajeshnov1988@okhdfcbank',
         isDynamicPricingActive: true,
         updatedAt: new Date().toISOString()
       };

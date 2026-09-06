@@ -1463,16 +1463,16 @@ export const AdminPanelPage: React.FC<AdminPanelPageProps> = ({
                   <label className="block text-slate-400 font-bold mb-1">Business UPI VPA (Payee Address)</label>
                   <input
                     type="text"
-                    defaultValue={pricingRules.defaultUpiVpa || '9653240540@axl'}
+                    defaultValue={pricingRules.defaultUpiVpa || 'rajeshnov1988@okhdfcbank'}
                     onBlur={(e) => {
                       const updated = {
                         ...pricingRules,
-                        defaultUpiVpa: e.target.value.trim() || '9653240540@axl',
+                        defaultUpiVpa: e.target.value.trim() || 'rajeshnov1988@okhdfcbank',
                         updatedAt: new Date().toISOString()
                       };
                       handleSavePricingRules(updated);
                     }}
-                    placeholder="e.g. 9653240540@axl or yourname@okaxis"
+                    placeholder="e.g. rajeshnov1988@okhdfcbank or yourname@okhdfcbank"
                     className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl font-mono text-emerald-400 font-bold outline-none focus:border-emerald-500"
                   />
                   <p className="text-[10px] text-slate-500 mt-1">

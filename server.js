@@ -186,6 +186,8 @@ const defaultState = {
     spitiMultiplierPercent: 0,
     manaliMultiplierPercent: 0,
     dharamshalaMultiplierPercent: 0,
+    defaultUpiVpa: 'rajeshnov1988@okhdfcbank',
+    businessName: 'The Himachal Nomad',
     activePromoCodes: [
       { code: 'NOMADFIRST', discountPercent: 10, maxDiscountAmount: 3000, description: 'First-time traveler discount' },
       { code: 'SPITI2026', discountPercent: 15, maxDiscountAmount: 5000, description: 'Early season Spiti expedition promo' }

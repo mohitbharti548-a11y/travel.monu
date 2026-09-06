@@ -529,7 +529,7 @@ export const CheckoutDrawer: React.FC<CheckoutDrawerProps> = ({
               travelerName={travelerName}
               travelerPhone={travelerPhone}
               destination={checkoutData.destination}
-              defaultUpiVpa="9653240540@axl"
+              defaultUpiVpa="rajeshnov1988@okhdfcbank"
               businessName="The Himachal Nomad"
               onPaymentVerified={handleUpiPaymentVerified}
               onCancel={() => setStep('nomadCode')}

@@ -30,7 +30,7 @@ export const DynamicUpiQrPayment: React.FC<DynamicUpiQrPaymentProps> = ({
   travelerName,
   travelerPhone,
   destination,
-  defaultUpiVpa = '9653240540@axl',
+  defaultUpiVpa = 'rajeshnov1988@okhdfcbank',
   businessName = 'The Himachal Nomad',
   onPaymentVerified,
   onCancel
