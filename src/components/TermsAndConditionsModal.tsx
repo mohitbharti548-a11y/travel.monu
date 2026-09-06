@@ -1,4 +1,5 @@
 import React from 'react';
+import { PreBookingAdvisory } from './PreBookingAdvisory';
 import { 
   X, 
   FileText, 
@@ -87,6 +88,9 @@ export const TermsAndConditionsModal: React.FC<TermsAndConditionsModalProps> = (
               High-altitude regions (above 3,000 meters) have lower oxygen levels. Travelers are advised to consult their physician if they have cardiovascular or pulmonary conditions. Acclimatization schedules provided by our team must be followed.
             </p>
           </div>
+
+          {/* 0. Before Booking Advisory (Inclusions, Exclusions & Chandratal/Kunzum Road Policy) */}
+          <PreBookingAdvisory defaultLang="both" />
 
           {/* 4. Permits & Border Protocols */}
           <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slatehimachal-800/80 border border-slate-200 dark:border-slate-700 space-y-1.5">

@@ -27,6 +27,7 @@ import {
 } from 'lucide-react';
 import { UserProfile } from '../types';
 import { DynamicUpiQrPayment } from './DynamicUpiQrPayment';
+import { PreBookingAdvisory } from './PreBookingAdvisory';
 
 interface CheckoutDrawerProps {
   isOpen: boolean;
@@ -355,6 +356,9 @@ export const CheckoutDrawer: React.FC<CheckoutDrawerProps> = ({
                 Before confirming your booking, every traveler pledges to uphold the local sacred ethics of Himachal Pradesh. Please review and check each clause below.
               </p>
             </div>
+
+            {/* Before Booking Advisory (Inclusions, Exclusions, Chandratal & Kunzum Route Notice) */}
+            <PreBookingAdvisory defaultLang="both" />
 
             {/* Checklist of 4 Nomad Code Pillars */}
             <div className="space-y-3">

@@ -3,6 +3,7 @@ import { TourPackage, ItineraryDay, CustomTripRequest, UserProfile, PricingRules
 import { TOUR_PACKAGES } from '../data/mockData';
 import { CustomTripWidget } from './CustomTripWidget';
 import { ScrollReveal } from './ScrollReveal';
+import { PreBookingAdvisory } from './PreBookingAdvisory';
 import { 
   Sparkles, 
   Clock, 
@@ -532,6 +533,11 @@ export const CustomPackageBuilder: React.FC<CustomPackageBuilderProps> = ({
               </div>
             </div>
 
+          </div>
+
+          {/* Before Booking Advisory Section for Pre-Curated Circuit */}
+          <div className="mt-8">
+            <PreBookingAdvisory defaultLang="both" />
           </div>
         </div>
       )}
