@@ -166,7 +166,15 @@ export const AdminPanelPage: React.FC<AdminPanelPageProps> = ({
   const [authSession, setAuthSession] = useState<AdminSession | null>(() => {
     try {
       const saved = sessionStorage.getItem('hn_admin_session_v4');
-      return saved ? JSON.parse(saved) : null;
+      if (!saved) return null;
+      const parsed: AdminSession = JSON.parse(saved);
+      const loginTime = new Date(parsed.loginTime).getTime();
+      const now = Date.now();
+      if (now - loginTime < 8 * 60 * 60 * 1000 && parsed.token?.startsWith('HN-MASTER-')) {
+        return parsed;
+      }
+      sessionStorage.removeItem('hn_admin_session_v4');
+      return null;
     } catch {
       return null;
     }
