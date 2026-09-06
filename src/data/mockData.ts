@@ -29,7 +29,7 @@ export const DESTINATIONS: Destination[] = [
     altitude: '3,800 m (12,500 ft)',
     temperature: '-2°C ❄️',
     bestTimeToVisit: 'June – October (Roads Open) / Feb (Snow Expedition)',
-    heroImage: 'https://images.unsplash.com/photo-1581793745862-99fde7fa73d2?auto=format&fit=crop&w=1600&q=80',
+    heroImage: 'https://cdn1.matadornetwork.com/blogs/1/2021/03/Dhankar-Gompa-monastery-1200x853.jpg',
     description: 'A surreal cold desert wonderland where ancient Tibetan Buddhist monasteries perch on sheer cliffs and the Milky Way illuminates the Himalayan night sky with crystal brilliance.',
     mustVisitSpots: ['Key Monastery 1,000-year shrine', 'Chicham Bridge (Asia Highest)', 'Hikkim Highest Post Office', 'Dhankar Cliffside Monastery'],
     secretSpot: {
@@ -43,13 +43,13 @@ export const DESTINATIONS: Destination[] = [
   },
   {
     id: 'kaza',
-    name: 'Kaza',
-    hindiName: 'काज़ा',
+    name: 'Kaza - Spiti',
+    hindiName: 'काज़ा - स्पीति',
     tagline: 'The Heart of Spiti & Cultural Crossroads',
     altitude: '3,650 m (11,980 ft)',
     temperature: '1°C 🌤️',
     bestTimeToVisit: 'May – October',
-    heroImage: 'https://images.unsplash.com/photo-1596701062351-8c2c14d1fdd0?auto=format&fit=crop&w=1600&q=80',
+    heroImage: 'https://cdn1.matadornetwork.com/blogs/1/2021/03/Dhankar-Gompa-monastery-1200x853.jpg',
     description: 'The administrative heart of Spiti, Kaza is a vibrant tribal outpost with organic sea-buckthorn cafes, Tibetan craft markets, and the gateway to high-altitude passes.',
     mustVisitSpots: ['Kaza Main Market & Craft Bazaar', 'Sakya Tengyeling Gompa', 'Spiti River Pebble Beach', 'Highest Fuel Station in World (Kaza)'],
     secretSpot: {
@@ -63,13 +63,13 @@ export const DESTINATIONS: Destination[] = [
   },
   {
     id: 'dharamshala',
-    name: 'Dharamshala & McLeodGanj',
-    hindiName: 'धर्मशाला',
+    name: 'Kangra Dhauladhar & Dharamshala',
+    hindiName: 'कांगड़ा धौलाधार - धर्मशाला',
     tagline: 'Little Lhasa • Cedar Mist & Tibetan Heritage',
     altitude: '1,750 m (5,740 ft)',
     temperature: '18°C 🌦️',
     bestTimeToVisit: 'September – June',
-    heroImage: 'https://images.unsplash.com/photo-1506197603052-3cc9c3a201bd?auto=format&fit=crop&w=1600&q=80',
+    heroImage: 'https://anthilladventures.com/wp-content/uploads/2018/07/2.png',
     description: 'Home to His Holiness the Dalai Lama and the Tibetan government in exile, nestled below the imposing rocky towers of the Dhauladhar range amidst lush tea gardens.',
     mustVisitSpots: ['Tsuglagkhang Complex', 'Triund Mountain Ridge Trail', 'Norbulingka Tibetan Institute', 'Dharamkot Bohemian Village'],
     secretSpot: {
@@ -109,7 +109,7 @@ export const DESTINATIONS: Destination[] = [
     altitude: '1,279 m (4,196 ft)',
     temperature: '20°C ☀️',
     bestTimeToVisit: 'September – November (Dussehra) & March – June',
-    heroImage: 'https://images.unsplash.com/photo-1596701062351-8c2c14d1fdd0?auto=format&fit=crop&w=1600&q=80',
+    heroImage: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSrYGRuLVn-ZIXoxJPIRMGHQsR-HyrseGmcWSXcwFZQ9Q&s=10',
     description: 'Famed for traditional handloom Kullu shawls, vibrant devta temples, surging white water rapids of the Beas River, and the serene Tirthan Valley gateway.',
     mustVisitSpots: ['Bijli Mahadev Scenic Peak', 'Beas White Water Rafting Stretch', 'Naggar Castle & Roerich Art Gallery', 'Great Himalayan National Park Gateway'],
     secretSpot: {
@@ -149,7 +149,7 @@ export const DESTINATIONS: Destination[] = [
     altitude: '996 m to 4,414 m (Saach Pass)',
     temperature: '17°C ⛅',
     bestTimeToVisit: 'March – June (Meadows) & Sept – Nov (Pleasant)',
-    heroImage: 'https://images.unsplash.com/photo-1596701062351-8c2c14d1fdd0?auto=format&fit=crop&w=1600&q=80',
+    heroImage: 'https://s7ap1.scene7.com/is/image/incredibleindia/manimahesh-lake-chamba-himachal-pradesh-1-attr-hero?qlt=82&ts=1726730465417',
     description: 'Steeped in 1,000 years of unbroken royal heritage on the banks of the Ravi, Chamba is famed for its 10th-century Laxmi Narayan shikhara temples, GI-tagged Chamba Rumal embroidery, emerald cedar meadows of Khajjiar, and thrilling high-pass circuits through Saach Pass & Manimahesh Kailash.',
     mustVisitSpots: ['Khajjiar Pine Meadow & Mini Switzerland Lake', 'Laxmi Narayan 10th-Century Royal Temple Complex', 'Chamera Emerald Lake & Speedboating', 'Bharmour Chaurasi 84-Temple Complex', 'Kalatop Deodar Wildlife Sanctuary'],
     secretSpot: {
