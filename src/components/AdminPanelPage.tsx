@@ -12,7 +12,8 @@ import {
   DestinationId,
   AdminSession,
   PricingRules,
-  PromoCode
+  PromoCode,
+  ItineraryDay
 } from '../types';
 import { notificationEngine } from '../services/notificationEngine';
 import { storageService } from '../utils/storageService';
@@ -136,6 +137,8 @@ const GUIDE_LANGUAGES = [
 export const AdminPanelPage: React.FC<AdminPanelPageProps> = ({
   destinations,
   onUpdateDestination,
+  onCreateDestination,
+  onDeleteDestination,
   packages,
   onUpdatePackage,
   onCreatePackage,
@@ -215,6 +218,68 @@ export const AdminPanelPage: React.FC<AdminPanelPageProps> = ({
   const [newReelLocation, setNewReelLocation] = useState<string>('Spiti Valley');
   const [newReelAuthor, setNewReelAuthor] = useState<string>('Monu Thakur');
   const [newReelHandle, setNewReelHandle] = useState<string>('@himachal.nomad');
+
+  // Tour Package extra state (overview, highlights, itinerary)
+  const [pkgOverview, setPkgOverview] = useState<string>('');
+  const [pkgHighlightsText, setPkgHighlightsText] = useState<string>('');
+  const [pkgItinerary, setPkgItinerary] = useState<ItineraryDay[]>([]);
+
+  // Package itinerary day planner helpers
+  const handleAddPackageDay = () => {
+    const nextDay = pkgItinerary.length + 1;
+    setPkgItinerary(prev => [
+      ...prev,
+      {
+        dayNumber: nextDay,
+        title: `Day ${nextDay}: Mountain Exploration & Local Heritage`,
+        description: `Scenic road trip and guided hike with local guide, monastery/village exploration and authentic homestay dinner.`,
+        stayOption: {
+          standard: 'Boutique Pahadi Homestay',
+          luxuryUpgrade: 'Panoramic Luxury Dome / Chalet',
+          upgradeCost: 2500
+        },
+        selectedStay: 'standard',
+        activities: [
+          { id: `act-${Date.now()}-1`, name: 'Scenic Trail Walk', cost: 0, included: true, selected: true },
+          { id: `act-${Date.now()}-2`, name: 'Local Culture & Food', cost: 0, included: true, selected: true }
+        ]
+      }
+    ]);
+  };
+
+  const handleRemovePackageDay = (index: number) => {
+    setPkgItinerary(prev => prev.filter((_, i) => i !== index).map((day, idx) => ({ ...day, dayNumber: idx + 1 })));
+  };
+
+  const handleUpdatePackageDay = (index: number, field: string, value: any) => {
+    setPkgItinerary(prev => {
+      const next = [...prev];
+      if (field === 'title') {
+        next[index] = { ...next[index], title: value };
+      } else if (field === 'description') {
+        next[index] = { ...next[index], description: value };
+      } else if (field === 'standardStay') {
+        next[index] = { ...next[index], stayOption: { ...next[index].stayOption, standard: value } };
+      } else if (field === 'luxuryStay') {
+        next[index] = { ...next[index], stayOption: { ...next[index].stayOption, luxuryUpgrade: value } };
+      } else if (field === 'upgradeCost') {
+        next[index] = { ...next[index], stayOption: { ...next[index].stayOption, upgradeCost: Number(value) || 0 } };
+      } else if (field === 'activities') {
+        const names = typeof value === 'string' ? value.split(',').map((s: string) => s.trim()).filter(Boolean) : [];
+        next[index] = {
+          ...next[index],
+          activities: names.map((name: string, i: number) => ({
+            id: `act-${next[index].dayNumber}-${i}`,
+            name,
+            cost: 0,
+            included: true,
+            selected: true
+          }))
+        };
+      }
+      return next;
+    });
+  };
 
   // New Destination / Package / Stay / Guide state holders for media uploads
   const [destHeroImage, setDestHeroImage] = useState<string>('');
@@ -503,13 +568,81 @@ export const AdminPanelPage: React.FC<AdminPanelPageProps> = ({
   const handleSaveDestination = (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingDestination) return;
-    const updated = {
+    const form = e.target as any;
+    const updated: Destination = {
       ...editingDestination,
+      name: form.destName?.value || editingDestination.name,
+      hindiName: form.destHindiName?.value || editingDestination.hindiName,
+      tagline: form.destTagline?.value || editingDestination.tagline,
+      altitude: form.destAltitude?.value || editingDestination.altitude,
+      temperature: form.destTemperature?.value || editingDestination.temperature,
+      bestTimeToVisit: form.destBestTime?.value || editingDestination.bestTimeToVisit,
+      startingPrice: form.destPrice?.value ? Number(form.destPrice.value) : editingDestination.startingPrice,
+      description: form.destDescription?.value || editingDestination.description,
+      secretSpot: {
+        title: form.destSecretTitle?.value || editingDestination.secretSpot?.title || 'Hidden Valley Viewpoint',
+        description: form.destSecretDesc?.value || editingDestination.secretSpot?.description || 'Untouched viewpoint off the tourist trail.',
+        bestTime: form.destBestTime?.value || editingDestination.secretSpot?.bestTime || 'Early Morning',
+        creatorTip: form.destSecretTip?.value || editingDestination.secretSpot?.creatorTip || 'Ask for local guide pass for easy access.'
+      },
+      mustVisitSpots: form.destMustVisit?.value 
+        ? form.destMustVisit.value.split(',').map((s: string) => s.trim()).filter(Boolean)
+        : editingDestination.mustVisitSpots,
       heroImage: destHeroImage || editingDestination.heroImage,
       droneVideoPreview: destDroneVideo || editingDestination.droneVideoPreview
     };
     onUpdateDestination(updated);
     setEditingDestination(null);
+    setDestHeroImage('');
+    setDestDroneVideo('');
+  };
+
+  const handleCreateDestinationSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const form = e.target as any;
+    const name = form.destName?.value || 'New Mountain Valley';
+    const idSlug = name.toLowerCase().replace(/[^a-z0-9]/g, '') as DestinationId;
+
+    const newDest: Destination = {
+      id: idSlug || ('spiti' as DestinationId),
+      name: name,
+      hindiName: form.destHindiName?.value || 'हिमाचल घाटी',
+      tagline: form.destTagline?.value || 'Untamed Himalayan Frontier',
+      altitude: form.destAltitude?.value || '10,500 ft / 3,200m',
+      temperature: form.destTemperature?.value || '0°C to 18°C',
+      bestTimeToVisit: form.destBestTime?.value || 'May - October',
+      startingPrice: Number(form.destPrice?.value) || 15999,
+      description: form.destDescription?.value || 'Breathtaking alpine meadows, rugged trails, and welcoming local mountain homestays.',
+      secretSpot: {
+        title: form.destSecretTitle?.value || 'Secret Pine Valley Trail',
+        description: form.destSecretDesc?.value || 'Hidden scenic waterfall and ridge walk away from tourist crowds.',
+        bestTime: form.destBestTime?.value || 'Sunrise',
+        creatorTip: form.destSecretTip?.value || 'Carry reusable water and warm layers.'
+      },
+      mustVisitSpots: form.destMustVisit?.value 
+        ? form.destMustVisit.value.split(',').map((s: string) => s.trim()).filter(Boolean)
+        : ['Main Valley Ridge', 'Historic Monastery', 'Hidden Waterfall', 'Sunset Peak'],
+      heroImage: destHeroImage || 'https://images.unsplash.com/photo-1506197603052-3cc9c3a201bd?auto=format&fit=crop&w=1200&q=80',
+      droneVideoPreview: destDroneVideo || 'https://assets.mixkit.co/videos/preview/mixkit-flying-over-snow-capped-mountains-41566-large.mp4',
+      popularActivities: ['High Altitude Trekking', 'Pahadi Homestay Culture', 'Astrophotography', '4x4 River Crossing']
+    };
+
+    if (onCreateDestination) {
+      onCreateDestination(newDest);
+    } else {
+      onUpdateDestination(newDest);
+    }
+    setIsCreatingDestination(false);
+    setDestHeroImage('');
+    setDestDroneVideo('');
+  };
+
+  const handleDeleteDestinationClick = (destId: string, destName: string) => {
+    if (window.confirm(`Are you sure you want to remove "${destName}" destination hub? This will update all packages and circuits.`)) {
+      if (onDeleteDestination) {
+        onDeleteDestination(destId);
+      }
+    }
   };
 
   const handleSavePackage = (e: React.FormEvent) => {
@@ -520,6 +653,7 @@ export const AdminPanelPage: React.FC<AdminPanelPageProps> = ({
       const destination = form.pkgDestination?.value || editingPackage.destination;
       const duration = form.pkgDuration?.value || editingPackage.duration;
       const price = form.pkgPrice?.value ? Number(form.pkgPrice.value) : editingPackage.basePrice;
+      const badge = form.pkgBadge?.value || editingPackage.badge;
 
       let destId: DestinationId = editingPackage.destinationId || 'spiti';
       const destLower = destination.toLowerCase();
@@ -530,6 +664,10 @@ export const AdminPanelPage: React.FC<AdminPanelPageProps> = ({
       else if (destLower.includes('kinnaur')) destId = 'kinnaur';
       else if (destLower.includes('chamba')) destId = 'chamba';
 
+      const highlightsList = pkgHighlightsText
+        ? pkgHighlightsText.split('\n').map(s => s.trim()).filter(Boolean)
+        : (editingPackage.highlights || []);
+
       const updated: TourPackage = {
         ...editingPackage,
         title,
@@ -537,11 +675,18 @@ export const AdminPanelPage: React.FC<AdminPanelPageProps> = ({
         destinationId: destId,
         duration,
         basePrice: price,
+        badge,
+        overview: pkgOverview || editingPackage.overview,
+        highlights: highlightsList.length > 0 ? highlightsList : editingPackage.highlights,
+        itinerary: pkgItinerary.length > 0 ? pkgItinerary : editingPackage.itinerary,
         image: pkgImage || editingPackage.image
       };
       onUpdatePackage(updated);
       setEditingPackage(null);
       setPkgImage('');
+      setPkgOverview('');
+      setPkgHighlightsText('');
+      setPkgItinerary([]);
     }
   };
 
@@ -560,6 +705,14 @@ export const AdminPanelPage: React.FC<AdminPanelPageProps> = ({
     else if (destLower.includes('kinnaur')) destId = 'kinnaur';
     else if (destLower.includes('chamba')) destId = 'chamba';
 
+    const highlightsList = pkgHighlightsText
+      ? pkgHighlightsText.split('\n').map(s => s.trim()).filter(Boolean)
+      : [
+          'Scenic high-altitude circuits and secret viewpoints',
+          'Handpicked homestay stays with traditional meals',
+          'Verified local mountain guide & 4x4 transit support'
+        ];
+
     const newPkg: TourPackage = {
       id: `pkg-${Date.now()}`,
       title: pkgTitle,
@@ -569,19 +722,25 @@ export const AdminPanelPage: React.FC<AdminPanelPageProps> = ({
       basePrice: Number(form.pkgPrice?.value) || 14999,
       image: pkgImage || 'https://images.unsplash.com/photo-1581793745862-99fde7fa73d2?auto=format&fit=crop&w=1200&q=80',
       badge: form.pkgBadge?.value || 'Creator Special',
-      overview: form.pkgOverview?.value || `Authentic guided expedition across ${pkgDest}. Handcrafted route, homestay stays, and local mountain expertise.`,
-      highlights: form.pkgHighlights?.value
-        ? form.pkgHighlights.value.split('\n').filter((h: string) => h.trim().length > 0)
-        : [
-            'Scenic high-altitude circuits and secret viewpoints',
-            'Handpicked homestay stays with traditional meals',
-            'Verified local mountain guide & 4x4 transit support'
-          ],
-      itinerary: []
+      overview: pkgOverview || `Authentic guided expedition across ${pkgDest}. Handcrafted route, homestay stays, and local mountain expertise.`,
+      highlights: highlightsList,
+      itinerary: pkgItinerary.length > 0 ? pkgItinerary : [
+        {
+          dayNumber: 1,
+          title: `Arrival & Acclimatization in ${pkgDest}`,
+          description: `Meet your local mountain captain, check in to traditional homestay, and enjoy evening herbal tea.`,
+          stayOption: { standard: 'Boutique Homestay', luxuryUpgrade: 'Luxury Glamping Dome', upgradeCost: 2000 },
+          selectedStay: 'standard',
+          activities: [{ id: 'act-1', name: 'Welcome Tea & Sunset Walk', cost: 0, included: true, selected: true }]
+        }
+      ]
     };
     onCreatePackage(newPkg);
     setIsCreatingPackage(false);
     setPkgImage('');
+    setPkgOverview('');
+    setPkgHighlightsText('');
+    setPkgItinerary([]);
   };
 
   const handleSaveStay = (e: React.FormEvent) => {
@@ -1483,42 +1642,86 @@ export const AdminPanelPage: React.FC<AdminPanelPageProps> = ({
             <div className="flex items-center justify-between bg-slate-900 p-4 rounded-2xl border border-slate-800">
               <div>
                 <h3 className="text-base font-extrabold text-white">Destination Hubs Management</h3>
-                <p className="text-xs text-slate-400">Edit circuit information, regional tags, altitudes, and upload hero photos directly.</p>
+                <p className="text-xs text-slate-400">Add, edit, or remove destination circuits, secret spots, altitudes, and upload 4K drone reels & covers.</p>
               </div>
+              <button
+                onClick={() => {
+                  setIsCreatingDestination(true);
+                  setEditingDestination(null);
+                  setDestHeroImage('');
+                  setDestDroneVideo('');
+                }}
+                className="btn-3d px-4 py-2 rounded-xl bg-pine-600 hover:bg-pine-500 text-white font-extrabold text-xs flex items-center gap-1.5 shadow"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Add Destination Hub</span>
+              </button>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {destinations.map((dest) => (
-                <div key={dest.id} className="rounded-2xl bg-slate-900 border border-slate-800 overflow-hidden group">
-                  <div className="relative h-44 overflow-hidden">
-                    <img src={dest.heroImage} alt={dest.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/30 to-transparent" />
-                    <div className="absolute top-3 left-3 px-2 py-0.5 rounded bg-black/60 backdrop-blur-md text-[10px] font-bold text-amber-300 border border-white/20 font-mono">
-                      {dest.altitude}
-                    </div>
-                    <div className="absolute bottom-3 left-3 right-3 flex justify-between items-end">
-                      <div>
-                        <h4 className="text-base font-extrabold text-white">{dest.name}</h4>
-                        <p className="text-xs text-amber-300">{dest.altitude} • {dest.temperature}</p>
+                <div key={dest.id} className="rounded-2xl bg-slate-900 border border-slate-800 overflow-hidden group flex flex-col justify-between">
+                  <div>
+                    <div className="relative h-48 overflow-hidden">
+                      <img src={dest.heroImage} alt={dest.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/30 to-transparent" />
+                      <div className="absolute top-3 left-3 px-2 py-0.5 rounded bg-black/60 backdrop-blur-md text-[10px] font-bold text-amber-300 border border-white/20 font-mono">
+                        {dest.altitude}
                       </div>
+                      <div className="absolute top-3 right-3 px-2 py-0.5 rounded bg-pine-900/80 backdrop-blur-md text-[10px] font-bold text-pine-300 border border-pine-700/50">
+                        {dest.bestTimeToVisit}
+                      </div>
+                      <div className="absolute bottom-3 left-3 right-3">
+                        <div className="flex items-center gap-2">
+                          <h4 className="text-base font-extrabold text-white">{dest.name}</h4>
+                          <span className="text-xs text-amber-300 font-serif">({dest.hindiName})</span>
+                        </div>
+                        <p className="text-[11px] text-slate-300 line-clamp-1">{dest.tagline}</p>
+                      </div>
+                    </div>
+
+                    <div className="p-4 space-y-3">
+                      <p className="text-xs text-slate-300 line-clamp-2">{dest.description}</p>
+                      
+                      {dest.secretSpot && (
+                        <div className="p-2.5 rounded-xl bg-amber-950/30 border border-amber-800/40 text-[11px] space-y-1">
+                          <div className="flex items-center gap-1 font-bold text-amber-400">
+                            <Sparkles className="w-3.5 h-3.5" />
+                            <span>Secret Spot: {dest.secretSpot.title}</span>
+                          </div>
+                          <p className="text-slate-300 line-clamp-1">{dest.secretSpot.description}</p>
+                        </div>
+                      )}
                     </div>
                   </div>
 
-                  <div className="p-4 space-y-3">
-                    <p className="text-xs text-slate-300 line-clamp-2">{dest.description}</p>
-                    <div className="flex items-center justify-between pt-2 border-t border-slate-800">
-                      <span className="text-xs font-bold text-emerald-400">From ₹{dest.startingPrice.toLocaleString('en-IN')}</span>
-                      <button
-                        onClick={() => {
-                          setEditingDestination(dest);
-                          setDestHeroImage(dest.heroImage);
-                          setDestDroneVideo(dest.droneVideoPreview || '');
-                        }}
-                        className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold flex items-center gap-1.5"
-                      >
-                        <Edit2 className="w-3.5 h-3.5 text-amber-400" />
-                        <span>Edit Hub</span>
-                      </button>
+                  <div className="p-4 pt-0">
+                    <div className="flex items-center justify-between pt-3 border-t border-slate-800">
+                      <div>
+                        <span className="text-[10px] text-slate-400 uppercase tracking-wider block">Starting</span>
+                        <span className="text-xs font-extrabold text-emerald-400">₹{dest.startingPrice.toLocaleString('en-IN')}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => {
+                            setEditingDestination(dest);
+                            setIsCreatingDestination(false);
+                            setDestHeroImage(dest.heroImage);
+                            setDestDroneVideo(dest.droneVideoPreview || '');
+                          }}
+                          className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold flex items-center gap-1.5 transition-colors"
+                        >
+                          <Edit2 className="w-3.5 h-3.5 text-amber-400" />
+                          <span>Edit</span>
+                        </button>
+                        <button
+                          onClick={() => handleDeleteDestinationClick(dest.id, dest.name)}
+                          className="p-1.5 rounded-xl bg-rose-950/50 hover:bg-rose-900/80 text-rose-400 hover:text-rose-200 border border-rose-800/40 transition-colors"
+                          title="Delete Destination"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1538,7 +1741,20 @@ export const AdminPanelPage: React.FC<AdminPanelPageProps> = ({
               <button
                 onClick={() => {
                   setIsCreatingPackage(true);
+                  setEditingPackage(null);
                   setPkgImage('');
+                  setPkgOverview('Handcrafted mountain expedition featuring scenic high-pass routes, curated homestays, and verified local guidance.');
+                  setPkgHighlightsText('Scenic high-altitude circuits and secret viewpoints\nHandpicked homestay stays with traditional meals\nVerified local mountain guide & 4x4 transit support');
+                  setPkgItinerary([
+                    {
+                      dayNumber: 1,
+                      title: 'Arrival & Acclimatization Trail',
+                      description: 'Warm pahadi welcome, check-in to homestay, and leisurely pine forest trail.',
+                      stayOption: { standard: 'Boutique Pahadi Homestay', luxuryUpgrade: 'Luxury Valley Chalet', upgradeCost: 2500 },
+                      selectedStay: 'standard',
+                      activities: [{ id: 'act-1', name: 'Pine Trail & Welcome Tea', cost: 0, included: true, selected: true }]
+                    }
+                  ]);
                 }}
                 className="btn-3d px-4 py-2 rounded-xl bg-pine-600 hover:bg-pine-500 text-white font-extrabold text-xs flex items-center gap-1.5 shadow"
               >
@@ -1580,7 +1796,20 @@ export const AdminPanelPage: React.FC<AdminPanelPageProps> = ({
                     <button
                       onClick={() => {
                         setEditingPackage(pkg);
+                        setIsCreatingPackage(false);
                         setPkgImage(pkg.image);
+                        setPkgOverview(pkg.overview || '');
+                        setPkgHighlightsText((pkg.highlights || []).join('\n'));
+                        setPkgItinerary(pkg.itinerary && pkg.itinerary.length > 0 ? JSON.parse(JSON.stringify(pkg.itinerary)) : [
+                          {
+                            dayNumber: 1,
+                            title: `Explore ${pkg.destination}`,
+                            description: pkg.overview || 'Guided exploration with authentic homestay dinner.',
+                            stayOption: { standard: 'Boutique Homestay', luxuryUpgrade: 'Luxury Glamping Dome', upgradeCost: 2000 },
+                            selectedStay: 'standard',
+                            activities: [{ id: 'act-1', name: 'Local Sightseeing & Culture', cost: 0, included: true, selected: true }]
+                          }
+                        ]);
                       }}
                       className="text-xs text-amber-400 hover:underline font-bold flex items-center gap-1"
                     >
@@ -2050,47 +2279,176 @@ export const AdminPanelPage: React.FC<AdminPanelPageProps> = ({
         </div>
       )}
 
-      {/* ================= MODAL: DESTINATION EDITOR WITH MEDIA UPLOADER ================= */}
-      {editingDestination && (
+      {/* ================= MODAL: DESTINATION CREATOR / EDITOR WITH FULL MEDIA & ATTRIBUTES ================= */}
+      {(editingDestination || isCreatingDestination) && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 animate-fadeIn">
           <div className="relative w-full max-w-2xl bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center border-b border-slate-800 pb-3">
-              <h3 className="text-base font-extrabold text-white">Edit Destination: {editingDestination.name}</h3>
-              <button onClick={() => setEditingDestination(null)} className="text-slate-400 hover:text-white">
+              <div>
+                <h3 className="text-base font-extrabold text-white">
+                  {editingDestination ? `Edit Destination Hub: ${editingDestination.name}` : 'Add New Destination Hub'}
+                </h3>
+                <p className="text-xs text-slate-400">Configure circuit details, altitudes, secret spot lore, and cover media.</p>
+              </div>
+              <button 
+                onClick={() => {
+                  setEditingDestination(null);
+                  setIsCreatingDestination(false);
+                }} 
+                className="text-slate-400 hover:text-white"
+              >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <form onSubmit={handleSaveDestination} className="space-y-4">
-              <div className="grid grid-cols-2 gap-3">
+            <form onSubmit={editingDestination ? handleSaveDestination : handleCreateDestinationSubmit} className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-300">Altitude</label>
+                  <label className="block text-xs font-bold text-slate-300">Destination Name (English)</label>
                   <input
+                    name="destName"
                     type="text"
-                    value={editingDestination.altitude}
-                    onChange={(e) => setEditingDestination({ ...editingDestination, altitude: e.target.value })}
+                    defaultValue={editingDestination?.name || ''}
+                    placeholder="e.g. Spiti Valley"
+                    required
                     className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-300">Temperature</label>
+                  <label className="block text-xs font-bold text-slate-300">Hindi Name / Pahadi Script</label>
                   <input
+                    name="destHindiName"
                     type="text"
-                    value={editingDestination.temperature}
-                    onChange={(e) => setEditingDestination({ ...editingDestination, temperature: e.target.value })}
+                    defaultValue={editingDestination?.hindiName || ''}
+                    placeholder="e.g. स्पीति घाटी"
+                    required
                     className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-300">Description</label>
+                <label className="block text-xs font-bold text-slate-300">Tagline / Subtitle</label>
+                <input
+                  name="destTagline"
+                  type="text"
+                  defaultValue={editingDestination?.tagline || ''}
+                  placeholder="e.g. The Middle Land • Cold Desert High Passes"
+                  required
+                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white"
+                />
+              </div>
+
+              <div className="grid grid-cols-3 gap-2">
+                <div>
+                  <label className="block text-xs font-bold text-slate-300">Altitude</label>
+                  <input
+                    name="destAltitude"
+                    type="text"
+                    defaultValue={editingDestination?.altitude || '12,500 ft'}
+                    placeholder="e.g. 12,500 ft"
+                    required
+                    className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-300">Temperature</label>
+                  <input
+                    name="destTemperature"
+                    type="text"
+                    defaultValue={editingDestination?.temperature || '-5°C to 15°C'}
+                    placeholder="e.g. -5°C to 15°C"
+                    required
+                    className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-300">Starting Price (₹)</label>
+                  <input
+                    name="destPrice"
+                    type="number"
+                    defaultValue={editingDestination?.startingPrice || 16999}
+                    placeholder="e.g. 16999"
+                    required
+                    className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-emerald-400 font-mono font-bold"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-slate-300">Best Season to Visit</label>
+                  <input
+                    name="destBestTime"
+                    type="text"
+                    defaultValue={editingDestination?.bestTimeToVisit || 'May - October'}
+                    placeholder="e.g. May - October (Roads Open)"
+                    required
+                    className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-300">Must-Visit Spots (Comma Separated)</label>
+                  <input
+                    name="destMustVisit"
+                    type="text"
+                    defaultValue={(editingDestination?.mustVisitSpots || ['Kaza', 'Key Monastery', 'Chandratal', 'Langza']).join(', ')}
+                    placeholder="e.g. Kaza, Key Monastery, Chandratal, Langza"
+                    className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-300">Destination Description</label>
                 <textarea
+                  name="destDescription"
                   rows={3}
-                  value={editingDestination.description}
-                  onChange={(e) => setEditingDestination({ ...editingDestination, description: e.target.value })}
+                  defaultValue={editingDestination?.description || ''}
+                  placeholder="Describe the landscape, culture, road connectivity and vibe..."
+                  required
                   className="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white"
                 />
+              </div>
+
+              {/* Secret Spot Lore Section */}
+              <div className="p-3.5 bg-slate-950 rounded-2xl border border-slate-800 space-y-3">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-amber-400">
+                  <Sparkles className="w-4 h-4" />
+                  <span>Monu Secret Spot & Off-Grid Location</span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400">Secret Spot Title</label>
+                    <input
+                      name="destSecretTitle"
+                      type="text"
+                      defaultValue={editingDestination?.secretSpot?.title || ''}
+                      placeholder="e.g. Dhankar Lake Trail"
+                      className="w-full px-3 py-1.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400">Creator Tip</label>
+                    <input
+                      name="destSecretTip"
+                      type="text"
+                      defaultValue={editingDestination?.secretSpot?.creatorTip || ''}
+                      placeholder="e.g. Start early morning before high pass winds"
+                      className="w-full px-3 py-1.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-400">Secret Spot Description</label>
+                  <textarea
+                    name="destSecretDesc"
+                    rows={2}
+                    defaultValue={editingDestination?.secretSpot?.description || ''}
+                    placeholder="Describe how to reach and why this spot is special..."
+                    className="w-full p-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white"
+                  />
+                </div>
               </div>
 
               {/* Direct Media Upload for Destination Cover Photo */}
@@ -2100,13 +2458,30 @@ export const AdminPanelPage: React.FC<AdminPanelPageProps> = ({
                 onMediaChange={(url) => setDestHeroImage(url)}
                 accept="image"
                 aspectRatio="wide"
-                helperText="Upload any authentic landscape photo directly from your device gallery."
+                helperText="Upload an authentic landscape photo for the destination card header."
               />
+
+              {/* 4K Drone Video URL / File */}
+              <div className="space-y-1.5">
+                <label className="block text-xs font-bold text-slate-300">
+                  4K Drone Video Preview (MP4 URL / Mixkit / Cloudinary)
+                </label>
+                <input
+                  type="text"
+                  value={destDroneVideo}
+                  onChange={(e) => setDestDroneVideo(e.target.value)}
+                  placeholder="e.g. https://assets.mixkit.co/videos/preview/mixkit-flying-over-snow-capped-mountains-41566-large.mp4"
+                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white"
+                />
+              </div>
 
               <div className="flex justify-end gap-2 pt-2 border-t border-slate-800">
                 <button
                   type="button"
-                  onClick={() => setEditingDestination(null)}
+                  onClick={() => {
+                    setEditingDestination(null);
+                    setIsCreatingDestination(false);
+                  }}
                   className="px-4 py-2 rounded-xl bg-slate-800 text-xs font-bold text-slate-300"
                 >
                   Cancel
@@ -2115,7 +2490,7 @@ export const AdminPanelPage: React.FC<AdminPanelPageProps> = ({
                   type="submit"
                   className="px-5 py-2 rounded-xl bg-pine-600 hover:bg-pine-500 text-xs font-extrabold text-white"
                 >
-                  Save Destination
+                  {editingDestination ? 'Save Destination Hub' : 'Create Destination Hub'}
                 </button>
               </div>
             </form>
@@ -2123,18 +2498,24 @@ export const AdminPanelPage: React.FC<AdminPanelPageProps> = ({
         </div>
       )}
 
-      {/* ================= MODAL: TOUR PACKAGE CREATOR / EDITOR ================= */}
+      {/* ================= MODAL: TOUR PACKAGE CREATOR / EDITOR WITH DAY-BY-DAY ITINERARY PLANNER ================= */}
       {(editingPackage || isCreatingPackage) && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 animate-fadeIn">
-          <div className="relative w-full max-w-2xl bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+          <div className="relative w-full max-w-3xl bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center border-b border-slate-800 pb-3">
-              <h3 className="text-base font-extrabold text-white">
-                {editingPackage ? `Edit Package: ${editingPackage.title}` : 'Launch New Tour Package'}
-              </h3>
+              <div>
+                <h3 className="text-base font-extrabold text-white">
+                  {editingPackage ? `Edit Package: ${editingPackage.title}` : 'Launch New Tour Package'}
+                </h3>
+                <p className="text-xs text-slate-400">Customize route overview, key highlights, and day-by-day expedition timeline.</p>
+              </div>
               <button
                 onClick={() => {
                   setEditingPackage(null);
                   setIsCreatingPackage(false);
+                  setPkgOverview('');
+                  setPkgHighlightsText('');
+                  setPkgItinerary([]);
                 }}
                 className="text-slate-400 hover:text-white"
               >
@@ -2143,16 +2524,28 @@ export const AdminPanelPage: React.FC<AdminPanelPageProps> = ({
             </div>
 
             <form onSubmit={editingPackage ? handleSavePackage : handleCreatePackageSubmit} className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold text-slate-300">Package Title</label>
-                <input
-                  name="pkgTitle"
-                  type="text"
-                  defaultValue={editingPackage?.title || ''}
-                  placeholder="e.g. Spiti Valley 7-Day High Pass Expedition"
-                  required
-                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white"
-                />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-slate-300">Package Title</label>
+                  <input
+                    name="pkgTitle"
+                    type="text"
+                    defaultValue={editingPackage?.title || ''}
+                    placeholder="e.g. Spiti Valley 7-Day High Pass Expedition"
+                    required
+                    className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-300">Badge Tag</label>
+                  <input
+                    name="pkgBadge"
+                    type="text"
+                    defaultValue={editingPackage?.badge || 'Creator Special'}
+                    placeholder="e.g. Creator Special, Bestseller, Off-Grid 4x4"
+                    className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white"
+                  />
+                </div>
               </div>
 
               <div className="grid grid-cols-3 gap-2">
@@ -2188,6 +2581,37 @@ export const AdminPanelPage: React.FC<AdminPanelPageProps> = ({
                 </div>
               </div>
 
+              {/* Package Overview Description */}
+              <div>
+                <label className="block text-xs font-bold text-slate-300">
+                  Package Overview & Experience Narrative
+                </label>
+                <textarea
+                  rows={3}
+                  value={pkgOverview}
+                  onChange={(e) => setPkgOverview(e.target.value)}
+                  placeholder="Provide a vivid description of this itinerary, the passes crossed, culture experienced, and why it's special..."
+                  required
+                  className="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white"
+                />
+              </div>
+
+              {/* Key Highlights */}
+              <div>
+                <label className="block text-xs font-bold text-slate-300">
+                  Key Highlights (One per line)
+                </label>
+                <textarea
+                  rows={3}
+                  value={pkgHighlightsText}
+                  onChange={(e) => setPkgHighlightsText(e.target.value)}
+                  placeholder="Scenic high-altitude circuits
+Traditional homestay hospitality
+Verified local mountain guide"
+                  className="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white font-mono text-[11px]"
+                />
+              </div>
+
               {/* Direct Media Upload for Tour Package Cover Photo */}
               <MediaUploader
                 label="Package Cover Photo (Direct from Gallery or URL)"
@@ -2198,12 +2622,124 @@ export const AdminPanelPage: React.FC<AdminPanelPageProps> = ({
                 helperText="Upload any mountain pass, trek, or scenic circuit photo directly from your device."
               />
 
+              {/* Day-by-Day Itinerary Planner Section */}
+              <div className="pt-3 border-t border-slate-800 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="text-xs font-extrabold text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+                      <Calendar className="w-4 h-4" />
+                      <span>Day-by-Day Itinerary & Route Planner ({pkgItinerary.length} Days)</span>
+                    </h4>
+                    <p className="text-[11px] text-slate-400">Configure daily routes, descriptions, homestay stays, luxury upgrades, and activities.</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleAddPackageDay}
+                    className="px-3 py-1.5 rounded-xl bg-pine-800/80 hover:bg-pine-700 text-pine-200 text-xs font-bold flex items-center gap-1 border border-pine-700"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Add Day</span>
+                  </button>
+                </div>
+
+                <div className="space-y-3 max-h-96 overflow-y-auto pr-1">
+                  {pkgItinerary.map((day, idx) => (
+                    <div key={idx} className="p-3.5 bg-slate-950 rounded-2xl border border-slate-800 space-y-2.5">
+                      <div className="flex items-center justify-between">
+                        <span className="px-2.5 py-0.5 rounded-full bg-pine-950 text-pine-300 font-bold text-[11px] border border-pine-800">
+                          Day {day.dayNumber}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => handleRemovePackageDay(idx)}
+                          className="p-1 text-slate-500 hover:text-rose-400 transition-colors"
+                          title="Remove Day"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+
+                      <div className="space-y-2">
+                        <div>
+                          <label className="block text-[10px] font-bold text-slate-400 uppercase">Day Title</label>
+                          <input
+                            type="text"
+                            value={day.title}
+                            onChange={(e) => handleUpdatePackageDay(idx, 'title', e.target.value)}
+                            placeholder="e.g. Manali to Kaza via Atal Tunnel & Kunzum Pass"
+                            className="w-full px-3 py-1.5 bg-slate-900 border border-slate-800 rounded-lg text-xs text-white"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-[10px] font-bold text-slate-400 uppercase">Day Plan / Route Description</label>
+                          <textarea
+                            rows={2}
+                            value={day.description}
+                            onChange={(e) => handleUpdatePackageDay(idx, 'description', e.target.value)}
+                            placeholder="Detail the morning departure, scenic stops, lunch points, altitude gains, and evening arrival..."
+                            className="w-full p-2 bg-slate-900 border border-slate-800 rounded-lg text-xs text-white"
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
+                          <div>
+                            <label className="block text-[10px] font-bold text-slate-400 uppercase">Standard Stay</label>
+                            <input
+                              type="text"
+                              value={day.stayOption?.standard || ''}
+                              onChange={(e) => handleUpdatePackageDay(idx, 'standardStay', e.target.value)}
+                              placeholder="e.g. Mud Cottage Homestay"
+                              className="w-full px-2.5 py-1.5 bg-slate-900 border border-slate-800 rounded-lg text-white text-xs"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] font-bold text-slate-400 uppercase">Luxury Upgrade Stay</label>
+                            <input
+                              type="text"
+                              value={day.stayOption?.luxuryUpgrade || ''}
+                              onChange={(e) => handleUpdatePackageDay(idx, 'luxuryStay', e.target.value)}
+                              placeholder="e.g. Glass Igloo Dome"
+                              className="w-full px-2.5 py-1.5 bg-slate-900 border border-slate-800 rounded-lg text-white text-xs"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] font-bold text-slate-400 uppercase">Upgrade Cost (₹)</label>
+                            <input
+                              type="number"
+                              value={day.stayOption?.upgradeCost || 0}
+                              onChange={(e) => handleUpdatePackageDay(idx, 'upgradeCost', e.target.value)}
+                              placeholder="2500"
+                              className="w-full px-2.5 py-1.5 bg-slate-900 border border-slate-800 rounded-lg text-emerald-400 font-mono text-xs font-bold"
+                            />
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-[10px] font-bold text-slate-400 uppercase">Activities / Key Stops (Comma Separated)</label>
+                          <input
+                            type="text"
+                            value={(day.activities || []).map((a: any) => a.name).join(', ')}
+                            onChange={(e) => handleUpdatePackageDay(idx, 'activities', e.target.value)}
+                            placeholder="e.g. Kunzum Stupa Pradakshina, Chacha Chachi Dhaba Lunch, High Pass Photography"
+                            className="w-full px-2.5 py-1.5 bg-slate-900 border border-slate-800 rounded-lg text-slate-300 text-xs"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
               <div className="flex justify-end gap-2 pt-2 border-t border-slate-800">
                 <button
                   type="button"
                   onClick={() => {
                     setEditingPackage(null);
                     setIsCreatingPackage(false);
+                    setPkgOverview('');
+                    setPkgHighlightsText('');
+                    setPkgItinerary([]);
                   }}
                   className="px-4 py-2 rounded-xl bg-slate-800 text-xs font-bold text-slate-300"
                 >
@@ -2213,7 +2749,7 @@ export const AdminPanelPage: React.FC<AdminPanelPageProps> = ({
                   type="submit"
                   className="px-5 py-2 rounded-xl bg-pine-600 hover:bg-pine-500 text-xs font-extrabold text-white"
                 >
-                  Save Package
+                  {editingPackage ? 'Save Package & Timeline' : 'Create Package'}
                 </button>
               </div>
             </form>

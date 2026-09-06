@@ -265,6 +265,24 @@ export function App() {
     });
   };
 
+  const handleCreateDestination = (newDest: Destination) => {
+    setDestinations(prev => {
+      const next = [newDest, ...prev];
+      syncService.saveDestinations(next);
+      syncService.broadcast('DESTINATIONS_UPDATED', next);
+      return next;
+    });
+  };
+
+  const handleDeleteDestination = (destId: string) => {
+    setDestinations(prev => {
+      const next = prev.filter(d => d.id !== destId);
+      syncService.saveDestinations(next);
+      syncService.broadcast('DESTINATIONS_UPDATED', next);
+      return next;
+    });
+  };
+
   // Handlers for Packages
   const handleUpdatePackage = (updatedPkg: TourPackage) => {
     setPackages(prev => {
@@ -559,6 +577,8 @@ export function App() {
       <AdminPanelPage
         destinations={destinations}
         onUpdateDestination={handleUpdateDestination}
+        onCreateDestination={handleCreateDestination}
+        onDeleteDestination={handleDeleteDestination}
         packages={packages}
         onUpdatePackage={handleUpdatePackage}
         onCreatePackage={handleCreatePackage}

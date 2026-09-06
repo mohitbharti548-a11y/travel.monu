@@ -45,7 +45,7 @@ export const CustomPackageBuilder: React.FC<CustomPackageBuilderProps> = ({
   onOpenAuth
 }) => {
   const activePackages = packages && packages.length > 0 ? packages : TOUR_PACKAGES;
-  const [activeMode, setActiveMode] = useState<'studio' | 'pre-curated'>('studio');
+  const [activeMode, setActiveMode] = useState<'studio' | 'pre-curated'>('pre-curated');
   const [selectedPackageId, setSelectedPackageId] = useState<string>(activePackages[0].id);
   const [travelersCount, setTravelersCount] = useState<number>(2);
   const [travelDate, setTravelDate] = useState<string>('2026-09-18');
@@ -166,18 +166,6 @@ export const CustomPackageBuilder: React.FC<CustomPackageBuilderProps> = ({
           {/* Mode Switcher Tabs */}
           <div className="flex flex-col sm:inline-flex sm:flex-row p-1.5 bg-slate-200/80 dark:bg-slatehimachal-800/80 rounded-2xl mt-6 border border-slate-300/70 dark:border-slate-700 shadow-inner max-w-xl mx-auto gap-1">
             <button
-              onClick={() => setActiveMode('studio')}
-              className={`btn-3d flex items-center justify-center gap-2 px-4 py-3 sm:py-2.5 rounded-xl font-extrabold text-xs transition-all cursor-pointer ${
-                activeMode === 'studio'
-                  ? 'bg-pine-700 text-white shadow-md'
-                  : 'text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
-              }`}
-            >
-              <Sliders className="w-3.5 h-3.5" />
-              <span>Custom Trip Studio</span>
-            </button>
-
-            <button
               onClick={() => setActiveMode('pre-curated')}
               className={`btn-3d flex items-center justify-center gap-2 px-4 py-3 sm:py-2.5 rounded-xl font-extrabold text-xs transition-all cursor-pointer ${
                 activeMode === 'pre-curated'
@@ -187,6 +175,18 @@ export const CustomPackageBuilder: React.FC<CustomPackageBuilderProps> = ({
             >
               <Compass className="w-3.5 h-3.5" />
               <span>Pre-Curated Timelines</span>
+            </button>
+
+            <button
+              onClick={() => setActiveMode('studio')}
+              className={`btn-3d flex items-center justify-center gap-2 px-4 py-3 sm:py-2.5 rounded-xl font-extrabold text-xs transition-all cursor-pointer ${
+                activeMode === 'studio'
+                  ? 'bg-pine-700 text-white shadow-md'
+                  : 'text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              <Sliders className="w-3.5 h-3.5" />
+              <span>Custom Trip Studio</span>
             </button>
           </div>
         </div>
