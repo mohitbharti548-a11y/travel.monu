@@ -1,0 +1,96 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply antialiased overflow-x-hidden;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-slate-300 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-pine-600;
+}
+
+/* 3D Perspective & Hover Effect Classes */
+.perspective-container {
+  perspective: 1000px;
+  transform-style: preserve-3d;
+}
+
+.card-3d {
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.4s ease;
+  transform-style: preserve-3d;
+  will-change: transform, box-shadow;
+}
+
+.card-3d:hover {
+  transform: translateY(-8px) scale(1.02) rotateX(2deg) rotateY(-1deg);
+  box-shadow: 0 25px 35px -5px rgba(20, 83, 45, 0.12), 0 15px 15px -5px rgba(0, 0, 0, 0.06);
+}
+
+.btn-3d {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.btn-3d:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 10px 20px -3px rgba(20, 83, 45, 0.25);
+}
+
+.btn-3d:active {
+  transform: translateY(1px) scale(0.98);
+}
+
+/* 3D Typography Depth */
+.text-3d-depth {
+  text-shadow: 0 1px 2px rgba(0,0,0,0.1), 0 4px 8px rgba(0,0,0,0.08);
+}
+
+.text-3d-heavy {
+  text-shadow: 0 2px 4px rgba(0,0,0,0.3), 0 8px 16px rgba(0,0,0,0.4);
+}
+
+/* Glassmorphism Classes */
+.glass-panel {
+  @apply bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200/80 dark:border-slate-800 shadow-xl;
+}
+
+.glass-dark {
+  @apply bg-slate-950/90 backdrop-blur-md border border-slate-800 shadow-2xl;
+}
+
+.font-takri-glow {
+  text-shadow: 0 0 12px rgba(245, 158, 11, 0.3);
+}
+
+/* Subtle Mountain Topographic Vector Pattern Overlay */
+.bg-topo-pattern {
+  background-image: radial-gradient(rgba(20, 83, 45, 0.08) 1px, transparent 0);
+  background-size: 24px 24px;
+}
+
+.dark .bg-topo-pattern {
+  background-image: radial-gradient(rgba(245, 158, 11, 0.08) 1px, transparent 0);
+  background-size: 24px 24px;
+}
+
+/* Section Backing Cards for crisp text contrast */
+.content-glass-card {
+  @apply bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border border-slate-200/90 dark:border-slate-800 shadow-xl;
+}
+
