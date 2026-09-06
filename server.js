@@ -160,14 +160,166 @@ const defaultState = {
     }
   ],
   destinationsList: [
-    { id: 'manali', name: 'Manali', altitude: '2,050m', temperature: '14°C', startingPrice: 12499 },
-    { id: 'spiti', name: 'Spiti Valley', altitude: '3,800m', temperature: '-2°C', startingPrice: 24999 },
-    { id: 'kaza', name: 'Kaza', altitude: '3,650m', temperature: '1°C', startingPrice: 18999 },
-    { id: 'dharamshala', name: 'Dharamshala & McLeodGanj', altitude: '1,750m', temperature: '18°C', startingPrice: 9999 },
-    { id: 'shimla', name: 'Shimla', altitude: '2,276m', temperature: '16°C', startingPrice: 8999 },
-    { id: 'kullu', name: 'Kullu', altitude: '1,279m', temperature: '20°C', startingPrice: 7999 },
-    { id: 'mandi', name: 'Mandi', altitude: '850m', temperature: '22°C', startingPrice: 6999 },
-    { id: 'chamba', name: 'Chamba & Khajjiar', altitude: '4,414m', temperature: '17°C', startingPrice: 10999 }
+    {
+      id: 'manali',
+      name: 'Manali',
+      hindiName: 'मनाली',
+      tagline: 'Valley of the Gods & Ancient Pine Forests',
+      altitude: '2,050 m (6,726 ft)',
+      temperature: '14°C ⛅',
+      bestTimeToVisit: 'March – June & Oct – Feb (Snow)',
+      heroImage: 'https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?auto=format&fit=crop&w=1600&q=80',
+      description: 'Set amidst cedar forests and snow-draped Dhauladhar peaks, Manali blends old Himachali heritage with thrilling adventures through Solang, Sethan, and the high-altitude Atal Tunnel gateway.',
+      mustVisitSpots: ['Old Manali Heritage Village', 'Jogini Waterfalls Trail', 'Sethan Igloo & Apple Orchards', 'Atal Tunnel to Sissu'],
+      secretSpot: {
+        title: 'Majach Village Pine Meadow',
+        description: 'A secluded 45-minute pine ridge hike beyond Old Manali with zero commercial footfall, direct views of Friendship Peak, and crystal fresh natural spring water.',
+        bestTime: 'Sunrise (6:30 AM) or Sunset',
+        creatorTip: 'Carry a thermos of fresh chai from Babaji cafe at the trailhead and sit at the wooden cedar bench near the stream.'
+      },
+      startingPrice: 12499,
+      popularActivities: ['Paragliding in Solang', 'Cedar Forest Cafe Trail', 'Sethan Off-roading', 'Hot Sulphur Baths at Vashisht']
+    },
+    {
+      id: 'spiti',
+      name: 'Spiti Valley',
+      hindiName: 'स्पीति घाटी',
+      tagline: 'The Middle Land • High Altitude Desert & Stargazing',
+      altitude: '3,800 m (12,500 ft)',
+      temperature: '-2°C ❄️',
+      bestTimeToVisit: 'June – October (Roads Open) / Feb (Snow Expedition)',
+      heroImage: 'https://images.unsplash.com/photo-1581793745862-99fde7fa73d2?auto=format&fit=crop&w=1600&q=80',
+      description: 'A surreal cold desert wonderland where ancient Tibetan Buddhist monasteries perch on sheer cliffs and the Milky Way illuminates the Himalayan night sky with crystal brilliance.',
+      mustVisitSpots: ['Key Monastery 1,000-year shrine', 'Chicham Bridge (Asia Highest)', 'Hikkim Highest Post Office', 'Dhankar Cliffside Monastery'],
+      secretSpot: {
+        title: 'Tashigang Star Ridge & Fossil Trail',
+        description: 'Perched above Langza at 4,400m, Tashigang has only 4 resident families and the lowest light pollution index in India. Marine Tethys fossils rest right along the shepherd trail.',
+        bestTime: 'Night Stargazing (10:00 PM – 2:00 AM)',
+        creatorTip: 'Bring your tripod; you can capture the Key Monastery silhouette framed right beneath the galactic core.'
+      },
+      startingPrice: 24999,
+      popularActivities: ['Milky Way Astro-Photography', 'Fossil Hunting in Langza', 'Chicham Gorge Zip Experience', 'Monastery Morning Chants']
+    },
+    {
+      id: 'kaza',
+      name: 'Kaza',
+      hindiName: 'काज़ा',
+      tagline: 'The Heart of Spiti & Cultural Crossroads',
+      altitude: '3,650 m (11,980 ft)',
+      temperature: '1°C 🌤️',
+      bestTimeToVisit: 'May – October',
+      heroImage: 'https://images.unsplash.com/photo-1596701062351-8c2c14d1fdd0?auto=format&fit=crop&w=1600&q=80',
+      description: 'The administrative heart of Spiti, Kaza is a vibrant tribal outpost with organic sea-buckthorn cafes, Tibetan craft markets, and the gateway to high-altitude passes.',
+      mustVisitSpots: ['Kaza Main Market & Craft Bazaar', 'Sakya Tengyeling Gompa', 'Spiti River Pebble Beach', 'Highest Fuel Station in World (Kaza)'],
+      secretSpot: {
+        title: 'Rambir Riverside Willow Grove',
+        description: 'A quiet bend along the braided turquoise Spiti River flanked by yellow wild willows, where Himalayan blue sheep frequently graze in the late afternoon.',
+        bestTime: '4:00 PM Golden Hour',
+        creatorTip: 'Try the fresh Seabuckthorn tea brewed with local honey at the solar cafe right by the river.'
+      },
+      startingPrice: 18999,
+      popularActivities: ['Seabuckthorn Tasting', 'Yak Wool Weaving Workshop', 'Motorbike Circuit Rendezvous', 'Riverside Campfire']
+    },
+    {
+      id: 'dharamshala',
+      name: 'Dharamshala & McLeodGanj',
+      hindiName: 'धर्मशाला',
+      tagline: 'Little Lhasa • Cedar Mist & Tibetan Heritage',
+      altitude: '1,750 m (5,740 ft)',
+      temperature: '18°C 🌦️',
+      bestTimeToVisit: 'September – June',
+      heroImage: 'https://images.unsplash.com/photo-1506197603052-3cc9c3a201bd?auto=format&fit=crop&w=1600&q=80',
+      description: 'Home to His Holiness the Dalai Lama and the Tibetan government in exile, nestled below the imposing rocky towers of the Dhauladhar range amidst lush tea gardens.',
+      mustVisitSpots: ['Tsuglagkhang Complex', 'Triund Mountain Ridge Trail', 'Norbulingka Tibetan Institute', 'Dharamkot Bohemian Village'],
+      secretSpot: {
+        title: 'Gallu Waterfall Hidden Stream Pool',
+        description: 'Beyond Gallu Devi temple on the quiet path to Kareri, this cascading glacial pool is secluded from regular McLeod tourists and surrounded by rhododendron flowers.',
+        bestTime: 'Early Morning 8:00 AM',
+        creatorTip: 'Pick up Tibetan Tingmo and spicy Momos from Ama Cafe in McLeod before hiking up.'
+      },
+      startingPrice: 9999,
+      popularActivities: ['Triund Trek with Tent Stay', 'Tibetan Thangka Painting Session', 'Kangra Valley Tea Tasting', 'Meditation & Sound Bowls']
+    },
+    {
+      id: 'shimla',
+      name: 'Shimla',
+      hindiName: 'शिमला',
+      tagline: 'Queen of Hills • Colonial Charm & Oak Canopies',
+      altitude: '2,276 m (7,467 ft)',
+      temperature: '16°C ☀️',
+      bestTimeToVisit: 'Year-Round (Dec-Jan for White Christmas)',
+      heroImage: 'https://images.unsplash.com/photo-1562670652-e5947bddb335?auto=format&fit=crop&w=1600&q=80',
+      description: 'The historic summer capital of British India with pedestrianized Ridge promenades, Tudor-style heritage buildings, dense deodar forests, and vintage Toy Train rides.',
+      mustVisitSpots: ['The Ridge & Christ Church', 'Viceregal Lodge (IIAS)', 'Jakhu Temple & Ropeway', 'Mashobra Apple & Cedar Trail'],
+      secretSpot: {
+        title: 'Craignano Fruit Orchards & Nature Path',
+        description: 'An Italian-style cedar estate near Mashobra built in 1890 with manicured alpine moss pathways, wild apple trees, and zero traffic noise.',
+        bestTime: 'Spring (April) or Autumn (October)',
+        creatorTip: 'The heritage water supply pond has ancient stone benches that look out straight across the Shivalik foothills.'
+      },
+      startingPrice: 8999,
+      popularActivities: ['Kalka-Shimla Toy Train Heritage', 'Mashobra Forest Glamping', 'Heritage Architecture Walk', 'Ice Skating (Winter)']
+    },
+    {
+      id: 'kullu',
+      name: 'Kullu',
+      hindiName: 'कुल्लू',
+      tagline: 'Valley of Apple Orchards & Beas River Rafting',
+      altitude: '1,279 m (4,196 ft)',
+      temperature: '20°C ☀️',
+      bestTimeToVisit: 'September – November (Dussehra) & March – June',
+      heroImage: 'https://images.unsplash.com/photo-1596701062351-8c2c14d1fdd0?auto=format&fit=crop&w=1600&q=80',
+      description: 'Famed for traditional handloom Kullu shawls, vibrant devta temples, surging white water rapids of the Beas River, and the serene Tirthan Valley gateway.',
+      mustVisitSpots: ['Bijli Mahadev Scenic Peak', 'Beas White Water Rafting Stretch', 'Naggar Castle & Roerich Art Gallery', 'Great Himalayan National Park Gateway'],
+      secretSpot: {
+        title: 'Jana Waterfall Traditional Himachali Kitchen',
+        description: 'Hidden in a cedar ravine beyond Naggar, featuring a centuries-old wooden bridge and an authentic open-hearth kitchen serving Siddu, red rice, and walnut chutney.',
+        bestTime: 'Lunch time (1:00 PM)',
+        creatorTip: 'Ask for the steaming hot Siddu with pure ghee made from indigenous Pahadi cow milk.'
+      },
+      startingPrice: 7999,
+      popularActivities: ['Beas River Grade IV Rafting', 'Traditional Siddu Culinary Workshop', 'Naggar Castle Sunset Art Session', 'Trout Angling in Tirthan']
+    },
+    {
+      id: 'mandi',
+      name: 'Mandi',
+      hindiName: 'मंडी',
+      tagline: 'Varanasi of the Hills • 81 Ancient Stone Temples',
+      altitude: '850 m (2,790 ft)',
+      temperature: '22°C ⛅',
+      bestTimeToVisit: 'October – April',
+      heroImage: 'https://images.unsplash.com/photo-1605649487212-47bdab064df7?auto=format&fit=crop&w=1600&q=80',
+      description: 'A historic river city on the banks of the Beas boasting 81 intricately carved stone shikhara temples, the gateway to Prashar Lake and the mystical floating island.',
+      mustVisitSpots: ['Prashar Lake & 3-Tier Pagoda Temple', 'Bhootnath Temple', 'Rewalsar Holy Lake (Tso Pema)', 'Victoria Suspension Bridge'],
+      secretSpot: {
+        title: 'Prashar Lake Sunset Ridge Camp',
+        description: 'The high alpine ridge 300m above Prashar Lake where you look down at the mystery floating island while the sun sinks behind the Pir Panjal ranges.',
+        bestTime: 'Sunset & Early Dawn',
+        creatorTip: 'The local temple priests serve hot Kadi-Chawal inside the community langar hall—humble and heartwarming.'
+      },
+      startingPrice: 6999,
+      popularActivities: ['Prashar Lake Snow Trek', 'Rewalsar Cave Monastery Tour', 'Stone Temple Heritage Exploration', 'Beas Riverside Camp']
+    },
+    {
+      id: 'chamba',
+      name: 'Chamba & Khajjiar',
+      hindiName: 'चंबा एवं खज्जियार',
+      tagline: 'Valley of Milk & Honey • 1000-Yr Royal Temples & Mini Switzerland',
+      altitude: '996 m to 4,414 m (Saach Pass)',
+      temperature: '17°C ⛅',
+      bestTimeToVisit: 'March – June (Meadows) & Sept – Nov (Pleasant)',
+      heroImage: 'https://images.unsplash.com/photo-1596701062351-8c2c14d1fdd0?auto=format&fit=crop&w=1600&q=80',
+      description: 'Steeped in 1,000 years of unbroken royal heritage on the banks of the Ravi, Chamba is famed for its 10th-century Laxmi Narayan shikhara temples, GI-tagged Chamba Rumal embroidery, emerald cedar meadows of Khajjiar, and thrilling high-pass circuits through Saach Pass & Manimahesh Kailash.',
+      mustVisitSpots: ['Khajjiar Pine Meadow & Mini Switzerland Lake', 'Laxmi Narayan 10th-Century Royal Temple Complex', 'Chamera Emerald Lake & Speedboating', 'Bharmour Chaurasi 84-Temple Complex', 'Kalatop Deodar Wildlife Sanctuary'],
+      secretSpot: {
+        title: 'Pohani Dhar & Kalatop Ridge Trail',
+        description: 'A secluded high forest ridge 2,750m above Dalhousie with 360-degree vistas of the Pir Panjal snow crests, wild yellow buttercup slopes, and zero commercial noise.',
+        bestTime: '4:30 PM Golden Hour & Sunset',
+        creatorTip: 'Taste authentic spicy Chamba Chukh (traditional citrus-chili relish) paired with slow-cooked Madra at the historic Chaugan heritage bazaar.'
+      },
+      startingPrice: 10999,
+      popularActivities: ['Khajjiar Glider Flight & Zorbing', 'Chamba Rumal Heritage Craft Workshop', 'Chamera Lake Speedboating', 'Bharmour Chaurasi Temple Exploration', 'Saach Pass 4x4 Mountain Safari']
+    }
   ],
   guidesList: [
     { id: 'guide-tashi', name: 'Tashi Dorje', location: 'Spiti Valley & Pin Valley', specialties: ['Astro-Photography', 'Monastery History', '4x4 Snow Driving'] },

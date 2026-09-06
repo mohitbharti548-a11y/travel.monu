@@ -256,12 +256,16 @@ export const DestinationHubs: React.FC<DestinationHubsProps> = ({
                     {selectedMapPin.description || selectedMapPin.tagline}
                   </p>
 
-                  <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 text-xs text-amber-300/90 space-y-1">
-                    <strong className="text-[11px] text-amber-400 flex items-center gap-1">
-                      <Sparkles className="w-3 h-3" /> Secret Spot:
-                    </strong>
-                    <p className="text-[11px] text-slate-300">{selectedMapPin.secretSpot.title}: {selectedMapPin.secretSpot.description}</p>
-                  </div>
+                  {selectedMapPin.secretSpot && (
+                    <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 text-xs text-amber-300/90 space-y-1">
+                      <strong className="text-[11px] text-amber-400 flex items-center gap-1">
+                        <Sparkles className="w-3.5 h-3.5" /> Secret Spot:
+                      </strong>
+                      <p className="text-[11px] text-slate-300">
+                        {selectedMapPin.secretSpot.title || 'Secret Viewpoint'}: {selectedMapPin.secretSpot.description || 'Untouched valley ridge viewpoint.'}
+                      </p>
+                    </div>
+                  )}
 
                   <div className="pt-2 flex gap-2">
                     <button
@@ -351,32 +355,36 @@ export const DestinationHubs: React.FC<DestinationHubsProps> = ({
                   </div>
 
                   {/* Creator Secret Spot Callout */}
-                  <div className="p-3 rounded-2xl bg-amber-500/10 dark:bg-amber-950/30 border border-amber-500/20 dark:border-amber-900/40 text-xs">
-                    <div className="flex items-center gap-1.5 text-amber-900 dark:text-amber-300 font-extrabold text-[11px] mb-1">
-                      <Sparkles className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
-                      <span className="truncate">Secret Spot: {destination.secretSpot.title}</span>
+                  {destination.secretSpot && (
+                    <div className="p-3 rounded-2xl bg-amber-500/10 dark:bg-amber-950/30 border border-amber-500/20 dark:border-amber-900/40 text-xs">
+                      <div className="flex items-center gap-1.5 text-amber-900 dark:text-amber-300 font-extrabold text-[11px] mb-1">
+                        <Sparkles className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
+                        <span className="truncate">Secret Spot: {destination.secretSpot.title || 'Hidden Scenic Viewpoint'}</span>
+                      </div>
+                      <p className="text-[11px] text-slate-700 dark:text-slate-300 line-clamp-2 leading-relaxed">
+                        {destination.secretSpot.description || 'Untouched valley ridge and mountain viewpoints.'}
+                      </p>
                     </div>
-                    <p className="text-[11px] text-slate-700 dark:text-slate-300 line-clamp-2 leading-relaxed">
-                      {destination.secretSpot.description}
-                    </p>
-                  </div>
+                  )}
 
                   {/* Highlights Pills */}
-                  <div className="flex flex-wrap gap-1.5">
-                    {destination.mustVisitSpots.slice(0, 3).map((spot, i) => (
-                      <span
-                        key={i}
-                        className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-[10px] font-bold text-slate-700 dark:text-slate-200"
-                      >
-                        {spot}
-                      </span>
-                    ))}
-                    {destination.mustVisitSpots.length > 3 && (
-                      <span className="px-2 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-[10px] font-bold text-slate-500">
-                        +{destination.mustVisitSpots.length - 3} more
-                      </span>
-                    )}
-                  </div>
+                  {Array.isArray(destination.mustVisitSpots) && destination.mustVisitSpots.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5">
+                      {destination.mustVisitSpots.slice(0, 3).map((spot, i) => (
+                        <span
+                          key={i}
+                          className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-[10px] font-bold text-slate-700 dark:text-slate-200"
+                        >
+                          {spot}
+                        </span>
+                      ))}
+                      {destination.mustVisitSpots.length > 3 && (
+                        <span className="px-2 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-[10px] font-bold text-slate-500">
+                          +{destination.mustVisitSpots.length - 3} more
+                        </span>
+                      )}
+                    </div>
+                  )}
 
                   {/* Footer Price & Buttons */}
                   <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">

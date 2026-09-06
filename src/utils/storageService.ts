@@ -30,7 +30,20 @@ export const storageService = {
   loadDestinations(): Destination[] {
     try {
       const data = localStorage.getItem(STORAGE_KEYS.DESTINATIONS);
-      return data ? JSON.parse(data) : DESTINATIONS;
+      if (!data) return DESTINATIONS;
+      const parsed: Destination[] = JSON.parse(data);
+      if (!Array.isArray(parsed) || parsed.length === 0) return DESTINATIONS;
+
+      // Merge standard destinations with any user/admin customized or new hubs
+      const map = new Map<string, Destination>();
+      DESTINATIONS.forEach(d => map.set(d.id, d));
+      parsed.forEach(d => {
+        if (d && d.id) {
+          const existing = map.get(d.id);
+          map.set(d.id, { ...existing, ...d });
+        }
+      });
+      return Array.from(map.values());
     } catch {
       return DESTINATIONS;
     }

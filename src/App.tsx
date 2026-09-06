@@ -139,6 +139,50 @@ export function App() {
       }
     });
 
+    syncService.fetchDestinations().then(serverDests => {
+      if (serverDests && serverDests.length > 0) {
+        setDestinations(prev => {
+          const map = new Map<string, Destination>();
+          prev.forEach(d => map.set(d.id, d));
+          serverDests.forEach(d => map.set(d.id, d));
+          return Array.from(map.values());
+        });
+      }
+    });
+
+    syncService.fetchPackages().then(serverPkgs => {
+      if (serverPkgs && serverPkgs.length > 0) {
+        setPackages(prev => {
+          const map = new Map<string, TourPackage>();
+          prev.forEach(p => map.set(p.id, p));
+          serverPkgs.forEach(p => map.set(p.id, p));
+          return Array.from(map.values());
+        });
+      }
+    });
+
+    syncService.fetchStays().then(serverStays => {
+      if (serverStays && serverStays.length > 0) {
+        setStays(prev => {
+          const map = new Map<string, Stay>();
+          prev.forEach(s => map.set(s.id, s));
+          serverStays.forEach(s => map.set(s.id, s));
+          return Array.from(map.values());
+        });
+      }
+    });
+
+    syncService.fetchGuides().then(serverGuides => {
+      if (serverGuides && serverGuides.length > 0) {
+        setGuides(prev => {
+          const map = new Map<string, LocalGuide>();
+          prev.forEach(g => map.set(g.id, g));
+          serverGuides.forEach(g => map.set(g.id, g));
+          return Array.from(map.values());
+        });
+      }
+    });
+
     // 2. Subscribe to live cross-tab & admin events
     const unsub = syncService.onMessage((msg) => {
       if (msg.type === 'CUSTOM_REQUEST_CREATED') {
