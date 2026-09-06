@@ -13,14 +13,20 @@ export interface Stay {
   name: string;
   location: string;
   destinationId: DestinationId;
-  type: 'Boutique Homestay' | 'Luxury Glamping' | 'Heritage Haveli' | 'Mountain Villa';
+  type: 'Boutique Homestay' | 'Luxury Glamping' | 'Heritage Haveli' | 'Mountain Villa' | string;
   pricePerNight: number;
   rating: number;
   reviewsCount: number;
   image: string;
+  imageUrl?: string;
+  description?: string;
+  galleryImages?: string[];
+  videoUrl?: string;
   amenities: string[];
   creatorNote: string;
   isHandpicked: boolean;
+  maxGuests?: number;
+  roomsAvailable?: number;
 }
 
 export interface LocalGuide {
@@ -157,23 +163,45 @@ export interface CustomTripDayPlan {
 export interface CustomTripRequest {
   id: string;
   requestRef: string;
+  requestType?: 'custom_circuit' | 'stay_only';
   travelerName: string;
+  userName?: string;
   travelerEmail: string;
+  email?: string;
+  userEmail?: string;
   travelerPhone: string;
+  phone?: string;
+  userPhone?: string;
   travelers: number;
+  travelerCount?: number;
   days: number;
   nights: number;
   targetBudgetPerPerson: number;
+  budget?: string;
+  estimatedPrice?: number;
   selectedSpots: string[];
   preferredStayType: 'On-Site Hotels' | 'Off-Site Hotels' | 'Homestay' | 'Boutique Cottage' | 'Luxury Glamping Dome' | 'Swiss Alpine Tent' | string;
   preferredTransit: 'Rentals' | 'Car Guides' | 'Rentals with a Guide' | 'Self Drive' | '4x4 High-Pass Safari' | 'Premier Volvo Sleeper' | 'Private Mountain Taxi' | string;
   specialWishes: string;
+  specialNotes?: string;
   startDate: string;
+  destination?: string;
+  checkInDate?: string;
+  checkOutDate?: string;
+  durationDays?: number;
+  stayId?: string;
+  stayName?: string;
+  stayLocation?: string;
+  stayImage?: string;
+  roomsCount?: number;
+  guestCount?: number;
+  mealPlan?: string;
   status: 'pending_review' | 'approved' | 'rejected' | 'paid_finalized';
   adminQuotedPrice: number;
   adminCuratedSchedule: CustomTripDayPlan[];
   adminNotes?: string;
   submittedAt: string;
+  createdAt?: string;
   approvedAt?: string;
   paidAt?: string;
   bookingRef?: string;
@@ -242,6 +270,7 @@ export interface PromoCode {
 
 export interface UserProfile {
   phone: string;
+  phoneNumber?: string;
   name: string;
   email: string;
   isLoggedIn: boolean;

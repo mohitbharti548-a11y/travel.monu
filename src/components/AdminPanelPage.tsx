@@ -18,6 +18,7 @@ import { notificationEngine } from '../services/notificationEngine';
 import { storageService } from '../utils/storageService';
 import { syncService } from '../utils/syncService';
 import { MediaUploader } from './MediaUploader';
+import { HomestayGalleryUploader } from './HomestayGalleryUploader';
 import { AdminInvoiceModal } from './AdminInvoiceModal';
 import { AdminAuthLock } from './AdminAuthLock';
 import { 
@@ -219,6 +220,8 @@ export const AdminPanelPage: React.FC<AdminPanelPageProps> = ({
   const [destDroneVideo, setDestDroneVideo] = useState<string>('');
   const [pkgImage, setPkgImage] = useState<string>('');
   const [stayImage, setStayImage] = useState<string>('');
+  const [stayGalleryImages, setStayGalleryImages] = useState<string[]>([]);
+  const [stayVideoUrl, setStayVideoUrl] = useState<string>('');
   const [stayAmenities, setStayAmenities] = useState<string[]>([]);
   const [guideAvatar, setGuideAvatar] = useState<string>('');
   const [guideVideo, setGuideVideo] = useState<string>('');
@@ -544,9 +547,12 @@ export const AdminPanelPage: React.FC<AdminPanelPageProps> = ({
   const handleSaveStay = (e: React.FormEvent) => {
     e.preventDefault();
     if (editingStay) {
-      const updated = {
+      const updated: Stay = {
         ...editingStay,
-        image: stayImage || editingStay.image,
+        imageUrl: stayImage || editingStay.imageUrl || editingStay.image || '',
+        image: stayImage || editingStay.image || editingStay.imageUrl || '',
+        galleryImages: stayGalleryImages,
+        videoUrl: stayVideoUrl,
         amenities: stayAmenities.length > 0 ? stayAmenities : editingStay.amenities
       };
       onUpdateStay(updated);
@@ -561,19 +567,24 @@ export const AdminPanelPage: React.FC<AdminPanelPageProps> = ({
       id: `stay-${Date.now()}`,
       name: form.stayName.value,
       location: form.stayLocation.value,
-      destinationId: form.stayDestinationId.value as DestinationId,
+      destinationId: (form.stayDestinationId?.value || 'spiti') as DestinationId,
       type: form.stayType.value,
       pricePerNight: Number(form.stayPrice.value),
-      rating: Number(form.stayRating.value) || 4.9,
+      rating: 4.9,
       reviewsCount: 1,
+      imageUrl: stayImage || 'https://images.unsplash.com/photo-1587061949409-02df41d5e562?auto=format&fit=crop&w=1000&q=80',
       image: stayImage || 'https://images.unsplash.com/photo-1587061949409-02df41d5e562?auto=format&fit=crop&w=1000&q=80',
-      amenities: stayAmenities.length > 0 ? stayAmenities : ['Mountain View', 'Room Heater', 'WiFi'],
-      creatorNote: form.stayCreatorNote.value || 'Handpicked authentic stay with mountain views.',
+      galleryImages: stayGalleryImages,
+      videoUrl: stayVideoUrl,
+      amenities: stayAmenities.length > 0 ? stayAmenities : ['Mountain View', 'Room Heater / Bukhari', 'High-Speed Workation WiFi'],
+      creatorNote: 'Handpicked authentic stay with panoramic mountain views and local hospitality.',
       isHandpicked: true
     };
     onCreateStay(newStay);
     setIsCreatingStay(false);
     setStayImage('');
+    setStayGalleryImages([]);
+    setStayVideoUrl('');
     setStayAmenities([]);
   };
 
@@ -790,55 +801,95 @@ export const AdminPanelPage: React.FC<AdminPanelPageProps> = ({
                     <div key={req.id} className="p-5 rounded-2xl bg-slate-900 border border-slate-800 hover:border-slate-700 space-y-3">
                       <div className="flex items-start justify-between">
                         <div>
-                          <span className="text-[10px] font-mono font-bold text-amber-400 px-2 py-0.5 rounded bg-amber-950/60 border border-amber-900">
-                            {req.requestRef}
-                          </span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-[10px] font-mono font-bold text-amber-400 px-2 py-0.5 rounded bg-amber-950/60 border border-amber-900">
+                              {req.requestRef}
+                            </span>
+                            {req.requestType === 'stay_only' && (
+                              <span className="text-[10px] font-bold text-emerald-300 px-2 py-0.5 rounded-full bg-emerald-950 border border-emerald-700 flex items-center gap-1">
+                                <Home className="w-3 h-3 text-emerald-400" />
+                                <span>STAY ONLY BOOKING</span>
+                              </span>
+                            )}
+                          </div>
                           <h4 className="text-base font-extrabold text-white mt-1">
-                            {req.travelerName}
+                            {req.travelerName || req.userName || 'Nomad Traveler'}
                           </h4>
                           <p className="text-xs text-slate-400">
-                            📞 {req.travelerPhone} • ✉️ {req.travelerEmail}
+                            📞 {req.travelerPhone || req.phone || req.userPhone} • ✉️ {req.travelerEmail || req.email || req.userEmail}
                           </p>
                         </div>
                         <span className="text-xs font-bold text-amber-400 px-2.5 py-1 rounded-full bg-amber-950/80 border border-amber-800">
-                          Pending Quote
+                          {req.requestType === 'stay_only' ? 'Stay Awaiting Approval' : 'Pending Quote'}
                         </span>
                       </div>
 
-                      <div className="grid grid-cols-3 gap-2 bg-slate-950 p-2.5 rounded-xl text-xs text-slate-300">
-                        <div>
-                          <span className="text-[10px] text-slate-500 block">Nomads</span>
-                          <strong>{req.travelers} Persons</strong>
+                      {req.requestType === 'stay_only' ? (
+                        <div className="space-y-2 bg-slate-950 p-3 rounded-xl border border-slate-800">
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="text-emerald-400 font-bold">{req.stayName || 'Handpicked Stay'}</span>
+                            <span className="text-slate-400">{req.stayLocation || req.destination}</span>
+                          </div>
+                          <div className="grid grid-cols-3 gap-2 text-xs text-slate-300 pt-1 border-t border-slate-800/80">
+                            <div>
+                              <span className="text-[10px] text-slate-500 block">Dates</span>
+                              <strong>{req.checkInDate} to {req.checkOutDate}</strong>
+                            </div>
+                            <div>
+                              <span className="text-[10px] text-slate-500 block">Rooms / Guests</span>
+                              <strong>{req.roomsCount || 1} Room(s) • {req.guestCount || req.travelerCount || 2} Guests</strong>
+                            </div>
+                            <div>
+                              <span className="text-[10px] text-slate-500 block">Estimated Quote</span>
+                              <strong className="text-emerald-400">{req.budget || ('₹' + req.estimatedPrice)}</strong>
+                            </div>
+                          </div>
+                          {req.specialNotes && (
+                            <p className="text-xs text-amber-200/90 italic bg-amber-950/20 p-2 rounded-lg border border-amber-900/30">
+                              Notes: "{req.specialNotes}"
+                            </p>
+                          )}
                         </div>
-                        <div>
-                          <span className="text-[10px] text-slate-500 block">Duration</span>
-                          <strong>{req.days}D / {req.nights}N</strong>
+                      ) : (
+                        <div className="grid grid-cols-3 gap-2 bg-slate-950 p-2.5 rounded-xl text-xs text-slate-300">
+                          <div>
+                            <span className="text-[10px] text-slate-500 block">Nomads</span>
+                            <strong>{req.travelers} Persons</strong>
+                          </div>
+                          <div>
+                            <span className="text-[10px] text-slate-500 block">Duration</span>
+                            <strong>{req.days}D / {req.nights}N</strong>
+                          </div>
+                          <div>
+                            <span className="text-[10px] text-slate-500 block">Target Budget</span>
+                            <strong>₹{req.targetBudgetPerPerson}/p</strong>
+                          </div>
                         </div>
-                        <div>
-                          <span className="text-[10px] text-slate-500 block">Target Budget</span>
-                          <strong>₹{req.targetBudgetPerPerson}/p</strong>
-                        </div>
-                      </div>
+                      )}
 
-                      <div className="text-xs space-y-1 text-slate-300">
-                        <p><strong>Spots:</strong> {req.selectedSpots.join(', ') || 'Custom Circuit'}</p>
-                        <p><strong>Transit:</strong> {req.preferredTransit} | <strong>Stay:</strong> {req.preferredStayType}</p>
-                        {req.specialWishes && (
-                          <p className="text-amber-200/90 italic bg-amber-950/30 p-2 rounded-lg border border-amber-900/40">
-                            "{req.specialWishes}"
-                          </p>
-                        )}
-                      </div>
+                      {req.requestType !== 'stay_only' && (
+                        <div className="text-xs space-y-1 text-slate-300">
+                          <p><strong>Spots:</strong> {req.selectedSpots?.join(', ') || 'Custom Circuit'}</p>
+                          <p><strong>Transit:</strong> {req.preferredTransit} | <strong>Stay:</strong> {req.preferredStayType}</p>
+                          {req.specialWishes && (
+                            <p className="text-amber-200/90 italic bg-amber-950/30 p-2 rounded-lg border border-amber-900/40">
+                              "{req.specialWishes}"
+                            </p>
+                          )}
+                        </div>
+                      )}
 
                       <div className="pt-2 flex items-center justify-between border-t border-slate-800">
-                        <span className="text-[11px] text-slate-500">Submitted: {req.submittedAt}</span>
-                        <button
-                          onClick={() => handleOpenCuration(req)}
-                          className="btn-3d px-4 py-1.5 rounded-xl bg-pine-600 hover:bg-pine-500 text-white font-extrabold text-xs flex items-center gap-1.5 shadow"
-                        >
-                          <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-                          <span>Curate Itinerary & Quote</span>
-                        </button>
+                        <span className="text-[11px] text-slate-500">Submitted: {req.submittedAt || req.createdAt?.split('T')[0] || 'Today'}</span>
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => handleOpenCuration(req)}
+                            className="btn-3d px-4 py-1.5 rounded-xl bg-pine-600 hover:bg-pine-500 text-white font-extrabold text-xs flex items-center gap-1.5 shadow"
+                          >
+                            <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                            <span>{req.requestType === 'stay_only' ? 'Review & Approve Stay' : 'Curate Itinerary & Quote'}</span>
+                          </button>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -1466,7 +1517,9 @@ export const AdminPanelPage: React.FC<AdminPanelPageProps> = ({
                     <button
                       onClick={() => {
                         setEditingStay(stay);
-                        setStayImage(stay.image);
+                        setStayImage(stay.imageUrl || stay.image || '');
+                        setStayGalleryImages(stay.galleryImages || []);
+                        setStayVideoUrl(stay.videoUrl || '');
                         setStayAmenities(stay.amenities || []);
                       }}
                       className="text-xs text-amber-400 hover:underline font-bold flex items-center gap-1"
@@ -2087,14 +2140,16 @@ export const AdminPanelPage: React.FC<AdminPanelPageProps> = ({
                 </div>
               </div>
 
-              {/* Direct Media Upload for Homestay Cover Photo */}
-              <MediaUploader
-                label="Homestay Photo / Room Tour (Direct from Gallery or URL)"
-                mediaUrl={stayImage}
-                onMediaChange={(url) => setStayImage(url)}
-                accept="both"
-                aspectRatio="wide"
-                helperText="Upload authentic interior/exterior photos or short video clips from your gallery."
+              {/* Multi-Photo & Video Gallery Uploader matching Image 2 specifications */}
+              <HomestayGalleryUploader
+                coverImage={stayImage}
+                galleryImages={stayGalleryImages}
+                videoUrl={stayVideoUrl}
+                onChange={(cover, gallery, video) => {
+                  setStayImage(cover);
+                  setStayGalleryImages(gallery);
+                  if (video !== undefined) setStayVideoUrl(video);
+                }}
               />
 
               {/* Interactive Amenities Checklist */}

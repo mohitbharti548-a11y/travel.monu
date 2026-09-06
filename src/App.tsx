@@ -25,6 +25,8 @@ import { HeroSection } from './components/HeroSection';
 import { ParallaxBanner } from './components/ParallaxBanner';
 import { DestinationHubs } from './components/DestinationHubs';
 import { DestinationDetailModal } from './components/DestinationDetailModal';
+import { HandpickedStaysSection } from './components/HandpickedStaysSection';
+import { StayBookingModal } from './components/StayBookingModal';
 import { CustomPackageBuilder } from './components/CustomPackageBuilder';
 import { BookingEngineModal } from './components/BookingEngineModal';
 import { CheckoutDrawer } from './components/CheckoutDrawer';
@@ -178,6 +180,8 @@ export function App() {
 
   // Modal States
   const [selectedDestDetail, setSelectedDestDetail] = useState<Destination | null>(null);
+  const [selectedBookingStay, setSelectedBookingStay] = useState<Stay | null>(null);
+  const [isStayBookingOpen, setIsStayBookingOpen] = useState<boolean>(false);
   const [isBookingEngineOpen, setIsBookingEngineOpen] = useState<boolean>(false);
   const [isRefundModalOpen, setIsRefundModalOpen] = useState<boolean>(false);
   const [isTermsModalOpen, setIsTermsModalOpen] = useState<boolean>(false);
@@ -367,6 +371,9 @@ export function App() {
   const handleHeroSearch = (params: { destination: string; date: string; travelers: number; category: string }) => {
     if (params.category === 'buses' || params.category === 'flights') {
       setIsBookingEngineOpen(true);
+    } else if (params.category === 'stays') {
+      const elem = document.getElementById('homestays');
+      if (elem) elem.scrollIntoView({ behavior: 'smooth' });
     } else {
       const pkg = packages.find(p => p.destinationId === params.destination);
       if (pkg) {
@@ -703,6 +710,17 @@ export function App() {
           }}
         />
 
+        {/* 2.5 Handpicked Homestays & Stays Section */}
+        <HandpickedStaysSection
+          stays={stays}
+          activeProfile={userProfile}
+          onBookStay={(stay) => {
+            setSelectedBookingStay(stay);
+            setIsStayBookingOpen(true);
+          }}
+          onOpenAuth={() => handleOpenAuth("Please log in with your phone number to book handpicked stays.")}
+        />
+
         {/* 3. 3D Parallax Mountain Scroll Banner */}
         <ParallaxBanner
           onExplorePackages={() => {
@@ -742,6 +760,29 @@ export function App() {
       />
 
       {/* MODALS & DRAWERS */}
+
+      {/* 0. Stay Only Booking Modal */}
+      {selectedBookingStay && (
+        <StayBookingModal
+          stay={selectedBookingStay}
+          isOpen={isStayBookingOpen}
+          onClose={() => {
+            setIsStayBookingOpen(false);
+            setSelectedBookingStay(null);
+          }}
+          activeProfile={userProfile}
+          onOpenAuth={() => handleOpenAuth("Please log in to submit your stay booking request.")}
+          onBookingSubmitted={(submittedBooking) => {
+            setCustomRequests(prev => [submittedBooking, ...prev]);
+            notificationEngine.addNotification({
+              type: 'system_broadcast',
+              title: 'Homestay Request Submitted',
+              message: `Booking request for ${selectedBookingStay.name} is awaiting host validation.`,
+              priority: 'normal'
+            });
+          }}
+        />
+      )}
 
       {/* 1. Destination Deep-Dive Modal */}
       <DestinationDetailModal

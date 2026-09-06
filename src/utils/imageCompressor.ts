@@ -196,3 +196,5 @@ export const uploadCompressedAsset = async (
     }
   }
 };
+
+export const compressImageToWebP = compressImageToWebp;

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  Compass, 
+  Compass,
+  Home, 
   Sun, 
   Moon, 
   MapPin, 
@@ -80,6 +81,7 @@ export const Header: React.FC<HeaderProps> = ({
 
   const navItems = [
     { id: 'destinations', label: 'Destinations', icon: MapPin },
+    { id: 'homestays', label: 'Handpicked Stays', icon: Home },
     { id: 'custom-packages', label: 'Custom Itineraries', icon: Sparkles },
     { id: 'transit', label: 'Volvo & Flights', icon: Compass },
     { id: 'peak-feed', label: 'The Peak Feed', icon: Film },
