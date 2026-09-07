@@ -170,16 +170,16 @@ export function App() {
 
       // 2. Real-time Live Cloud Subscriptions (Push Updates to all Devices Worldwide)
       const unsubDest = firestoreService.subscribeToCatalog<Destination[]>('destinations', (d) => {
-        if (d && d.length > 0) setDestinations(d);
+        if (Array.isArray(d)) setDestinations(d);
       });
       const unsubPkg = firestoreService.subscribeToCatalog<TourPackage[]>('packages', (p) => {
-        if (p && p.length > 0) setPackages(p);
+        if (Array.isArray(p)) setPackages(p);
       });
       const unsubStays = firestoreService.subscribeToCatalog<Stay[]>('stays', (s) => {
-        if (s && s.length > 0) setStays(s);
+        if (Array.isArray(s)) setStays(s);
       });
       const unsubGuides = firestoreService.subscribeToCatalog<LocalGuide[]>('guides', (g) => {
-        if (g && g.length > 0) setGuides(g);
+        if (Array.isArray(g)) setGuides(g);
       });
       const unsubPricing = firestoreService.subscribeToCatalog<PricingRules>('pricing_rules', (pr) => {
         if (pr) setPricingRules(pr);
@@ -193,35 +193,10 @@ export function App() {
 
     }
 
-    // 3. Fetch initial server states via syncService (Instant synchronization with backend port 5000 / data_store.json)
-    syncService.fetchDestinations().then(serverDest => {
-      if (serverDest && serverDest.length > 0) {
-        setDestinations(serverDest);
-        storageService.saveDestinations(serverDest);
-      }
-    });
+    // Firestore is the catalog source for deployed builds. The legacy /api catalog
+    // endpoints only exist in the local Node server and must not overwrite it.
 
-    syncService.fetchPackages().then(serverPkg => {
-      if (serverPkg && serverPkg.length > 0) {
-        setPackages(serverPkg);
-        storageService.savePackages(serverPkg);
-      }
-    });
-
-    syncService.fetchStays().then(serverStays => {
-      if (serverStays && serverStays.length > 0) {
-        setStays(serverStays);
-        storageService.saveStays(serverStays);
-      }
-    });
-
-    syncService.fetchGuides().then(serverGuides => {
-      if (serverGuides && serverGuides.length > 0) {
-        setGuides(serverGuides);
-        storageService.saveGuides(serverGuides);
-      }
-    });
-
+    // Server-only endpoints remain available for bookings, requests, pricing, and alerts.
     syncService.fetchCustomRequests().then(serverList => {
       if (serverList && serverList.length > 0) {
         setCustomRequests(prev => {
