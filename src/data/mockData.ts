@@ -165,6 +165,30 @@ export const DESTINATIONS: Destination[] = [
 
 export const CURATED_STAYS: Stay[] = [
   {
+    id: 'stay-test-1788667475801',
+    name: 'Pahadi Pine Loft & Apple Orchard Chalet',
+    location: 'Old Manali High Ridge',
+    destinationId: 'manali',
+    type: 'Boutique Homestay',
+    pricePerNight: 4500,
+    rating: 4.96,
+    reviewsCount: 84,
+    image: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1200&q=80',
+    galleryImages: [
+      'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1200&q=80'
+    ],
+    amenities: [
+      'Geothermal Heated Water',
+      'High-Speed Starlink Wifi',
+      'Wood Fireplace',
+      'Panoramic Snow Views',
+      'Organic Apple Orchard Walk'
+    ],
+    creatorNote: 'Hand-crafted cedar wood loft situated in heritage apple orchard with 360-degree snow peaks view.',
+    isHandpicked: true,
+    description: 'Hand-crafted cedar wood loft situated in heritage apple orchard.'
+  },
+  {
     id: 'stay-1',
     name: 'The Cedar Nest Geodesic Luxury Dome',
     location: 'Old Manali Ridge, Manali',

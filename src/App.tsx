@@ -184,7 +184,35 @@ export function App() {
       });
     }
 
-    // 3. Fetch initial server states via syncService
+    // 3. Fetch initial server states via syncService (Instant synchronization with backend port 5000 / data_store.json)
+    syncService.fetchDestinations().then(serverDest => {
+      if (serverDest && serverDest.length > 0) {
+        setDestinations(serverDest);
+        storageService.saveDestinations(serverDest);
+      }
+    });
+
+    syncService.fetchPackages().then(serverPkg => {
+      if (serverPkg && serverPkg.length > 0) {
+        setPackages(serverPkg);
+        storageService.savePackages(serverPkg);
+      }
+    });
+
+    syncService.fetchStays().then(serverStays => {
+      if (serverStays && serverStays.length > 0) {
+        setStays(serverStays);
+        storageService.saveStays(serverStays);
+      }
+    });
+
+    syncService.fetchGuides().then(serverGuides => {
+      if (serverGuides && serverGuides.length > 0) {
+        setGuides(serverGuides);
+        storageService.saveGuides(serverGuides);
+      }
+    });
+
     syncService.fetchCustomRequests().then(serverList => {
       if (serverList && serverList.length > 0) {
         setCustomRequests(prev => {
@@ -195,15 +223,27 @@ export function App() {
       }
     });
 
+    syncService.fetchBookings().then(serverBookings => {
+      if (serverBookings && serverBookings.length > 0) {
+        setBookings(prev => {
+          const map = new Map<string, BookingItem>();
+          [...serverBookings, ...prev].forEach(b => map.set(b.id, b));
+          return Array.from(map.values());
+        });
+      }
+    });
+
     syncService.fetchPricingRules().then(serverRules => {
       if (serverRules) {
         setPricingRules(serverRules);
+        storageService.savePricingRules(serverRules);
       }
     });
 
     syncService.fetchRoadAlert().then(serverAlert => {
       if (serverAlert) {
         setRoadAlert(serverAlert);
+        storageService.saveRoadAlert(serverAlert);
       }
     });
 
