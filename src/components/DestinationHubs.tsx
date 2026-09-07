@@ -96,7 +96,7 @@ export const DestinationHubs: React.FC<DestinationHubsProps> = ({
   const [filter, setFilter] = useState<'all' | 'high_altitude' | 'lush_valleys' | 'spiritual_trekking'>('all');
   
   // View mode: 'grid' vs 'map'
-  const [viewMode, setViewMode] = useState<'grid' | 'map'>('grid');
+  const [viewMode, setViewMode] = useState<'grid' | 'map'>('map');
   const [selectedMapPin, setSelectedMapPin] = useState<Destination | null>(null);
 
   const filteredDestinations = destinations.filter((d) => {
