@@ -1,6 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { DESTINATIONS } from '../data/mockData';
-import { ReelPost } from '../types';
+import { Destination, ReelPost } from '../types';
 import { 
   X, 
   UploadCloud, 
@@ -17,12 +16,14 @@ interface PostMemoryModalProps {
   isOpen: boolean;
   onClose: () => void;
   onPostSubmitted: (post: Partial<ReelPost>) => void;
+  destinations: Destination[];
 }
 
 export const PostMemoryModal: React.FC<PostMemoryModalProps> = ({
   isOpen,
   onClose,
-  onPostSubmitted
+  onPostSubmitted,
+  destinations
 }) => {
   const [authorName, setAuthorName] = useState('');
   const [authorHandle, setAuthorHandle] = useState('');
@@ -226,12 +227,12 @@ export const PostMemoryModal: React.FC<PostMemoryModalProps> = ({
                 value={destinationId}
                 onChange={(e) => {
                   setDestinationId(e.target.value);
-                  const found = DESTINATIONS.find(d => d.id === e.target.value);
+                  const found = destinations.find(d => d.id === e.target.value);
                   if (found) setLocation(found.name);
                 }}
                 className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slatehimachal-900 font-bold focus:outline-none"
               >
-                {DESTINATIONS.map(d => (
+                {destinations.map(d => (
                   <option key={d.id} value={d.id} className="dark:bg-slate-900">{d.name} ({d.hindiName})</option>
                 ))}
               </select>

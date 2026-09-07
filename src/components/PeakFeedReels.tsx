@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { ReelPost, DestinationId } from '../types';
-import { REEL_POSTS } from '../data/mockData';
 import { 
   Heart, 
   MessageCircle, 
@@ -37,18 +36,24 @@ interface PeakFeedReelsProps {
   onOpenUploadModal: () => void;
   onNavigateToDestination: (destId: DestinationId) => void;
   selectedReelFromMini?: ReelPost | null;
+  reels: ReelPost[];
 }
 
 export const PeakFeedReels: React.FC<PeakFeedReelsProps> = ({
   onOpenUploadModal,
   onNavigateToDestination,
-  selectedReelFromMini
+  selectedReelFromMini,
+  reels: liveReels
 }) => {
-  const [reels, setReels] = useState<ReelPost[]>(REEL_POSTS);
+  const [reels, setReels] = useState<ReelPost[]>(liveReels);
   const [activeReelIndex, setActiveReelIndex] = useState<number>(0);
   const [isMuted, setIsMuted] = useState<boolean>(true);
   const [selectedLocation, setSelectedLocation] = useState<string>('all');
   const [heartBurst, setHeartBurst] = useState<{ id: string; key: number } | null>(null);
+
+  React.useEffect(() => {
+    setReels(liveReels);
+  }, [liveReels]);
 
   // Filtered Reels based on location
   const filteredReels = reels.filter((r) => {

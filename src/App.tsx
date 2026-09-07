@@ -102,21 +102,18 @@ export function App() {
   const [activeSection, setActiveSection] = useState<string>('hero');
 
   // Application Data States (Enterprise Persistent via storageService, syncService & Cloud Firestore)
-  const [destinations, setDestinations] = useState<Destination[]>(() => storageService.loadDestinations());
-  const [packages, setPackages] = useState<TourPackage[]>(() => storageService.loadPackages());
-  const [stays, setStays] = useState<Stay[]>(() => storageService.loadStays());
-  const [guides, setGuides] = useState<LocalGuide[]>(() => storageService.loadGuides());
-  const [reels, setReels] = useState<ReelPost[]>(REEL_POSTS);
+  const [destinations, setDestinations] = useState<Destination[]>([]);
+  const [packages, setPackages] = useState<TourPackage[]>([]);
+  const [stays, setStays] = useState<Stay[]>([]);
+  const [guides, setGuides] = useState<LocalGuide[]>([]);
+  const [reels, setReels] = useState<ReelPost[]>([]);
   const [bookings, setBookings] = useState<BookingItem[]>(() => storageService.loadBookings());
   const [customRequests, setCustomRequests] = useState<CustomTripRequest[]>(() => storageService.loadCustomRequests());
   const [roadAlert, setRoadAlert] = useState<string>(() => storageService.loadRoadAlert());
   const [pricingRules, setPricingRules] = useState<PricingRules>(() => storageService.loadPricingRules());
+  const [dataSourceError, setDataSourceError] = useState<string | null>(null);
 
   // Automatic Persistence Synchronization to localStorage
-  useEffect(() => { storageService.saveDestinations(destinations); }, [destinations]);
-  useEffect(() => { storageService.savePackages(packages); }, [packages]);
-  useEffect(() => { storageService.saveStays(stays); }, [stays]);
-  useEffect(() => { storageService.saveGuides(guides); }, [guides]);
   useEffect(() => { storageService.saveBookings(bookings); }, [bookings]);
   useEffect(() => { storageService.saveCustomRequests(customRequests); }, [customRequests]);
   useEffect(() => { storageService.saveRoadAlert(roadAlert); }, [roadAlert]);
@@ -124,19 +121,24 @@ export function App() {
 
   // Initial Server & Cloud Firestore Synchronization
   useEffect(() => {
+    if (!firestoreService.isAvailable()) {
+      setDataSourceError('Firebase Firestore is not configured in this build.');
+    }
+
     // 1. Fetch initial Cloud Firestore Catalog (Instant Global Source of Truth)
     if (firestoreService.isAvailable()) {
       firestoreService.loadCatalog<Destination[]>('destinations').then(cloudDest => {
-        if (cloudDest && cloudDest.length > 0) setDestinations(cloudDest);
+        if (cloudDest) setDestinations(cloudDest);
+        else setDataSourceError(firestoreService.getLastError() || 'Could not load destinations from Firebase.');
       });
       firestoreService.loadCatalog<TourPackage[]>('packages').then(cloudPkg => {
-        if (cloudPkg && cloudPkg.length > 0) setPackages(cloudPkg);
+        if (cloudPkg) setPackages(cloudPkg);
       });
       firestoreService.loadCatalog<Stay[]>('stays').then(cloudStays => {
-        if (cloudStays && cloudStays.length > 0) setStays(cloudStays);
+        if (cloudStays) setStays(cloudStays);
       });
       firestoreService.loadCatalog<LocalGuide[]>('guides').then(cloudGuides => {
-        if (cloudGuides && cloudGuides.length > 0) setGuides(cloudGuides);
+        if (cloudGuides) setGuides(cloudGuides);
       });
       firestoreService.loadCatalog<PricingRules>('pricing_rules').then(cloudRules => {
         if (cloudRules) setPricingRules(cloudRules);
@@ -162,6 +164,9 @@ export function App() {
           });
         }
       });
+      firestoreService.loadCatalog<ReelPost[]>('reels').then(cloudReels => {
+        if (cloudReels) setReels(cloudReels);
+      });
 
       // 2. Real-time Live Cloud Subscriptions (Push Updates to all Devices Worldwide)
       const unsubDest = firestoreService.subscribeToCatalog<Destination[]>('destinations', (d) => {
@@ -182,6 +187,10 @@ export function App() {
       const unsubRoad = firestoreService.subscribeToCatalog<string>('road_alert', (ra) => {
         if (ra) setRoadAlert(ra);
       });
+      const unsubReels = firestoreService.subscribeToCatalog<ReelPost[]>('reels', (r) => {
+        if (r) setReels(r);
+      });
+
     }
 
     // 3. Fetch initial server states via syncService (Instant synchronization with backend port 5000 / data_store.json)
@@ -702,7 +711,11 @@ export function App() {
       datePosted: 'Just now',
       audioTrack: 'Acoustic Pahadi Beats'
     };
-    setReels(prev => [created, ...prev]);
+    setReels(prev => {
+      const next = [created, ...prev];
+      firestoreService.saveCatalog('reels', next);
+      return next;
+    });
 
     notificationEngine.addNotification({
       type: 'system_broadcast',
@@ -769,7 +782,8 @@ export function App() {
         pricingRules: catalog.pricingRules || pricingRules,
         roadAlert: catalog.roadAlert || roadAlert,
         customRequests: catalog.customRequests || customRequests,
-        bookings: catalog.bookings || bookings
+        bookings: catalog.bookings || bookings,
+        reels: catalog.reels || reels
       });
     }
   };
@@ -798,7 +812,11 @@ export function App() {
         onDeleteGuide={handleDeleteGuide}
         reels={reels}
         onDeleteReel={(reelId) => {
-          setReels(prev => prev.filter(r => r.id !== reelId));
+          setReels(prev => {
+            const next = prev.filter(r => r.id !== reelId);
+            firestoreService.saveCatalog('reels', next);
+            return next;
+          });
         }}
         bookings={bookings}
         customRequests={customRequests}
@@ -815,6 +833,11 @@ export function App() {
   // --- RENDER USER TRAVELER PORTAL PAGE IF ON / ---
   return (
     <div className="relative min-h-screen text-slate-900 dark:text-slate-100 transition-colors duration-300 selection:bg-pine-600 selection:text-white">
+      {dataSourceError && (
+        <div className="fixed top-0 inset-x-0 z-[100] bg-red-700 px-4 py-2 text-center text-xs font-bold text-white shadow-lg">
+          Live catalog unavailable: {dataSourceError}
+        </div>
+      )}
       {/* GLOBAL FULL-PAGE CINEMATIC MOUNTAIN & VIDEO CANVAS */}
       <div className="fixed inset-0 pointer-events-none z-[-1] overflow-hidden">
         {/* Full-Bleed Drone Mountain Video Loop */}
@@ -868,6 +891,7 @@ export function App() {
 
       {/* Floating Mini Reel Window on Bottom-Left Side */}
       <MiniReelFloatingCard
+        reels={reels}
         onOpenFullReel={(reel) => setSelectedReelFromMini(reel)}
         onNavigateToCommunity={() => {
           const elem = document.getElementById('peak-feed');
@@ -892,6 +916,7 @@ export function App() {
       <main>
         {/* 1. Hero Section with 3D Depth Typography and Search */}
         <HeroSection
+          destinations={destinations}
           onSearch={handleHeroSearch}
           onSelectDestination={handleOpenDestination}
         />
@@ -937,6 +962,7 @@ export function App() {
 
         {/* 5. The Peak Feed (Dedicated Community Feed Section) */}
         <PeakFeedReels
+          reels={reels}
           onOpenUploadModal={() => setIsPostMemoryOpen(true)}
           onNavigateToDestination={handleOpenDestination}
           selectedReelFromMini={selectedReelFromMini}
@@ -948,6 +974,7 @@ export function App() {
 
       {/* Footer */}
       <Footer
+        destinations={destinations}
         onSelectDestination={handleOpenDestination}
         onOpenWeatherSecurity={() => setIsRefundModalOpen(true)}
         onOpenTerms={() => setIsTermsModalOpen(true)}
@@ -1008,6 +1035,7 @@ export function App() {
 
       {/* 4. Post Memory Upload Modal */}
       <PostMemoryModal
+        destinations={destinations}
         isOpen={isPostMemoryOpen}
         onClose={() => setIsPostMemoryOpen(false)}
         onPostSubmitted={handlePostSubmitted}

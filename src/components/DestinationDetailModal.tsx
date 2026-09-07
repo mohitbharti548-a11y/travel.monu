@@ -1,6 +1,5 @@
 import React from 'react';
 import { Destination, Stay, LocalGuide } from '../types';
-import { CURATED_STAYS, LOCAL_GUIDES } from '../data/mockData';
 import { 
   X, 
   MapPin, 
@@ -32,8 +31,8 @@ export const DestinationDetailModal: React.FC<DestinationDetailModalProps> = ({
 }) => {
   if (!destination) return null;
 
-  const staySource = stays && stays.length > 0 ? stays : CURATED_STAYS;
-  const guideSource = guides && guides.length > 0 ? guides : LOCAL_GUIDES;
+  const staySource = stays || [];
+  const guideSource = guides || [];
 
   const relevantStays = staySource.filter(s => s.destinationId === destination.id);
   const relevantGuides = guideSource.filter(g => g.destination.toLowerCase().includes(destination.name.toLowerCase()));

@@ -37,6 +37,10 @@ async function fastFetch(url: string, options: RequestInit = {}, timeoutMs = 120
   try {
     const res = await fetch(url, { ...options, signal: controller.signal });
     clearTimeout(id);
+    const contentType = res.headers.get('content-type') || '';
+    if (!contentType.includes('application/json')) {
+      throw new Error(`Expected JSON from ${url}, received ${contentType || 'unknown content type'}`);
+    }
     return res;
   } catch (e) {
     clearTimeout(id);

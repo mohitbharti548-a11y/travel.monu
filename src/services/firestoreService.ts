@@ -15,10 +15,12 @@ import {
   LocalGuide, 
   PricingRules,
   CustomTripRequest,
-  BookingItem 
+  BookingItem,
+  ReelPost
 } from '../types';
 
 let db: Firestore | null = null;
+let lastError: string | null = null;
 
 if (typeof window !== 'undefined' && isFirebaseConfigured()) {
   try {
@@ -37,7 +39,8 @@ export type CatalogKey =
   | 'pricing_rules' 
   | 'road_alert'
   | 'custom_requests'
-  | 'bookings';
+  | 'bookings'
+  | 'reels';
 
 function withTimeout<T>(promise: Promise<T>, timeoutMs: number = 3000, fallbackValue: T): Promise<T> {
   return Promise.race([
@@ -49,6 +52,10 @@ function withTimeout<T>(promise: Promise<T>, timeoutMs: number = 3000, fallbackV
 export const firestoreService = {
   isAvailable(): boolean {
     return db !== null;
+  },
+
+  getLastError(): string | null {
+    return lastError;
   },
 
   // Save entire catalog or collection to Cloud Firestore with ultra-fast timeout
@@ -63,7 +70,7 @@ export const firestoreService = {
           return false;
         });
 
-      return await withTimeout(savePromise, 2500, true);
+      return await withTimeout(savePromise, 2500, false);
     } catch (e) {
       console.warn(`Failed to save ${key} to Firestore:`, e);
       return false;
@@ -84,12 +91,14 @@ export const firestoreService = {
           return null;
         })
         .catch((err) => {
+          lastError = err instanceof Error ? err.message : String(err);
           console.warn(`Firestore load error on ${key}:`, err);
           return null;
         });
 
       return await withTimeout(loadPromise, 2500, null);
     } catch (e) {
+      lastError = e instanceof Error ? e.message : String(e);
       console.warn(`Failed to load ${key} from Firestore:`, e);
     }
     return null;
@@ -108,6 +117,7 @@ export const firestoreService = {
           }
         }
       }, (err) => {
+        lastError = err instanceof Error ? err.message : String(err);
         console.warn(`Firestore subscription error for ${key}:`, err);
       });
       return unsub;
@@ -126,6 +136,7 @@ export const firestoreService = {
     roadAlert?: string;
     customRequests?: CustomTripRequest[];
     bookings?: BookingItem[];
+    reels?: ReelPost[];
   }): Promise<boolean> {
     if (!db) return false;
     try {
@@ -139,8 +150,9 @@ export const firestoreService = {
       if (catalog.roadAlert) tasks.push(this.saveCatalog('road_alert', catalog.roadAlert));
       if (catalog.customRequests) tasks.push(this.saveCatalog('custom_requests', catalog.customRequests));
       if (catalog.bookings) tasks.push(this.saveCatalog('bookings', catalog.bookings));
+      if (catalog.reels) tasks.push(this.saveCatalog('reels', catalog.reels));
 
-      const results = await withTimeout(Promise.all(tasks), 3000, [true, true, true, true]);
+      const results = await withTimeout(Promise.all(tasks), 3000, []);
       return results.some(r => r === true);
     } catch (e) {
       console.error('Failed to sync full catalog to Firestore cloud:', e);

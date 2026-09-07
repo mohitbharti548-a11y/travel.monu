@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { TourPackage, ItineraryDay, CustomTripRequest, UserProfile, PricingRules } from '../types';
-import { TOUR_PACKAGES } from '../data/mockData';
 import { CustomTripWidget } from './CustomTripWidget';
 import { ScrollReveal } from './ScrollReveal';
 import { PreBookingAdvisory } from './PreBookingAdvisory';
@@ -47,7 +46,8 @@ export const CustomPackageBuilder: React.FC<CustomPackageBuilderProps> = ({
   userProfile,
   onOpenAuth
 }) => {
-  const activePackages = packages && packages.length > 0 ? packages : TOUR_PACKAGES;
+  const activePackages = packages || [];
+  if (activePackages.length === 0) return null;
   const [activeMode, setActiveMode] = useState<'studio' | 'pre-curated'>('pre-curated');
   const [selectedPackageId, setSelectedPackageId] = useState<string>(activePackages[0].id);
   const [travelersCount, setTravelersCount] = useState<number>(2);

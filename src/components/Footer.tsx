@@ -1,7 +1,6 @@
 import React from 'react';
 import { Compass, MessageCircle, Heart, ShieldCheck, FileText, Radio } from 'lucide-react';
-import { DESTINATIONS } from '../data/mockData';
-import { DestinationId } from '../types';
+import { Destination, DestinationId } from '../types';
 
 const InstagramIcon: React.FC<{ className?: string }> = ({ className = 'w-4 h-4' }) => (
   <svg 
@@ -25,6 +24,7 @@ interface FooterProps {
   onOpenTerms: () => void;
   onOpenWeatherIntelligence: () => void;
   onOpenAdmin?: () => void;
+  destinations: Destination[];
 }
 
 export const Footer: React.FC<FooterProps> = ({
@@ -32,7 +32,8 @@ export const Footer: React.FC<FooterProps> = ({
   onOpenWeatherSecurity,
   onOpenTerms,
   onOpenWeatherIntelligence,
-  onOpenAdmin
+  onOpenAdmin,
+  destinations
 }) => {
   return (
     <footer className="relative bg-slate-950 text-slate-300 border-t border-slate-800 pt-16 pb-12 overflow-hidden">
@@ -101,7 +102,7 @@ export const Footer: React.FC<FooterProps> = ({
               7 Sacred Hubs
             </h4>
             <ul className="space-y-2">
-              {DESTINATIONS.map(d => (
+              {destinations.map(d => (
                 <li key={d.id}>
                   <button
                     onClick={() => onSelectDestination(d.id)}

@@ -11,17 +11,18 @@ import {
   VolumeX, 
   ArrowRight
 } from 'lucide-react';
-import { DESTINATIONS } from '../data/mockData';
-import { DestinationId } from '../types';
+import { Destination, DestinationId } from '../types';
 
 interface HeroSectionProps {
   onSearch: (params: { destination: string; date: string; travelers: number; category: string }) => void;
   onSelectDestination: (id: DestinationId) => void;
+  destinations: Destination[];
 }
 
 export const HeroSection: React.FC<HeroSectionProps> = ({
   onSearch,
-  onSelectDestination
+  onSelectDestination,
+  destinations
 }) => {
   const [activeTab, setActiveTab] = useState<'packages' | 'stays'>('packages');
   const [selectedDest, setSelectedDest] = useState<string>('spiti');
@@ -187,7 +188,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                 onChange={(e) => setSelectedDest(e.target.value)}
                 className="w-full bg-transparent text-xs sm:text-sm font-extrabold text-slate-900 focus:outline-none cursor-pointer"
               >
-                {DESTINATIONS.map((d) => (
+                {destinations.map((d) => (
                   <option key={d.id} value={d.id} className="text-slate-900">
                     {d.name} ({d.hindiName})
                   </option>

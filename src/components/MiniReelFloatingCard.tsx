@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { ReelPost, DestinationId } from '../types';
-import { REEL_POSTS } from '../data/mockData';
 import { 
   X, 
   Play, 
@@ -14,11 +13,13 @@ import {
 interface MiniReelFloatingCardProps {
   onOpenFullReel: (reel: ReelPost) => void;
   onNavigateToCommunity: () => void;
+  reels: ReelPost[];
 }
 
 export const MiniReelFloatingCard: React.FC<MiniReelFloatingCardProps> = ({
   onOpenFullReel,
-  onNavigateToCommunity
+  onNavigateToCommunity,
+  reels
 }) => {
   const [isVisible, setIsVisible] = useState<boolean>(false);
   const [isDismissed, setIsDismissed] = useState<boolean>(false);
@@ -43,14 +44,15 @@ export const MiniReelFloatingCard: React.FC<MiniReelFloatingCardProps> = ({
   // Rotate popular reels every 8 seconds
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentReelIndex((prev) => (prev + 1) % REEL_POSTS.length);
+      setCurrentReelIndex((prev) => (prev + 1) % Math.max(reels.length, 1));
     }, 8000);
     return () => clearInterval(interval);
-  }, []);
+  }, [reels.length]);
 
   if (isDismissed || !isVisible) return null;
 
-  const currentReel = REEL_POSTS[currentReelIndex];
+  const currentReel = reels[currentReelIndex];
+  if (!currentReel) return null;
 
   return (
     <div className="fixed bottom-6 left-6 z-40 max-w-[280px] sm:max-w-[300px] animate-fadeIn hidden sm:block">
