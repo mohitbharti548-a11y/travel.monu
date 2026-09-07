@@ -5,7 +5,7 @@
  */
 
 // Master Passkey
-const MASTER_PASSKEY = '963210';
+const MASTER_PASSKEY = import.meta.env.VITE_ADMIN_PASSKEY || '963210';
 const INTEGRITY_SALT = 'hn_nomad_sec_salt_2026_spiti';
 
 /**
