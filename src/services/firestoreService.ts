@@ -49,6 +49,30 @@ function withTimeout<T>(promise: Promise<T>, timeoutMs: number = 10000, fallback
   ]);
 }
 
+const MAX_CATALOG_BYTES = 700_000;
+
+function byteLength(value: unknown): number {
+  return new TextEncoder().encode(JSON.stringify(value)).length;
+}
+
+function splitArrayIntoChunks<T>(items: T[]): T[][] {
+  const chunks: T[][] = [];
+  let current: T[] = [];
+
+  for (const item of items) {
+    const candidate = [...current, item];
+    if (current.length > 0 && byteLength(candidate) > MAX_CATALOG_BYTES) {
+      chunks.push(current);
+      current = [item];
+    } else {
+      current = candidate;
+    }
+  }
+
+  if (current.length > 0) chunks.push(current);
+  return chunks;
+}
+
 export const firestoreService = {
   isAvailable(): boolean {
     return db !== null;
@@ -65,8 +89,28 @@ export const firestoreService = {
       return false;
     }
     try {
-      const docRef = doc(db, 'catalog_v1', key);
-      const savePromise = setDoc(docRef, { payload: data, updatedAt: new Date().toISOString() }, { merge: true })
+      const updatedAt = new Date().toISOString();
+      const chunks = Array.isArray(data) && byteLength(data) > MAX_CATALOG_BYTES
+        ? splitArrayIntoChunks(data)
+        : null;
+      const writes: Promise<unknown>[] = [];
+
+      if (chunks) {
+        writes.push(setDoc(doc(db, 'catalog_v1', `${key}_manifest`), {
+          chunkCount: chunks.length,
+          updatedAt
+        }));
+        chunks.forEach((chunk, index) => {
+          writes.push(setDoc(doc(db, 'catalog_v1', `${key}_${index}`), {
+            payload: chunk,
+            updatedAt
+          }));
+        });
+      } else {
+        writes.push(setDoc(doc(db, 'catalog_v1', key), { payload: data, updatedAt }, { merge: true }));
+      }
+
+      const savePromise = Promise.all(writes)
         .then(() => true)
         .catch((err) => {
           lastError = err instanceof Error ? err.message : String(err);
@@ -86,13 +130,21 @@ export const firestoreService = {
   async loadCatalog<T>(key: CatalogKey): Promise<T | null> {
     if (!db) return null;
     try {
-      const docRef = doc(db, 'catalog_v1', key);
-      const loadPromise = getDoc(docRef)
-        .then((snap) => {
-          if (snap.exists()) {
-            const data = snap.data();
-            return (data?.payload as T) || null;
+      const loadPromise = getDoc(doc(db, 'catalog_v1', `${key}_manifest`))
+        .then(async (manifest) => {
+          if (manifest.exists() && typeof manifest.data().chunkCount === 'number') {
+            const chunkCount = manifest.data().chunkCount as number;
+            const snapshots = await Promise.all(
+              Array.from({ length: chunkCount }, (_, index) => getDoc(doc(db!, 'catalog_v1', `${key}_${index}`)))
+            );
+            return snapshots.flatMap((snapshot) => {
+              const payload = snapshot.data()?.payload;
+              return Array.isArray(payload) ? payload : [];
+            }) as T;
           }
+
+          const snap = await getDoc(doc(db!, 'catalog_v1', key));
+          if (snap.exists()) return (snap.data()?.payload as T) || null;
           return null;
         })
         .catch((err) => {
@@ -101,7 +153,7 @@ export const firestoreService = {
           return null;
         });
 
-      return await withTimeout(loadPromise, 2500, null);
+      return await withTimeout(loadPromise, 10000, null);
     } catch (e) {
       lastError = e instanceof Error ? e.message : String(e);
       console.warn(`Failed to load ${key} from Firestore:`, e);
@@ -113,13 +165,23 @@ export const firestoreService = {
   subscribeToCatalog<T>(key: CatalogKey, callback: (data: T) => void) {
     if (!db) return () => {};
     try {
-      const docRef = doc(db, 'catalog_v1', key);
-      const unsub = onSnapshot(docRef, (snap) => {
-        if (snap.exists()) {
-          const data = snap.data();
-          if (data?.payload) {
-            callback(data.payload as T);
-          }
+      const manifestRef = doc(db, 'catalog_v1', `${key}_manifest`);
+      const unsub = onSnapshot(manifestRef, async (manifest) => {
+        if (manifest.exists() && typeof manifest.data().chunkCount === 'number') {
+          const chunkCount = manifest.data().chunkCount as number;
+          const snapshots = await Promise.all(
+            Array.from({ length: chunkCount }, (_, index) => getDoc(doc(db!, 'catalog_v1', `${key}_${index}`)))
+          );
+          callback(snapshots.flatMap((snapshot) => {
+            const payload = snapshot.data()?.payload;
+            return Array.isArray(payload) ? payload : [];
+          }) as T);
+          return;
+        }
+
+        const snap = await getDoc(doc(db!, 'catalog_v1', key));
+        if (snap.exists() && snap.data()?.payload) {
+          callback(snap.data().payload as T);
         }
       }, (err) => {
         lastError = err instanceof Error ? err.message : String(err);
