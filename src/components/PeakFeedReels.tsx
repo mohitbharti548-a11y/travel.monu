@@ -102,6 +102,18 @@ export const PeakFeedReels: React.FC<PeakFeedReelsProps> = ({
 
   const activeReel = filteredReels[activeReelIndex] || filteredReels[0] || reels[0];
 
+  if (!activeReel) {
+    return (
+      <section id="peak-feed" className="relative py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-slate-200/80 dark:border-slate-800">
+        <div className="text-center">
+          <Film className="w-10 h-10 mx-auto mb-3 text-pine-700 dark:text-amber-400" />
+          <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white font-heading">The Peak Feed</h2>
+          <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">Community memories will appear here soon.</p>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section id="peak-feed" className="relative py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-slate-200/80 dark:border-slate-800 overflow-hidden">
       {/* Background Mountain Starry Visual Canvas */}

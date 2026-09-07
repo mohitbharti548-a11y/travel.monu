@@ -369,7 +369,8 @@ export const AdminPanelPage: React.FC<AdminPanelPageProps> = ({
         pricingRules,
         roadAlert,
         customRequests,
-        bookings
+        bookings,
+        reels
       });
       if (ok) {
         notificationEngine.addNotification({
