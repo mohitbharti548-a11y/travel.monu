@@ -5,6 +5,10 @@ import {
   signInWithPhoneNumber, 
   ConfirmationResult, 
   UserCredential,
+  GoogleAuthProvider,
+  signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   signOut as firebaseSignOut
 } from 'firebase/auth';
 import { firebaseConfig, isFirebaseConfigured } from '../firebaseConfig';
@@ -13,6 +17,75 @@ import { UserProfile } from '../types';
 // Initialize Firebase App
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 export const auth = getAuth(app);
+
+// Google Auth Provider setup
+export const googleProvider = new GoogleAuthProvider();
+googleProvider.setCustomParameters({ prompt: 'select_account' });
+
+/**
+ * Signs in traveler using Google OAuth via Firebase
+ */
+export const signInWithGoogle = async (): Promise<{ success: boolean; user?: UserProfile; error?: string }> => {
+  try {
+    const result: UserCredential = await signInWithPopup(auth, googleProvider);
+    const firebaseUser = result.user;
+
+    const profile: UserProfile = {
+      phone: firebaseUser.phoneNumber ? firebaseUser.phoneNumber.replace(/\D/g, '') : '',
+      phoneNumber: firebaseUser.phoneNumber || '',
+      name: firebaseUser.displayName || 'Nomad Traveler',
+      email: firebaseUser.email || '',
+      photoURL: firebaseUser.photoURL || undefined,
+      avatarUrl: firebaseUser.photoURL || undefined,
+      isLoggedIn: true,
+      loginTime: new Date().toISOString(),
+      token: (await firebaseUser.getIdToken()) || `HN_GOOGLE_${firebaseUser.uid}`
+    };
+
+    // Save session in local storage
+    try {
+      localStorage.setItem('hn_user_session_v4', JSON.stringify(profile));
+    } catch (e) {
+      console.warn('Session save warning:', e);
+    }
+
+    return {
+      success: true,
+      user: profile
+    };
+  } catch (err: any) {
+    console.error('Firebase Google Sign-In error:', err);
+    let message = 'Unable to sign in with Google. Please try again.';
+    if (err.code === 'auth/popup-closed-by-user') {
+      message = 'Sign-in cancelled. Please click "Continue with Google" again.';
+    } else if (err.code === 'auth/popup-blocked') {
+      message = 'Sign-in popup was blocked by browser. Please allow popups or use redirect.';
+    } else if (err.code === 'auth/unauthorized-domain') {
+      message = 'Domain not authorized in Firebase. Please contact Monu support.';
+    } else if (err.message) {
+      message = err.message;
+    }
+
+    return {
+      success: false,
+      error: message
+    };
+  }
+};
+
+/**
+ * Sign out current traveler session
+ */
+export const signOutTraveler = async (): Promise<void> => {
+  try {
+    await firebaseSignOut(auth);
+  } catch (e) {
+    console.warn('Sign out warning:', e);
+  }
+  try {
+    localStorage.removeItem('hn_user_session_v4');
+  } catch (e) {}
+};
 
 // Global confirmation result store for multi-step OTP
 let globalConfirmationResult: ConfirmationResult | null = null;

@@ -18,6 +18,7 @@ import { REEL_POSTS, DESTINATIONS } from './data/mockData';
 import { storageService } from './utils/storageService';
 import { syncService } from './utils/syncService';
 import { firestoreService } from './services/firestoreService';
+import { signOutTraveler } from './utils/firebaseAuth';
 import { notificationEngine } from './services/notificationEngine';
 import { enforceFrameIsolation } from './utils/securityGuard';
 
@@ -294,11 +295,7 @@ export function App() {
   };
 
   const handleLogoutUser = () => {
-    try {
-      localStorage.removeItem('hn_user_session_v4');
-    } catch {
-      // Ignored
-    }
+    signOutTraveler();
     setUserProfile(null);
     notificationEngine.addNotification({
       type: 'system_broadcast',
@@ -517,7 +514,7 @@ export function App() {
     };
 
     if (!userProfile?.isLoggedIn) {
-      handleOpenAuth("Please log in with your mobile phone number to secure your trip pass and link booking history.", launchCheckout);
+      handleOpenAuth("Please sign in with Google to secure your trip pass and link booking history.", launchCheckout);
       return;
     }
     launchCheckout();
@@ -595,7 +592,7 @@ export function App() {
     };
 
     if (!userProfile?.isLoggedIn) {
-      handleOpenAuth("Please sign in with your mobile number to finalize and secure your custom trip.", launchCustomTripCheckout);
+      handleOpenAuth("Please sign in with Google to finalize and secure your custom trip.", launchCustomTripCheckout);
       return;
     }
     launchCustomTripCheckout();
@@ -750,7 +747,7 @@ export function App() {
         setDarkMode={setDarkMode}
         onOpenMyBookings={() => {
           if (!userProfile?.isLoggedIn) {
-            handleOpenAuth("Sign in with your phone number to access your confirmed passes & custom itineraries.");
+            handleOpenAuth("Sign in with Google to access your confirmed passes & custom itineraries.");
           } else {
             setIsMyBookingsOpen(true);
           }

@@ -283,6 +283,8 @@ export interface UserProfile {
   phoneNumber?: string;
   name: string;
   email: string;
+  photoURL?: string;
+  avatarUrl?: string;
   isLoggedIn: boolean;
   loginTime: string;
   token?: string;

@@ -167,15 +167,23 @@ export const Header: React.FC<HeaderProps> = ({
 
           {/* Right Action Buttons */}
           <div className="flex items-center gap-2 sm:gap-3">
-            {/* User Profile Pill or Phone Sign In Button */}
+            {/* User Profile Pill or Google Sign In Button */}
             {userProfile && userProfile.isLoggedIn ? (
               <div className="flex items-center gap-1.5 bg-pine-50 dark:bg-pine-950/80 border border-pine-200 dark:border-pine-800 px-2.5 py-1 rounded-xl">
                 <button
                   onClick={onOpenMyBookings}
-                  className="flex items-center gap-1 text-xs font-extrabold text-pine-900 dark:text-pine-200 hover:text-pine-700"
+                  className="flex items-center gap-1.5 text-xs font-extrabold text-pine-900 dark:text-pine-200 hover:text-pine-700"
                   title="My Nomad Passes & Custom Trips"
                 >
-                  <User className="w-3.5 h-3.5 text-pine-700 dark:text-amber-400" />
+                  {userProfile.photoURL || userProfile.avatarUrl ? (
+                    <img
+                      src={userProfile.photoURL || userProfile.avatarUrl}
+                      alt={userProfile.name}
+                      className="w-4 h-4 rounded-full object-cover border border-amber-400"
+                    />
+                  ) : (
+                    <User className="w-3.5 h-3.5 text-pine-700 dark:text-amber-400" />
+                  )}
                   <span className="max-w-[80px] sm:max-w-[110px] truncate">
                     {userProfile.name.split(' ')[0]}
                   </span>
@@ -183,7 +191,7 @@ export const Header: React.FC<HeaderProps> = ({
                 {onLogoutUser && (
                   <button
                     onClick={onLogoutUser}
-                    className="p-1 text-slate-400 hover:text-rose-500 rounded"
+                    className="p-1 text-slate-400 hover:text-rose-500 rounded cursor-pointer"
                     title="Sign Out"
                   >
                     <LogOut className="w-3 h-3" />
@@ -193,9 +201,14 @@ export const Header: React.FC<HeaderProps> = ({
             ) : (
               <button
                 onClick={onOpenAuth}
-                className="flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-extrabold bg-amber-500/15 text-amber-900 dark:text-amber-300 border border-amber-400/40 hover:bg-amber-500/25 transition-all cursor-pointer"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-extrabold bg-amber-500/15 text-amber-900 dark:text-amber-300 border border-amber-400/40 hover:bg-amber-500/25 transition-all cursor-pointer"
               >
-                <Phone className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24">
+                  <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/>
+                  <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"/>
+                  <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.99 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/>
+                  <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+                </svg>
                 <span>Sign In</span>
               </button>
             )}
