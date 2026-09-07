@@ -18,6 +18,13 @@ export const auth = getAuth(app);
 let globalConfirmationResult: ConfirmationResult | null = null;
 let globalRecaptchaVerifier: RecaptchaVerifier | null = null;
 
+declare global {
+  interface Window {
+    recaptchaVerifier?: RecaptchaVerifier;
+    confirmationResult?: ConfirmationResult;
+  }
+}
+
 /**
  * Initializes Google reCAPTCHA verifier for Firebase Phone Auth
  * Safely resets any previous container or instance to avoid "reCAPTCHA already rendered" error.
@@ -47,12 +54,14 @@ export const initRecaptchaVerifier = (containerId: string): RecaptchaVerifier | 
     globalRecaptchaVerifier = new RecaptchaVerifier(auth, containerId, {
       size: 'invisible',
       callback: () => {
-        // reCAPTCHA solved - will proceed with phone auth
+        // reCAPTCHA solved - allow signInWithPhoneNumber
       },
       'expired-callback': () => {
         console.warn('reCAPTCHA expired, please try again');
       }
     });
+
+    window.recaptchaVerifier = globalRecaptchaVerifier;
 
     return globalRecaptchaVerifier;
   } catch (err) {
@@ -118,6 +127,9 @@ export const sendFirebasePhoneOtp = async (
 
       const confirmationResult = await signInWithPhoneNumber(auth, formattedE164, appVerifier);
       globalConfirmationResult = confirmationResult;
+      if (typeof window !== 'undefined') {
+        window.confirmationResult = confirmationResult;
+      }
 
       return {
         success: true,
