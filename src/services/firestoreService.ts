@@ -42,7 +42,7 @@ export type CatalogKey =
   | 'bookings'
   | 'reels';
 
-function withTimeout<T>(promise: Promise<T>, timeoutMs: number = 3000, fallbackValue: T): Promise<T> {
+function withTimeout<T>(promise: Promise<T>, timeoutMs: number = 10000, fallbackValue: T): Promise<T> {
   return Promise.race([
     promise,
     new Promise<T>((resolve) => setTimeout(() => resolve(fallbackValue), timeoutMs))
@@ -60,18 +60,23 @@ export const firestoreService = {
 
   // Save entire catalog or collection to Cloud Firestore with ultra-fast timeout
   async saveCatalog(key: CatalogKey, data: any): Promise<boolean> {
-    if (!db) return false;
+    if (!db) {
+      lastError = 'Firestore is not initialized.';
+      return false;
+    }
     try {
       const docRef = doc(db, 'catalog_v1', key);
       const savePromise = setDoc(docRef, { payload: data, updatedAt: new Date().toISOString() }, { merge: true })
         .then(() => true)
         .catch((err) => {
+          lastError = err instanceof Error ? err.message : String(err);
           console.warn(`Firestore save error on ${key}:`, err);
           return false;
         });
 
-      return await withTimeout(savePromise, 2500, false);
+      return await withTimeout(savePromise, 10000, false);
     } catch (e) {
+      lastError = e instanceof Error ? e.message : String(e);
       console.warn(`Failed to save ${key} to Firestore:`, e);
       return false;
     }
@@ -152,9 +157,10 @@ export const firestoreService = {
       if (catalog.bookings) tasks.push(this.saveCatalog('bookings', catalog.bookings));
       if (catalog.reels) tasks.push(this.saveCatalog('reels', catalog.reels));
 
-      const results = await withTimeout(Promise.all(tasks), 3000, []);
-      return results.some(r => r === true);
+      const results = await withTimeout(Promise.all(tasks), 15000, []);
+      return results.length === tasks.length && results.every(r => r === true);
     } catch (e) {
+      lastError = e instanceof Error ? e.message : String(e);
       console.error('Failed to sync full catalog to Firestore cloud:', e);
       return false;
     }

@@ -380,11 +380,13 @@ export const AdminPanelPage: React.FC<AdminPanelPageProps> = ({
         });
         alert("✅ SUCCESS: All customized destination hubs, tour packages, handpicked homestays, and pricing are now pushed to Live Cloud Firestore! Any mobile device, tablet, or desktop opening the website anywhere will now immediately load your live customized data.");
       } else {
-        alert("⚠️ Cloud sync did not complete. Please verify your internet connection.");
+        const reason = firestoreService.getLastError();
+        alert(`⚠️ Cloud sync failed.${reason ? `\n\nFirebase: ${reason}` : '\n\nFirestore is unavailable or blocked by its security rules.'}`);
       }
     } catch (e) {
       console.error(e);
-      alert("Error syncing to cloud database.");
+      const reason = firestoreService.getLastError();
+      alert(`Error syncing to cloud database.${reason ? `\n\nFirebase: ${reason}` : ''}`);
     } finally {
       setIsPushingToCloud(false);
     }
