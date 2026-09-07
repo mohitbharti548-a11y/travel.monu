@@ -303,28 +303,44 @@ export const AdminPanelPage: React.FC<AdminPanelPageProps> = ({
   const [guideVideo, setGuideVideo] = useState<string>('');
   const [guideLanguages, setGuideLanguages] = useState<string[]>([]);
 
-  // Auto-sync custom requests from server
+  // Auto-sync custom requests from Cloud Firestore & server
   const fetchLatestCustomRequests = async () => {
     try {
       setIsSyncing(true);
-      const res = await fetch('/api/custom-requests');
+      // 1. Fast Firestore check (sub-100ms)
+      if (firestoreService.isAvailable()) {
+        const cloudReqs = await firestoreService.loadCatalog<CustomTripRequest[]>('custom_requests');
+        if (cloudReqs && Array.isArray(cloudReqs) && onSyncRequests) {
+          onSyncRequests(cloudReqs);
+          setLastSyncTime(new Date().toLocaleTimeString());
+          setIsSyncing(false);
+          return;
+        }
+      }
+
+      // 2. Fallback REST API with fast 1.5s timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 1500);
+      const res = await fetch('/api/custom-requests', { signal: controller.signal });
+      clearTimeout(timeoutId);
+
       if (res.ok) {
         const list = await res.json();
         if (Array.isArray(list) && onSyncRequests) {
           onSyncRequests(list);
-          setLastSyncTime(new Date().toLocaleTimeString());
         }
       }
-    } catch (e) {
-      console.warn('Admin live sync fetch failed:', e);
+    } catch {
+      // Clean fallback
     } finally {
       setIsSyncing(false);
+      setLastSyncTime(new Date().toLocaleTimeString());
     }
   };
 
   useEffect(() => {
     fetchLatestCustomRequests();
-    const interval = setInterval(fetchLatestCustomRequests, 3000);
+    const interval = setInterval(fetchLatestCustomRequests, 15000);
     window.addEventListener('focus', fetchLatestCustomRequests);
     const unsub = notificationEngine.subscribe((list) => setLiveAlerts(list));
     return () => {

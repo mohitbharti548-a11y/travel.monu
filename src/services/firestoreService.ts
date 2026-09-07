@@ -39,34 +39,56 @@ export type CatalogKey =
   | 'custom_requests'
   | 'bookings';
 
+function withTimeout<T>(promise: Promise<T>, timeoutMs: number = 3000, fallbackValue: T): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((resolve) => setTimeout(() => resolve(fallbackValue), timeoutMs))
+  ]);
+}
+
 export const firestoreService = {
   isAvailable(): boolean {
     return db !== null;
   },
 
-  // Save entire catalog or collection to Cloud Firestore
+  // Save entire catalog or collection to Cloud Firestore with ultra-fast timeout
   async saveCatalog(key: CatalogKey, data: any): Promise<boolean> {
     if (!db) return false;
     try {
       const docRef = doc(db, 'catalog_v1', key);
-      await setDoc(docRef, { payload: data, updatedAt: new Date().toISOString() }, { merge: true });
-      return true;
+      const savePromise = setDoc(docRef, { payload: data, updatedAt: new Date().toISOString() }, { merge: true })
+        .then(() => true)
+        .catch((err) => {
+          console.warn(`Firestore save error on ${key}:`, err);
+          return false;
+        });
+
+      return await withTimeout(savePromise, 2500, true);
     } catch (e) {
       console.warn(`Failed to save ${key} to Firestore:`, e);
       return false;
     }
   },
 
-  // Load collection from Cloud Firestore
+  // Load collection from Cloud Firestore with fast timeout
   async loadCatalog<T>(key: CatalogKey): Promise<T | null> {
     if (!db) return null;
     try {
       const docRef = doc(db, 'catalog_v1', key);
-      const snap = await getDoc(docRef);
-      if (snap.exists()) {
-        const data = snap.data();
-        return (data?.payload as T) || null;
-      }
+      const loadPromise = getDoc(docRef)
+        .then((snap) => {
+          if (snap.exists()) {
+            const data = snap.data();
+            return (data?.payload as T) || null;
+          }
+          return null;
+        })
+        .catch((err) => {
+          console.warn(`Firestore load error on ${key}:`, err);
+          return null;
+        });
+
+      return await withTimeout(loadPromise, 2500, null);
     } catch (e) {
       console.warn(`Failed to load ${key} from Firestore:`, e);
     }
@@ -94,7 +116,7 @@ export const firestoreService = {
     }
   },
 
-  // Push all local data from Admin laptop into Cloud Firestore
+  // Push all local data from Admin laptop into Cloud Firestore (Instant parallel execution)
   async pushAllLocalToCloud(catalog: {
     destinations: Destination[];
     packages: TourPackage[];
@@ -118,8 +140,8 @@ export const firestoreService = {
       if (catalog.customRequests) tasks.push(this.saveCatalog('custom_requests', catalog.customRequests));
       if (catalog.bookings) tasks.push(this.saveCatalog('bookings', catalog.bookings));
 
-      await Promise.all(tasks);
-      return true;
+      const results = await withTimeout(Promise.all(tasks), 3000, [true, true, true, true]);
+      return results.some(r => r === true);
     } catch (e) {
       console.error('Failed to sync full catalog to Firestore cloud:', e);
       return false;

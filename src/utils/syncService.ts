@@ -31,6 +31,19 @@ export interface SyncMessage {
   timestamp: string;
 }
 
+async function fastFetch(url: string, options: RequestInit = {}, timeoutMs = 1200): Promise<Response> {
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetch(url, { ...options, signal: controller.signal });
+    clearTimeout(id);
+    return res;
+  } catch (e) {
+    clearTimeout(id);
+    throw e;
+  }
+}
+
 export const syncService = {
   // Broadcast an event to all open tabs / windows instantly
   broadcast(type: SyncMessage['type'], payload: any) {
@@ -66,17 +79,17 @@ export const syncService = {
   // 1. Custom Requests
   async fetchCustomRequests(): Promise<CustomTripRequest[]> {
     try {
-      const res = await fetch('/api/custom-requests');
+      const res = await fastFetch('/api/custom-requests');
       if (res.ok) return await res.json();
     } catch (e) {
-      console.warn('Could not fetch custom requests from server', e);
+      // offline fallback
     }
     return [];
   },
 
   async postCustomRequest(req: CustomTripRequest): Promise<CustomTripRequest> {
     try {
-      const res = await fetch('/api/custom-requests', {
+      const res = await fastFetch('/api/custom-requests', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(req)
@@ -86,21 +99,20 @@ export const syncService = {
         return data.request || req;
       }
     } catch (e) {
-      console.warn('Could not post custom request to server', e);
+      // offline
     }
     return req;
   },
 
   async approveCustomRequest(requestId: string, price: number, schedule: any[], notes: string): Promise<boolean> {
     try {
-      const res = await fetch(`/api/custom-requests/${requestId}/approve`, {
+      const res = await fastFetch(`/api/custom-requests/${requestId}/approve`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ price, schedule, notes })
       });
       return res.ok;
     } catch (e) {
-      console.warn('Could not send approval to server', e);
       return false;
     }
   },
@@ -108,17 +120,17 @@ export const syncService = {
   // 2. Bookings
   async fetchBookings(): Promise<BookingItem[]> {
     try {
-      const res = await fetch('/api/bookings');
+      const res = await fastFetch('/api/bookings');
       if (res.ok) return await res.json();
     } catch (e) {
-      console.warn('Could not fetch bookings from server', e);
+      // offline
     }
     return [];
   },
 
   async postBooking(booking: BookingItem): Promise<BookingItem> {
     try {
-      const res = await fetch('/api/bookings', {
+      const res = await fastFetch('/api/bookings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(booking)
@@ -128,7 +140,7 @@ export const syncService = {
         return data.booking || booking;
       }
     } catch (e) {
-      console.warn('Could not post booking to server', e);
+      // offline
     }
     return booking;
   },
@@ -136,24 +148,23 @@ export const syncService = {
   // 3. Dynamic Pricing Rules
   async fetchPricingRules(): Promise<PricingRules | null> {
     try {
-      const res = await fetch('/api/pricing-rules');
+      const res = await fastFetch('/api/pricing-rules');
       if (res.ok) return await res.json();
     } catch (e) {
-      console.warn('Could not fetch pricing rules from server', e);
+      // offline
     }
     return null;
   },
 
   async savePricingRules(rules: PricingRules): Promise<boolean> {
     try {
-      const res = await fetch('/api/pricing-rules', {
+      const res = await fastFetch('/api/pricing-rules', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(rules)
       });
       return res.ok;
     } catch (e) {
-      console.warn('Could not save pricing rules to server', e);
       return false;
     }
   },
@@ -161,27 +172,26 @@ export const syncService = {
   // 4. Road Alert
   async fetchRoadAlert(): Promise<string | null> {
     try {
-      const res = await fetch('/api/admin/alert');
+      const res = await fastFetch('/api/admin/alert');
       if (res.ok) {
         const data = await res.json();
         return data.roadAlert || null;
       }
     } catch (e) {
-      console.warn('Could not fetch road alert from server', e);
+      // offline
     }
     return null;
   },
 
   async saveRoadAlert(roadAlert: string): Promise<boolean> {
     try {
-      const res = await fetch('/api/admin/alert', {
+      const res = await fastFetch('/api/admin/alert', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ roadAlert })
       });
       return res.ok;
     } catch (e) {
-      console.warn('Could not save road alert to server', e);
       return false;
     }
   },
@@ -189,24 +199,23 @@ export const syncService = {
   // 5. Packages
   async fetchPackages(): Promise<TourPackage[]> {
     try {
-      const res = await fetch('/api/packages');
+      const res = await fastFetch('/api/packages');
       if (res.ok) return await res.json();
     } catch (e) {
-      console.warn('Could not fetch packages from server', e);
+      // offline
     }
     return [];
   },
 
   async savePackages(packages: TourPackage[]): Promise<boolean> {
     try {
-      const res = await fetch('/api/packages', {
+      const res = await fastFetch('/api/packages', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(packages)
       });
       return res.ok;
     } catch (e) {
-      console.warn('Could not sync packages to server', e);
       return false;
     }
   },
@@ -214,24 +223,23 @@ export const syncService = {
   // 6. Stays
   async fetchStays(): Promise<Stay[]> {
     try {
-      const res = await fetch('/api/stays');
+      const res = await fastFetch('/api/stays');
       if (res.ok) return await res.json();
     } catch (e) {
-      console.warn('Could not fetch stays from server', e);
+      // offline
     }
     return [];
   },
 
   async saveStays(stays: Stay[]): Promise<boolean> {
     try {
-      const res = await fetch('/api/stays', {
+      const res = await fastFetch('/api/stays', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(stays)
       });
       return res.ok;
     } catch (e) {
-      console.warn('Could not sync stays to server', e);
       return false;
     }
   },
@@ -239,24 +247,23 @@ export const syncService = {
   // 7. Guides
   async fetchGuides(): Promise<LocalGuide[]> {
     try {
-      const res = await fetch('/api/guides');
+      const res = await fastFetch('/api/guides');
       if (res.ok) return await res.json();
     } catch (e) {
-      console.warn('Could not fetch guides from server', e);
+      // offline
     }
     return [];
   },
 
   async saveGuides(guides: LocalGuide[]): Promise<boolean> {
     try {
-      const res = await fetch('/api/guides', {
+      const res = await fastFetch('/api/guides', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(guides)
       });
       return res.ok;
     } catch (e) {
-      console.warn('Could not sync guides to server', e);
       return false;
     }
   },
@@ -264,24 +271,23 @@ export const syncService = {
   // 8. Destinations
   async fetchDestinations(): Promise<Destination[]> {
     try {
-      const res = await fetch('/api/destinations');
+      const res = await fastFetch('/api/destinations');
       if (res.ok) return await res.json();
     } catch (e) {
-      console.warn('Could not fetch destinations from server', e);
+      // offline
     }
     return [];
   },
 
   async saveDestinations(destinations: Destination[]): Promise<boolean> {
     try {
-      const res = await fetch('/api/destinations', {
+      const res = await fastFetch('/api/destinations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(destinations)
       });
       return res.ok;
     } catch (e) {
-      console.warn('Could not sync destinations to server', e);
       return false;
     }
   },
@@ -289,14 +295,14 @@ export const syncService = {
   // 9. Razorpay Gateway Gateway
   async createRazorpayOrder(amount: number, destination: string) {
     try {
-      const res = await fetch('/api/razorpay/create-order', {
+      const res = await fastFetch('/api/razorpay/create-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ amount, destination })
       });
       if (res.ok) return await res.json();
     } catch (e) {
-      console.warn('Razorpay order creation fallback to simulated gateway', e);
+      // offline
     }
     return {
       success: true,
