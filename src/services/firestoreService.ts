@@ -73,6 +73,14 @@ function splitArrayIntoChunks<T>(items: T[]): T[][] {
   return chunks;
 }
 
+function splitTextIntoChunks(text: string): string[] {
+  const chunks: string[] = [];
+  for (let offset = 0; offset < text.length; offset += MAX_CATALOG_BYTES) {
+    chunks.push(text.slice(offset, offset + MAX_CATALOG_BYTES));
+  }
+  return chunks;
+}
+
 export const firestoreService = {
   isAvailable(): boolean {
     return db !== null;
@@ -90,23 +98,30 @@ export const firestoreService = {
     }
     try {
       const updatedAt = new Date().toISOString();
-      const chunks = Array.isArray(data) && byteLength(data) > MAX_CATALOG_BYTES
-        ? splitArrayIntoChunks(data)
+      const serialized = JSON.stringify(data);
+      const chunks = byteLength(data) > MAX_CATALOG_BYTES
+        ? splitTextIntoChunks(serialized)
         : null;
       const writes: Promise<unknown>[] = [];
 
       if (chunks) {
         writes.push(setDoc(doc(db, 'catalog_v1', `${key}_manifest`), {
           chunkCount: chunks.length,
+          format: 'json_chunks',
           updatedAt
         }));
         chunks.forEach((chunk, index) => {
           writes.push(setDoc(doc(db, 'catalog_v1', `${key}_${index}`), {
-            payload: chunk,
+            chunk,
             updatedAt
           }));
         });
       } else {
+        writes.push(setDoc(doc(db, 'catalog_v1', `${key}_manifest`), {
+          format: 'single',
+          chunkCount: 0,
+          updatedAt
+        }));
         writes.push(setDoc(doc(db, 'catalog_v1', key), { payload: data, updatedAt }, { merge: true }));
       }
 
@@ -132,15 +147,13 @@ export const firestoreService = {
     try {
       const loadPromise = getDoc(doc(db, 'catalog_v1', `${key}_manifest`))
         .then(async (manifest) => {
-          if (manifest.exists() && typeof manifest.data().chunkCount === 'number') {
+          if (manifest.exists() && manifest.data().format === 'json_chunks' && typeof manifest.data().chunkCount === 'number') {
             const chunkCount = manifest.data().chunkCount as number;
             const snapshots = await Promise.all(
               Array.from({ length: chunkCount }, (_, index) => getDoc(doc(db!, 'catalog_v1', `${key}_${index}`)))
             );
-            return snapshots.flatMap((snapshot) => {
-              const payload = snapshot.data()?.payload;
-              return Array.isArray(payload) ? payload : [];
-            }) as T;
+            const serialized = snapshots.map((snapshot) => snapshot.data()?.chunk || '').join('');
+            return JSON.parse(serialized) as T;
           }
 
           const snap = await getDoc(doc(db!, 'catalog_v1', key));
@@ -167,15 +180,13 @@ export const firestoreService = {
     try {
       const manifestRef = doc(db, 'catalog_v1', `${key}_manifest`);
       const unsub = onSnapshot(manifestRef, async (manifest) => {
-        if (manifest.exists() && typeof manifest.data().chunkCount === 'number') {
+        if (manifest.exists() && manifest.data().format === 'json_chunks' && typeof manifest.data().chunkCount === 'number') {
           const chunkCount = manifest.data().chunkCount as number;
           const snapshots = await Promise.all(
             Array.from({ length: chunkCount }, (_, index) => getDoc(doc(db!, 'catalog_v1', `${key}_${index}`)))
           );
-          callback(snapshots.flatMap((snapshot) => {
-            const payload = snapshot.data()?.payload;
-            return Array.isArray(payload) ? payload : [];
-          }) as T);
+          const serialized = snapshots.map((snapshot) => snapshot.data()?.chunk || '').join('');
+          callback(JSON.parse(serialized) as T);
           return;
         }
 
