@@ -17,6 +17,7 @@ import {
 import { REEL_POSTS, DESTINATIONS } from './data/mockData';
 import { storageService } from './utils/storageService';
 import { syncService } from './utils/syncService';
+import { firestoreService } from './services/firestoreService';
 import { notificationEngine } from './services/notificationEngine';
 import { enforceFrameIsolation } from './utils/securityGuard';
 
@@ -99,7 +100,7 @@ export function App() {
   const [darkMode, setDarkMode] = useState<boolean>(false);
   const [activeSection, setActiveSection] = useState<string>('hero');
 
-  // Application Data States (Enterprise Persistent via storageService & syncService)
+  // Application Data States (Enterprise Persistent via storageService, syncService & Cloud Firestore)
   const [destinations, setDestinations] = useState<Destination[]>(() => storageService.loadDestinations());
   const [packages, setPackages] = useState<TourPackage[]>(() => storageService.loadPackages());
   const [stays, setStays] = useState<Stay[]>(() => storageService.loadStays());
@@ -120,9 +121,69 @@ export function App() {
   useEffect(() => { storageService.saveRoadAlert(roadAlert); }, [roadAlert]);
   useEffect(() => { storageService.savePricingRules(pricingRules); }, [pricingRules]);
 
-  // Initial Server Fetch & Cross-Tab Real-time Synchronizer
+  // Initial Server & Cloud Firestore Synchronization
   useEffect(() => {
-    // 1. Fetch initial server states
+    // 1. Fetch initial Cloud Firestore Catalog (Instant Global Source of Truth)
+    if (firestoreService.isAvailable()) {
+      firestoreService.loadCatalog<Destination[]>('destinations').then(cloudDest => {
+        if (cloudDest && cloudDest.length > 0) setDestinations(cloudDest);
+      });
+      firestoreService.loadCatalog<TourPackage[]>('packages').then(cloudPkg => {
+        if (cloudPkg && cloudPkg.length > 0) setPackages(cloudPkg);
+      });
+      firestoreService.loadCatalog<Stay[]>('stays').then(cloudStays => {
+        if (cloudStays && cloudStays.length > 0) setStays(cloudStays);
+      });
+      firestoreService.loadCatalog<LocalGuide[]>('guides').then(cloudGuides => {
+        if (cloudGuides && cloudGuides.length > 0) setGuides(cloudGuides);
+      });
+      firestoreService.loadCatalog<PricingRules>('pricing_rules').then(cloudRules => {
+        if (cloudRules) setPricingRules(cloudRules);
+      });
+      firestoreService.loadCatalog<string>('road_alert').then(cloudAlert => {
+        if (cloudAlert) setRoadAlert(cloudAlert);
+      });
+      firestoreService.loadCatalog<CustomTripRequest[]>('custom_requests').then(cloudReqs => {
+        if (cloudReqs && cloudReqs.length > 0) {
+          setCustomRequests(prev => {
+            const map = new Map<string, CustomTripRequest>();
+            [...cloudReqs, ...prev].forEach(item => map.set(item.id, item));
+            return Array.from(map.values());
+          });
+        }
+      });
+      firestoreService.loadCatalog<BookingItem[]>('bookings').then(cloudBookings => {
+        if (cloudBookings && cloudBookings.length > 0) {
+          setBookings(prev => {
+            const map = new Map<string, BookingItem>();
+            [...cloudBookings, ...prev].forEach(b => map.set(b.id, b));
+            return Array.from(map.values());
+          });
+        }
+      });
+
+      // 2. Real-time Live Cloud Subscriptions (Push Updates to all Devices Worldwide)
+      const unsubDest = firestoreService.subscribeToCatalog<Destination[]>('destinations', (d) => {
+        if (d && d.length > 0) setDestinations(d);
+      });
+      const unsubPkg = firestoreService.subscribeToCatalog<TourPackage[]>('packages', (p) => {
+        if (p && p.length > 0) setPackages(p);
+      });
+      const unsubStays = firestoreService.subscribeToCatalog<Stay[]>('stays', (s) => {
+        if (s && s.length > 0) setStays(s);
+      });
+      const unsubGuides = firestoreService.subscribeToCatalog<LocalGuide[]>('guides', (g) => {
+        if (g && g.length > 0) setGuides(g);
+      });
+      const unsubPricing = firestoreService.subscribeToCatalog<PricingRules>('pricing_rules', (pr) => {
+        if (pr) setPricingRules(pr);
+      });
+      const unsubRoad = firestoreService.subscribeToCatalog<string>('road_alert', (ra) => {
+        if (ra) setRoadAlert(ra);
+      });
+    }
+
+    // 3. Fetch initial server states via syncService
     syncService.fetchCustomRequests().then(serverList => {
       if (serverList && serverList.length > 0) {
         setCustomRequests(prev => {
@@ -145,7 +206,7 @@ export function App() {
       }
     });
 
-    // 2. Subscribe to live cross-tab & admin events
+    // 4. Subscribe to live cross-tab & admin events
     const unsub = syncService.onMessage((msg) => {
       if (msg.type === 'CUSTOM_REQUEST_CREATED') {
         const newReq = msg.payload as CustomTripRequest;
@@ -266,6 +327,7 @@ export function App() {
     setDestinations(prev => {
       const next = prev.map(d => d.id === updatedDest.id ? updatedDest : d);
       syncService.saveDestinations(next);
+      firestoreService.saveCatalog('destinations', next);
       syncService.broadcast('DESTINATIONS_UPDATED', next);
       return next;
     });
@@ -275,6 +337,7 @@ export function App() {
     setDestinations(prev => {
       const next = [newDest, ...prev];
       syncService.saveDestinations(next);
+      firestoreService.saveCatalog('destinations', next);
       syncService.broadcast('DESTINATIONS_UPDATED', next);
       return next;
     });
@@ -284,6 +347,7 @@ export function App() {
     setDestinations(prev => {
       const next = prev.filter(d => d.id !== destId);
       syncService.saveDestinations(next);
+      firestoreService.saveCatalog('destinations', next);
       syncService.broadcast('DESTINATIONS_UPDATED', next);
       return next;
     });
@@ -292,11 +356,12 @@ export function App() {
   const handleRestoreDefaultDestinations = () => {
     setDestinations(DESTINATIONS);
     syncService.saveDestinations(DESTINATIONS);
+    firestoreService.saveCatalog('destinations', DESTINATIONS);
     syncService.broadcast('DESTINATIONS_UPDATED', DESTINATIONS);
     notificationEngine.addNotification({
       type: 'system_broadcast',
       title: 'Sacred Hubs Catalog Restored',
-      message: 'All 8 Himachal sacred destination hubs loaded into catalog.',
+      message: 'All 8 Himachal sacred destination hubs loaded into catalog and synced to cloud.',
       priority: 'normal'
     });
   };
@@ -306,6 +371,7 @@ export function App() {
     setPackages(prev => {
       const next = prev.map(p => p.id === updatedPkg.id ? updatedPkg : p);
       syncService.savePackages(next);
+      firestoreService.saveCatalog('packages', next);
       syncService.broadcast('PACKAGES_UPDATED', next);
       return next;
     });
@@ -315,6 +381,7 @@ export function App() {
     setPackages(prev => {
       const next = [newPkg, ...prev];
       syncService.savePackages(next);
+      firestoreService.saveCatalog('packages', next);
       syncService.broadcast('PACKAGES_UPDATED', next);
       return next;
     });
@@ -324,6 +391,7 @@ export function App() {
     setPackages(prev => {
       const next = prev.filter(p => p.id !== pkgId);
       syncService.savePackages(next);
+      firestoreService.saveCatalog('packages', next);
       syncService.broadcast('PACKAGES_UPDATED', next);
       return next;
     });
@@ -334,6 +402,7 @@ export function App() {
     setStays(prev => {
       const next = prev.map(s => s.id === updatedStay.id ? updatedStay : s);
       syncService.saveStays(next);
+      firestoreService.saveCatalog('stays', next);
       syncService.broadcast('STAYS_UPDATED', next);
       return next;
     });
@@ -343,6 +412,7 @@ export function App() {
     setStays(prev => {
       const next = [newStay, ...prev];
       syncService.saveStays(next);
+      firestoreService.saveCatalog('stays', next);
       syncService.broadcast('STAYS_UPDATED', next);
       return next;
     });
@@ -352,6 +422,7 @@ export function App() {
     setStays(prev => {
       const next = prev.filter(s => s.id !== stayId);
       syncService.saveStays(next);
+      firestoreService.saveCatalog('stays', next);
       syncService.broadcast('STAYS_UPDATED', next);
       return next;
     });
@@ -361,6 +432,7 @@ export function App() {
     setStays(prev => {
       const next = prev.map(s => s.id === stayId ? { ...s, isHandpicked: !s.isHandpicked } : s);
       syncService.saveStays(next);
+      firestoreService.saveCatalog('stays', next);
       syncService.broadcast('STAYS_UPDATED', next);
       return next;
     });
@@ -371,6 +443,7 @@ export function App() {
     setGuides(prev => {
       const next = prev.map(g => g.id === updatedGuide.id ? updatedGuide : g);
       syncService.saveGuides(next);
+      firestoreService.saveCatalog('guides', next);
       syncService.broadcast('GUIDES_UPDATED', next);
       return next;
     });
@@ -380,6 +453,7 @@ export function App() {
     setGuides(prev => {
       const next = [newGuide, ...prev];
       syncService.saveGuides(next);
+      firestoreService.saveCatalog('guides', next);
       syncService.broadcast('GUIDES_UPDATED', next);
       return next;
     });
@@ -389,6 +463,7 @@ export function App() {
     setGuides(prev => {
       const next = prev.filter(g => g.id !== guideId);
       syncService.saveGuides(next);
+      firestoreService.saveCatalog('guides', next);
       syncService.broadcast('GUIDES_UPDATED', next);
       return next;
     });
@@ -398,6 +473,7 @@ export function App() {
     setRoadAlert(alertText);
     storageService.saveRoadAlert(alertText);
     syncService.saveRoadAlert(alertText);
+    firestoreService.saveCatalog('road_alert', alertText);
     syncService.broadcast('ROAD_ALERT_UPDATED', alertText);
     notificationEngine.notifyRoadWeatherAlert('Broadcasted Road Advisory', alertText);
   };
@@ -460,10 +536,12 @@ export function App() {
     };
 
     // 1. Update local state
-    setCustomRequests(prev => [newRequest, ...prev]);
+    const nextReqs = [newRequest, ...customRequests];
+    setCustomRequests(nextReqs);
 
-    // 2. Post to Backend Server & Broadcast to Admin Panel
+    // 2. Post to Backend Server, Cloud Firestore & Broadcast to Admin Panel
     syncService.postCustomRequest(newRequest);
+    firestoreService.saveCatalog('custom_requests', nextReqs);
     syncService.broadcast('CUSTOM_REQUEST_CREATED', newRequest);
 
     // 3. Dispatch Enterprise Notification Alert
@@ -473,11 +551,11 @@ export function App() {
   // Admin approves & curates day schedule and quote -> Syncs to Server & User
   const handleApproveCustomRequest = (requestId: string, price: number, schedule: CustomTripDayPlan[], notes: string) => {
     let approvedReq: CustomTripRequest | null = null;
-    setCustomRequests(prev => prev.map(req => {
+    const nextReqs = customRequests.map(req => {
       if (req.id === requestId) {
         approvedReq = {
           ...req,
-          status: 'approved',
+          status: 'approved' as const,
           adminQuotedPrice: price,
           adminCuratedSchedule: schedule,
           adminNotes: notes,
@@ -486,11 +564,13 @@ export function App() {
         return approvedReq;
       }
       return req;
-    }));
+    });
+    setCustomRequests(nextReqs);
 
     if (approvedReq) {
-      // 1. Post approval to Server & Broadcast
+      // 1. Post approval to Server, Cloud Firestore & Broadcast
       syncService.approveCustomRequest(requestId, price, schedule, notes);
+      firestoreService.saveCatalog('custom_requests', nextReqs);
       syncService.broadcast('CUSTOM_REQUEST_APPROVED', approvedReq);
 
       // 2. Dispatch Enterprise Notification Alert
@@ -525,23 +605,27 @@ export function App() {
   const handleBookingSuccess = (newBooking: BookingItem) => {
     if (activePayingCustomReq) {
       newBooking.customDaySchedule = activePayingCustomReq.adminCuratedSchedule;
-      setCustomRequests(prev => prev.map(req => {
+      const nextCustomReqs = customRequests.map(req => {
         if (req.id === activePayingCustomReq.id) {
           return {
             ...req,
-            status: 'paid_finalized',
+            status: 'paid_finalized' as const,
             paidAt: new Date().toISOString().split('T')[0],
             bookingRef: newBooking.bookingRef
           };
         }
         return req;
-      }));
+      });
+      setCustomRequests(nextCustomReqs);
+      firestoreService.saveCatalog('custom_requests', nextCustomReqs);
     }
 
-    setBookings(prev => [newBooking, ...prev]);
+    const nextBookings = [newBooking, ...bookings];
+    setBookings(nextBookings);
 
-    // 1. Post to Server & Broadcast
+    // 1. Post to Server, Cloud Firestore & Broadcast
     syncService.postBooking(newBooking);
+    firestoreService.saveCatalog('bookings', nextBookings);
     syncService.broadcast('BOOKING_CONFIRMED', newBooking);
 
     // 2. Dispatch 3-Tier Enterprise Notification Suite
@@ -551,7 +635,9 @@ export function App() {
   };
 
   const handleCancelBooking = (bookingId: string) => {
-    setBookings(prev => prev.map(b => b.id === bookingId ? { ...b, status: 'Cancelled' } : b));
+    const nextBookings = bookings.map(b => b.id === bookingId ? { ...b, status: 'Cancelled' as const } : b);
+    setBookings(nextBookings);
+    firestoreService.saveCatalog('bookings', nextBookings);
     notificationEngine.addNotification({
       type: 'system_broadcast',
       title: 'Booking Cancelled',

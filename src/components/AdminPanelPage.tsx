@@ -18,6 +18,7 @@ import {
 import { notificationEngine } from '../services/notificationEngine';
 import { storageService } from '../utils/storageService';
 import { syncService } from '../utils/syncService';
+import { firestoreService } from '../services/firestoreService';
 import { MediaUploader } from './MediaUploader';
 import { HomestayGalleryUploader } from './HomestayGalleryUploader';
 import { AdminInvoiceModal } from './AdminInvoiceModal';
@@ -333,11 +334,46 @@ export const AdminPanelPage: React.FC<AdminPanelPageProps> = ({
     };
   }, []);
 
+  const [isPushingToCloud, setIsPushingToCloud] = useState<boolean>(false);
+
+  const handlePushAllToCloud = async () => {
+    setIsPushingToCloud(true);
+    try {
+      const ok = await firestoreService.pushAllLocalToCloud({
+        destinations,
+        packages,
+        stays,
+        guides,
+        pricingRules,
+        roadAlert,
+        customRequests,
+        bookings
+      });
+      if (ok) {
+        notificationEngine.addNotification({
+          type: 'system_broadcast',
+          title: 'Cloud Database Synchronized',
+          message: 'All destinations, tour packages, stays, and pricing rules are saved to live Firebase Firestore.',
+          priority: 'normal'
+        });
+        alert("✅ SUCCESS: All customized destination hubs, tour packages, handpicked homestays, and pricing are now pushed to Live Cloud Firestore! Any mobile device, tablet, or desktop opening the website anywhere will now immediately load your live customized data.");
+      } else {
+        alert("⚠️ Cloud sync did not complete. Please verify your internet connection.");
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Error syncing to cloud database.");
+    } finally {
+      setIsPushingToCloud(false);
+    }
+  };
+
   // Save pricing rules & promo codes changes
   const handleSavePricingRules = (newRules: PricingRules) => {
     setPricingRules(newRules);
     storageService.savePricingRules(newRules);
     syncService.savePricingRules(newRules);
+    firestoreService.saveCatalog('pricing_rules', newRules);
     syncService.broadcast('PRICING_RULES_UPDATED', newRules);
     notificationEngine.addNotification({
       type: 'system_broadcast',
@@ -947,8 +983,18 @@ export const AdminPanelPage: React.FC<AdminPanelPageProps> = ({
           </div>
         </div>
 
-        {/* Top Actions: Lock / Logout & Return */}
+        {/* Top Actions: Cloud Sync, Traveler Site, Lock */}
         <div className="flex items-center gap-2.5">
+          <button
+            onClick={handlePushAllToCloud}
+            disabled={isPushingToCloud}
+            className="px-3.5 py-2 rounded-xl font-extrabold text-xs bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white shadow-lg flex items-center gap-1.5 transition-all cursor-pointer border border-emerald-400/30"
+            title="Synchronize all destinations, packages, stays, and pricing to Cloud Firestore for all mobile & desktop devices"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${isPushingToCloud ? 'animate-spin' : ''}`} />
+            <span>{isPushingToCloud ? 'Syncing...' : '⚡ Push All Data to Cloud'}</span>
+          </button>
+
           <button
             onClick={onNavigateToUserPanel}
             className="btn-3d px-4 py-2 rounded-xl font-bold text-xs bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 flex items-center gap-1.5 transition-all cursor-pointer"
