@@ -672,6 +672,68 @@ export function App() {
     });
   };
 
+  // Handler to import entire catalog from JSON backup and sync everywhere
+  const handleImportFullCatalog = (catalog: {
+    destinations?: Destination[];
+    packages?: TourPackage[];
+    stays?: Stay[];
+    guides?: LocalGuide[];
+    pricingRules?: PricingRules;
+    roadAlert?: string;
+    customRequests?: CustomTripRequest[];
+    bookings?: BookingItem[];
+    reels?: ReelPost[];
+  }) => {
+    if (catalog.destinations && Array.isArray(catalog.destinations)) {
+      setDestinations(catalog.destinations);
+      storageService.saveDestinations(catalog.destinations);
+    }
+    if (catalog.packages && Array.isArray(catalog.packages)) {
+      setPackages(catalog.packages);
+      storageService.savePackages(catalog.packages);
+    }
+    if (catalog.stays && Array.isArray(catalog.stays)) {
+      setStays(catalog.stays);
+      storageService.saveStays(catalog.stays);
+    }
+    if (catalog.guides && Array.isArray(catalog.guides)) {
+      setGuides(catalog.guides);
+      storageService.saveGuides(catalog.guides);
+    }
+    if (catalog.pricingRules) {
+      setPricingRules(catalog.pricingRules);
+      storageService.savePricingRules(catalog.pricingRules);
+    }
+    if (catalog.roadAlert) {
+      setRoadAlert(catalog.roadAlert);
+      storageService.saveRoadAlert(catalog.roadAlert);
+    }
+    if (catalog.customRequests && Array.isArray(catalog.customRequests)) {
+      setCustomRequests(catalog.customRequests);
+      storageService.saveCustomRequests(catalog.customRequests);
+    }
+    if (catalog.bookings && Array.isArray(catalog.bookings)) {
+      setBookings(catalog.bookings);
+      storageService.saveBookings(catalog.bookings);
+    }
+    if (catalog.reels && Array.isArray(catalog.reels)) {
+      setReels(catalog.reels);
+    }
+
+    if (firestoreService.isAvailable()) {
+      firestoreService.pushAllLocalToCloud({
+        destinations: catalog.destinations || destinations,
+        packages: catalog.packages || packages,
+        stays: catalog.stays || stays,
+        guides: catalog.guides || guides,
+        pricingRules: catalog.pricingRules || pricingRules,
+        roadAlert: catalog.roadAlert || roadAlert,
+        customRequests: catalog.customRequests || customRequests,
+        bookings: catalog.bookings || bookings
+      });
+    }
+  };
+
   // --- RENDER DEDICATED ADMIN PANEL PAGE IF ON /admin ---
   if (currentRoute === 'admin') {
     return (
@@ -705,6 +767,7 @@ export function App() {
         roadAlert={roadAlert}
         onUpdateRoadAlert={handleUpdateRoadAlert}
         onNavigateToUserPanel={navigateToUser}
+        onImportFullCatalog={handleImportFullCatalog}
       />
     );
   }

@@ -77,7 +77,11 @@ import {
   Snowflake,
   CloudRain,
   Leaf,
-  QrCode
+  QrCode,
+  Download,
+  Upload,
+  FileJson,
+  Database
 } from 'lucide-react';
 
 interface AdminPanelPageProps {
@@ -110,6 +114,7 @@ interface AdminPanelPageProps {
   roadAlert: string;
   onUpdateRoadAlert: (alert: string) => void;
   onNavigateToUserPanel: () => void;
+  onImportFullCatalog?: (catalog: any) => void;
 }
 
 const COMMON_AMENITIES = [
@@ -164,7 +169,8 @@ export const AdminPanelPage: React.FC<AdminPanelPageProps> = ({
   onSyncRequests,
   roadAlert,
   onUpdateRoadAlert,
-  onNavigateToUserPanel
+  onNavigateToUserPanel,
+  onImportFullCatalog
 }) => {
   // --- ROLE-BASED AUTHENTICATION STATE ---
   const [authSession, setAuthSession] = useState<AdminSession | null>(() => {
@@ -382,6 +388,148 @@ export const AdminPanelPage: React.FC<AdminPanelPageProps> = ({
     } finally {
       setIsPushingToCloud(false);
     }
+  };
+
+  // --- 1-CLICK EXPORT & IMPORT BACKUP JSON ENGINE ---
+  const [isImportModalOpen, setIsImportModalOpen] = useState<boolean>(false);
+  const [importJsonText, setImportJsonText] = useState<string>('');
+  const [importStatusMsg, setImportStatusMsg] = useState<{ type: 'error' | 'success' | 'info'; text: string } | null>(null);
+  const [isProcessingImport, setIsProcessingImport] = useState<boolean>(false);
+
+  const handleExportBackup = () => {
+    try {
+      const fullCatalog = {
+        _system: 'The Himachal Nomad Backup',
+        version: '4.0.0-enterprise',
+        exportedAt: new Date().toISOString(),
+        exportedBy: authSession?.adminName || 'Monu (Master Creator)',
+        destinations,
+        packages,
+        stays,
+        guides,
+        pricingRules,
+        roadAlert,
+        customRequests,
+        bookings,
+        reels
+      };
+
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(fullCatalog, null, 2));
+      const downloadAnchor = document.createElement('a');
+      const filename = `himachal_nomad_catalog_backup_${new Date().toISOString().split('T')[0]}.json`;
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", filename);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+
+      notificationEngine.addNotification({
+        type: 'system_broadcast',
+        title: 'Catalog Backup Exported',
+        message: `Saved ${destinations.length} destinations, ${packages.length} packages, and ${stays.length} homestays to ${filename}.`,
+        priority: 'normal'
+      });
+      alert(`✅ Backup file "${filename}" downloaded successfully!\n\nYou can now open localhost or any other device and click "Import Backup" to instantly restore this exact catalog.`);
+    } catch (err) {
+      console.error('Export failed', err);
+      alert('Failed to export backup file.');
+    }
+  };
+
+  const handleProcessImport = async (jsonString: string) => {
+    setIsProcessingImport(true);
+    setImportStatusMsg(null);
+    try {
+      if (!jsonString || !jsonString.trim()) {
+        setImportStatusMsg({ type: 'error', text: 'Please paste valid JSON data or upload a JSON backup file.' });
+        setIsProcessingImport(false);
+        return;
+      }
+
+      const parsed = JSON.parse(jsonString);
+
+      // Validate catalog items
+      const hasDest = Array.isArray(parsed.destinations) || Array.isArray(parsed.destinationsList);
+      const hasPkg = Array.isArray(parsed.packages) || Array.isArray(parsed.packagesList);
+      const hasStays = Array.isArray(parsed.stays) || Array.isArray(parsed.staysList);
+      const hasGuides = Array.isArray(parsed.guides) || Array.isArray(parsed.guidesList);
+
+      if (!hasDest && !hasPkg && !hasStays && !hasGuides && !parsed.pricingRules && !parsed.roadAlert) {
+        setImportStatusMsg({ 
+          type: 'error', 
+          text: 'Invalid backup format. File must contain destinations, packages, stays, or pricing rules.' 
+        });
+        setIsProcessingImport(false);
+        return;
+      }
+
+      const normalizedCatalog = {
+        destinations: parsed.destinations || parsed.destinationsList || destinations,
+        packages: parsed.packages || parsed.packagesList || packages,
+        stays: parsed.stays || parsed.staysList || stays,
+        guides: parsed.guides || parsed.guidesList || guides,
+        pricingRules: parsed.pricingRules || pricingRules,
+        roadAlert: parsed.roadAlert || parsed.liveRoadAlert || roadAlert,
+        customRequests: parsed.customRequests || parsed.customRequestsList || customRequests,
+        bookings: parsed.bookings || parsed.bookingsList || bookings,
+        reels: parsed.reels || parsed.communityReels || reels
+      };
+
+      // 1. Pass to parent App handler to update React state & localStorage
+      if (onImportFullCatalog) {
+        onImportFullCatalog(normalizedCatalog);
+      } else {
+        storageService.saveDestinations(normalizedCatalog.destinations);
+        storageService.savePackages(normalizedCatalog.packages);
+        storageService.saveStays(normalizedCatalog.stays);
+        storageService.saveGuides(normalizedCatalog.guides);
+        storageService.savePricingRules(normalizedCatalog.pricingRules);
+        storageService.saveRoadAlert(normalizedCatalog.roadAlert);
+      }
+
+      // 2. Push immediately to Cloud Firestore so all mobile/global devices get it
+      let cloudSynced = false;
+      if (firestoreService.isAvailable()) {
+        cloudSynced = await firestoreService.pushAllLocalToCloud(normalizedCatalog);
+      }
+
+      notificationEngine.addNotification({
+        type: 'system_broadcast',
+        title: 'Catalog Backup Imported Successfully',
+        message: `Imported ${normalizedCatalog.destinations.length} destinations, ${normalizedCatalog.packages.length} packages, ${normalizedCatalog.stays.length} homestays.${cloudSynced ? ' Cloud Firestore synchronized.' : ''}`,
+        priority: 'high'
+      });
+
+      setImportStatusMsg({
+        type: 'success',
+        text: `✅ SUCCESS! Imported ${normalizedCatalog.destinations.length} destinations, ${normalizedCatalog.packages.length} packages, and ${normalizedCatalog.stays.length} homestays.${cloudSynced ? ' Automatically synced to Cloud Firestore for all devices.' : ''}`
+      });
+
+      setTimeout(() => {
+        setIsImportModalOpen(false);
+        setImportJsonText('');
+        setImportStatusMsg(null);
+      }, 2000);
+
+    } catch (err: any) {
+      console.error('Import parse error', err);
+      setImportStatusMsg({ type: 'error', text: `JSON syntax error: ${err.message || 'Invalid JSON syntax'}` });
+    } finally {
+      setIsProcessingImport(false);
+    }
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const content = event.target?.result as string;
+      setImportJsonText(content);
+      handleProcessImport(content);
+    };
+    reader.readAsText(file);
   };
 
   // Save pricing rules & promo codes changes
@@ -999,8 +1147,29 @@ export const AdminPanelPage: React.FC<AdminPanelPageProps> = ({
           </div>
         </div>
 
-        {/* Top Actions: Cloud Sync, Traveler Site, Lock */}
-        <div className="flex items-center gap-2.5">
+        {/* Top Actions: Export/Import Backup, Cloud Sync, Traveler Site, Lock */}
+        <div className="flex items-center flex-wrap gap-2.5">
+          <button
+            onClick={handleExportBackup}
+            className="px-3.5 py-2 rounded-xl font-bold text-xs bg-slate-900 hover:bg-slate-800 text-amber-300 border border-amber-500/30 shadow-sm flex items-center gap-1.5 transition-all cursor-pointer"
+            title="Download full catalog backup JSON (Destinations, Packages, Homestays, Prices, Secrets)"
+          >
+            <Download className="w-3.5 h-3.5 text-amber-400" />
+            <span>Export Backup (JSON)</span>
+          </button>
+
+          <button
+            onClick={() => {
+              setIsImportModalOpen(true);
+              setImportStatusMsg(null);
+            }}
+            className="px-3.5 py-2 rounded-xl font-bold text-xs bg-pine-900/90 hover:bg-pine-800 text-pine-200 border border-pine-500/40 shadow-sm flex items-center gap-1.5 transition-all cursor-pointer"
+            title="Import catalog JSON backup from file or clipboard"
+          >
+            <Upload className="w-3.5 h-3.5 text-pine-400" />
+            <span>Import Backup (JSON)</span>
+          </button>
+
           <button
             onClick={handlePushAllToCloud}
             disabled={isPushingToCloud}
@@ -3367,6 +3536,124 @@ Verified local mountain guide"
           booking={selectedBookingForInvoice}
           onClose={() => setSelectedBookingForInvoice(null)}
         />
+      )}
+
+      {/* ================= MODAL: 1-CLICK IMPORT BACKUP (JSON) ================= */}
+      {isImportModalOpen && (
+        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-slate-700 w-full max-w-2xl rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto">
+            
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-xl bg-pine-800/60 text-pine-300 border border-pine-600/40">
+                  <Database className="w-6 h-6 text-amber-400" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-extrabold text-white">Import Catalog Backup (JSON)</h3>
+                  <p className="text-xs text-slate-400">Restore your customized destinations, packages, homestays, prices & secret spots.</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsImportModalOpen(false)}
+                className="p-2 text-slate-400 hover:text-white rounded-xl hover:bg-slate-800 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Method 1: File Upload (.json) */}
+            <div className="p-4 rounded-2xl bg-slate-950/80 border border-dashed border-slate-700 flex flex-col items-center justify-center text-center space-y-2">
+              <FileJson className="w-8 h-8 text-pine-400 animate-pulse" />
+              <div>
+                <p className="text-sm font-bold text-slate-200">Upload Backup JSON File</p>
+                <p className="text-xs text-slate-400">Select the exported <code className="text-amber-300">himachal_nomad_catalog_backup.json</code> file</p>
+              </div>
+              <label className="mt-2 inline-flex items-center gap-2 px-4 py-2 bg-pine-700 hover:bg-pine-600 text-white text-xs font-extrabold rounded-xl cursor-pointer transition-all shadow-md">
+                <Upload className="w-4 h-4" />
+                <span>Choose .json File</span>
+                <input
+                  type="file"
+                  accept=".json,application/json"
+                  onChange={handleFileUpload}
+                  className="hidden"
+                />
+              </label>
+            </div>
+
+            {/* Divider */}
+            <div className="relative flex items-center justify-center">
+              <div className="border-t border-slate-800 w-full" />
+              <span className="bg-slate-900 px-3 text-[11px] font-bold text-slate-500 uppercase tracking-widest absolute">OR PASTE JSON DIRECTLY</span>
+            </div>
+
+            {/* Method 2: Textarea JSON input */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-bold text-slate-300">Paste Catalog JSON Text</label>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    try {
+                      const clipText = await navigator.clipboard.readText();
+                      if (clipText) {
+                        setImportJsonText(clipText);
+                      }
+                    } catch {
+                      alert('Could not read clipboard. Please paste manually into the box.');
+                    }
+                  }}
+                  className="text-xs text-amber-400 hover:underline flex items-center gap-1 cursor-pointer"
+                >
+                  <Copy className="w-3.5 h-3.5" />
+                  <span>Paste from Clipboard</span>
+                </button>
+              </div>
+              <textarea
+                value={importJsonText}
+                onChange={(e) => setImportJsonText(e.target.value)}
+                placeholder='Paste your backup JSON here (e.g. { "destinations": [...], "packages": [...] })'
+                rows={6}
+                className="w-full px-4 py-3 bg-slate-950 border border-slate-800 rounded-2xl text-xs font-mono text-slate-200 focus:outline-none focus:border-pine-500 shadow-inner"
+              />
+            </div>
+
+            {/* Status Message */}
+            {importStatusMsg && (
+              <div className={`p-4 rounded-2xl text-xs font-medium flex items-center gap-2.5 ${
+                importStatusMsg.type === 'error'
+                  ? 'bg-rose-950/80 border border-rose-800 text-rose-300'
+                  : importStatusMsg.type === 'success'
+                  ? 'bg-emerald-950/80 border border-emerald-800 text-emerald-300'
+                  : 'bg-blue-950/80 border border-blue-800 text-blue-300'
+              }`}>
+                {importStatusMsg.type === 'error' ? <ShieldAlert className="w-5 h-5 shrink-0" /> : <CheckCircle2 className="w-5 h-5 shrink-0" />}
+                <span>{importStatusMsg.text}</span>
+              </div>
+            )}
+
+            {/* Actions */}
+            <div className="flex items-center justify-end gap-3 pt-2 border-t border-slate-800">
+              <button
+                type="button"
+                onClick={() => setIsImportModalOpen(false)}
+                className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-300 transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => handleProcessImport(importJsonText)}
+                disabled={isProcessingImport || !importJsonText.trim()}
+                className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-pine-600 to-emerald-600 hover:from-pine-500 hover:to-emerald-500 disabled:opacity-50 text-xs font-extrabold text-white flex items-center gap-2 shadow-lg cursor-pointer transition-all"
+              >
+                {isProcessingImport ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+                <span>{isProcessingImport ? 'Importing & Syncing...' : 'Confirm Import & Sync to Cloud'}</span>
+              </button>
+            </div>
+
+          </div>
+        </div>
       )}
 
     </div>
