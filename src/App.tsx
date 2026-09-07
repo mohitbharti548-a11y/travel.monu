@@ -14,7 +14,7 @@ import {
   UserProfile,
   PricingRules 
 } from './types';
-import { REEL_POSTS } from './data/mockData';
+import { REEL_POSTS, DESTINATIONS } from './data/mockData';
 import { storageService } from './utils/storageService';
 import { syncService } from './utils/syncService';
 import { notificationEngine } from './services/notificationEngine';
@@ -286,6 +286,18 @@ export function App() {
       syncService.saveDestinations(next);
       syncService.broadcast('DESTINATIONS_UPDATED', next);
       return next;
+    });
+  };
+
+  const handleRestoreDefaultDestinations = () => {
+    setDestinations(DESTINATIONS);
+    syncService.saveDestinations(DESTINATIONS);
+    syncService.broadcast('DESTINATIONS_UPDATED', DESTINATIONS);
+    notificationEngine.addNotification({
+      type: 'system_broadcast',
+      title: 'Sacred Hubs Catalog Restored',
+      message: 'All 8 Himachal sacred destination hubs loaded into catalog.',
+      priority: 'normal'
     });
   };
 
@@ -585,6 +597,7 @@ export function App() {
         onUpdateDestination={handleUpdateDestination}
         onCreateDestination={handleCreateDestination}
         onDeleteDestination={handleDeleteDestination}
+        onRestoreDefaultDestinations={handleRestoreDefaultDestinations}
         packages={packages}
         onUpdatePackage={handleUpdatePackage}
         onCreatePackage={handleCreatePackage}

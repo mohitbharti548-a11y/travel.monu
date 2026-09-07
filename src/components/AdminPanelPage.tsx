@@ -84,6 +84,7 @@ interface AdminPanelPageProps {
   onUpdateDestination: (updatedDest: Destination) => void;
   onCreateDestination?: (newDest: Destination) => void;
   onDeleteDestination?: (destId: string) => void;
+  onRestoreDefaultDestinations?: () => void;
   packages: TourPackage[];
   onUpdatePackage: (updatedPkg: TourPackage) => void;
   onCreatePackage: (newPkg: TourPackage) => void;
@@ -140,6 +141,7 @@ export const AdminPanelPage: React.FC<AdminPanelPageProps> = ({
   onUpdateDestination,
   onCreateDestination,
   onDeleteDestination,
+  onRestoreDefaultDestinations,
   packages,
   onUpdatePackage,
   onCreatePackage,
@@ -972,7 +974,7 @@ export const AdminPanelPage: React.FC<AdminPanelPageProps> = ({
           { id: 'custom_trips', label: 'Curation Engine', icon: Sparkles, count: pendingRequests.length },
           { id: 'pricing', label: 'Dynamic Pricing & Promos', icon: Percent },
           { id: 'bookings', label: 'Bookings & Invoicing', icon: Ticket, count: bookings.length },
-          { id: 'destinations', label: 'Destinations', icon: MapPin },
+          { id: 'destinations', label: 'Curated Destination Hubs', icon: Compass, count: destinations.length },
           { id: 'packages', label: 'Tour Packages', icon: Layers },
           { id: 'stays', label: 'Homestays & Stays', icon: Home },
           { id: 'guides', label: 'Mountain Guides', icon: Users },
@@ -1643,60 +1645,132 @@ export const AdminPanelPage: React.FC<AdminPanelPageProps> = ({
           </div>
         )}
 
-        {/* ================= TAB 4: DESTINATIONS CATALOG ================= */}
+        {/* ================= TAB 4: CURATED DESTINATION HUBS CATALOG ================= */}
         {activeTab === 'destinations' && (
           <div className="space-y-6">
-            <div className="flex items-center justify-between bg-slate-900 p-4 rounded-2xl border border-slate-800">
+            <div className="flex flex-wrap items-center justify-between gap-4 bg-slate-900 p-5 rounded-3xl border border-slate-800">
               <div>
-                <h3 className="text-base font-extrabold text-white">Destination Hubs Management</h3>
-                <p className="text-xs text-slate-400">Add, edit, or remove destination circuits, secret spots, altitudes, and upload 4K drone reels & covers.</p>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-pine-950 text-pine-300 border border-pine-800 tracking-wider">
+                    The Sacred Hubs of Himachal
+                  </span>
+                  <span className="text-xs text-slate-400 font-mono font-bold">
+                    {destinations.length} Active Hubs
+                  </span>
+                </div>
+                <h3 className="text-lg font-extrabold text-white flex items-center gap-2">
+                  <Compass className="w-5 h-5 text-amber-400" />
+                  <span>Curated Destination Hubs Management</span>
+                </h3>
+                <p className="text-xs text-slate-400 mt-0.5 max-w-2xl">
+                  Directly customize and publish the valley circuits, altitudes, live weather notes, secret spots, must-visit spots, and 4K media reels shown on the traveler site's "Curated Destination Hubs" section.
+                </p>
               </div>
-              <button
-                onClick={() => {
-                  setIsCreatingDestination(true);
-                  setEditingDestination(null);
-                  setDestHeroImage('');
-                  setDestDroneVideo('');
-                }}
-                className="btn-3d px-4 py-2 rounded-xl bg-pine-600 hover:bg-pine-500 text-white font-extrabold text-xs flex items-center gap-1.5 shadow"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Add Destination Hub</span>
-              </button>
+
+              <div className="flex flex-wrap items-center gap-2.5">
+                {onRestoreDefaultDestinations && (
+                  <button
+                    onClick={onRestoreDefaultDestinations}
+                    className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-750 text-amber-300 border border-slate-700 text-xs font-bold flex items-center gap-1.5 transition-all shadow cursor-pointer hover:border-amber-400/50"
+                    title="Restore full 8 Sacred Himachal Hubs (Manali, Spiti, Kaza, Dharamshala, Shimla, Kullu, Mandi, Chamba)"
+                  >
+                    <RefreshCw className="w-3.5 h-3.5" />
+                    <span>Restore All 8 Sacred Hubs</span>
+                  </button>
+                )}
+
+                <button
+                  onClick={onNavigateToUserPanel}
+                  className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer"
+                >
+                  <Eye className="w-3.5 h-3.5 text-sky-400" />
+                  <span>Preview On Site</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    setIsCreatingDestination(true);
+                    setEditingDestination(null);
+                    setDestHeroImage('');
+                    setDestDroneVideo('');
+                  }}
+                  className="btn-3d px-4 py-2 rounded-xl bg-pine-600 hover:bg-pine-500 text-white font-extrabold text-xs flex items-center gap-1.5 shadow cursor-pointer"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Add Destination Hub</span>
+                </button>
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {destinations.length < 3 && onRestoreDefaultDestinations && (
+              <div className="p-4 rounded-2xl bg-amber-950/40 border border-amber-800/50 flex flex-wrap items-center justify-between gap-3 text-amber-200 text-xs">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-amber-400 shrink-0" />
+                  <span>You currently have <strong>{destinations.length}</strong> destination(s) listed. You can click <strong>"Restore All 8 Sacred Hubs"</strong> to populate the complete Himachal catalog (Spiti, Kaza, Manali, Dharamshala, Shimla, Kullu, Mandi, Chamba).</span>
+                </div>
+                <button
+                  onClick={onRestoreDefaultDestinations}
+                  className="px-3 py-1.5 rounded-lg bg-amber-500 text-slate-950 font-bold text-xs hover:bg-amber-400 shrink-0"
+                >
+                  Restore 8 Hubs
+                </button>
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
               {destinations.map((dest) => (
-                <div key={dest.id} className="rounded-2xl bg-slate-900 border border-slate-800 overflow-hidden group flex flex-col justify-between">
+                <div key={dest.id} className="rounded-3xl bg-slate-900 border border-slate-800 overflow-hidden group flex flex-col justify-between shadow-xl hover:border-slate-700 transition-all">
                   <div>
-                    <div className="relative h-48 overflow-hidden">
+                    <div className="relative h-52 overflow-hidden">
                       <img src={dest.heroImage} alt={dest.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/30 to-transparent" />
-                      <div className="absolute top-3 left-3 px-2 py-0.5 rounded bg-black/60 backdrop-blur-md text-[10px] font-bold text-amber-300 border border-white/20 font-mono">
-                        {dest.altitude}
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
+                      
+                      <div className="absolute top-3 left-3 px-2.5 py-1 rounded-xl bg-black/70 backdrop-blur-md text-[11px] font-extrabold text-amber-300 border border-white/20 font-mono">
+                        {dest.altitude || 'High Altitude'}
                       </div>
-                      <div className="absolute top-3 right-3 px-2 py-0.5 rounded bg-pine-900/80 backdrop-blur-md text-[10px] font-bold text-pine-300 border border-pine-700/50">
-                        {dest.bestTimeToVisit}
+                      <div className="absolute top-3 right-3 px-2.5 py-1 rounded-xl bg-pine-900/90 backdrop-blur-md text-[11px] font-bold text-pine-200 border border-pine-700/60">
+                        {dest.bestTimeToVisit || 'All Season'}
                       </div>
-                      <div className="absolute bottom-3 left-3 right-3">
+                      
+                      <div className="absolute bottom-3 left-4 right-4">
                         <div className="flex items-center gap-2">
-                          <h4 className="text-base font-extrabold text-white">{dest.name}</h4>
-                          <span className="text-xs text-amber-300 font-serif">({dest.hindiName})</span>
+                          <h4 className="text-lg font-extrabold text-white tracking-tight">{dest.name}</h4>
+                          <span className="text-sm text-amber-400 font-serif">({dest.hindiName})</span>
                         </div>
-                        <p className="text-[11px] text-slate-300 line-clamp-1">{dest.tagline}</p>
+                        <p className="text-xs text-slate-300 line-clamp-1">{dest.tagline}</p>
                       </div>
                     </div>
 
                     <div className="p-4 space-y-3">
-                      <p className="text-xs text-slate-300 line-clamp-2">{dest.description}</p>
+                      <p className="text-xs text-slate-300 line-clamp-2 leading-relaxed">{dest.description}</p>
                       
                       {dest.secretSpot && (
-                        <div className="p-2.5 rounded-xl bg-amber-950/30 border border-amber-800/40 text-[11px] space-y-1">
-                          <div className="flex items-center gap-1 font-bold text-amber-400">
+                        <div className="p-3 rounded-2xl bg-amber-950/30 border border-amber-800/40 text-[11px] space-y-1">
+                          <div className="flex items-center gap-1.5 font-extrabold text-amber-400">
                             <Sparkles className="w-3.5 h-3.5" />
                             <span>Secret Spot: {dest.secretSpot.title}</span>
                           </div>
-                          <p className="text-slate-300 line-clamp-1">{dest.secretSpot.description}</p>
+                          <p className="text-slate-300 line-clamp-2">{dest.secretSpot.description}</p>
+                          {dest.secretSpot.creatorTip && (
+                            <p className="text-amber-300/80 italic text-[10px] pt-1 border-t border-amber-900/40">
+                              Tip: {dest.secretSpot.creatorTip}
+                            </p>
+                          )}
+                        </div>
+                      )}
+
+                      {Array.isArray(dest.mustVisitSpots) && dest.mustVisitSpots.length > 0 && (
+                        <div className="flex flex-wrap gap-1 pt-1">
+                          {dest.mustVisitSpots.slice(0, 3).map((spot, idx) => (
+                            <span key={idx} className="px-2 py-0.5 rounded-md bg-slate-800 text-slate-300 text-[10px] font-medium">
+                              📍 {spot}
+                            </span>
+                          ))}
+                          {dest.mustVisitSpots.length > 3 && (
+                            <span className="px-1.5 py-0.5 rounded-md bg-slate-800 text-slate-400 text-[10px]">
+                              +{dest.mustVisitSpots.length - 3} more
+                            </span>
+                          )}
                         </div>
                       )}
                     </div>
@@ -1705,8 +1779,8 @@ export const AdminPanelPage: React.FC<AdminPanelPageProps> = ({
                   <div className="p-4 pt-0">
                     <div className="flex items-center justify-between pt-3 border-t border-slate-800">
                       <div>
-                        <span className="text-[10px] text-slate-400 uppercase tracking-wider block">Starting</span>
-                        <span className="text-xs font-extrabold text-emerald-400">₹{dest.startingPrice.toLocaleString('en-IN')}</span>
+                        <span className="text-[10px] text-slate-400 uppercase tracking-wider block font-bold">Starting From</span>
+                        <span className="text-sm font-extrabold text-emerald-400 font-mono">₹{dest.startingPrice.toLocaleString('en-IN')}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <button
@@ -1716,14 +1790,14 @@ export const AdminPanelPage: React.FC<AdminPanelPageProps> = ({
                             setDestHeroImage(dest.heroImage);
                             setDestDroneVideo(dest.droneVideoPreview || '');
                           }}
-                          className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold flex items-center gap-1.5 transition-colors"
+                          className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-extrabold flex items-center gap-1.5 transition-colors cursor-pointer border border-slate-700"
                         >
                           <Edit2 className="w-3.5 h-3.5 text-amber-400" />
-                          <span>Edit</span>
+                          <span>Edit Hub</span>
                         </button>
                         <button
                           onClick={() => handleDeleteDestinationClick(dest.id, dest.name)}
-                          className="p-1.5 rounded-xl bg-rose-950/50 hover:bg-rose-900/80 text-rose-400 hover:text-rose-200 border border-rose-800/40 transition-colors"
+                          className="p-2 rounded-xl bg-rose-950/60 hover:bg-rose-900 text-rose-400 hover:text-rose-200 border border-rose-800/50 transition-colors cursor-pointer"
                           title="Delete Destination"
                         >
                           <Trash2 className="w-4 h-4" />

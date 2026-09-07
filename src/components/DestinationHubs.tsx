@@ -100,14 +100,21 @@ export const DestinationHubs: React.FC<DestinationHubsProps> = ({
   const [selectedMapPin, setSelectedMapPin] = useState<Destination | null>(null);
 
   const filteredDestinations = destinations.filter((d) => {
+    if (!d || !d.id) return false;
     if (filter === 'high_altitude') {
-      return d.id === 'spiti' || d.id === 'kaza' || d.id === 'kinnaur';
+      const nameL = (d.name || '').toLowerCase();
+      const descL = (d.description || '').toLowerCase();
+      const altL = (d.altitude || '').toLowerCase();
+      return d.id === 'spiti' || d.id === 'kaza' || d.id === 'kinnaur' || nameL.includes('spiti') || nameL.includes('kaza') || nameL.includes('kinnaur') || altL.includes('3,') || altL.includes('4,') || descL.includes('altitude');
     }
     if (filter === 'lush_valleys') {
-      return d.id === 'manali' || d.id === 'kullu' || d.id === 'mandi' || d.id === 'chamba';
+      const nameL = (d.name || '').toLowerCase();
+      return d.id === 'manali' || d.id === 'kullu' || d.id === 'mandi' || d.id === 'chamba' || nameL.includes('manali') || nameL.includes('kullu') || nameL.includes('mandi') || nameL.includes('chamba') || nameL.includes('valley');
     }
     if (filter === 'spiritual_trekking') {
-      return d.id === 'dharamshala' || d.id === 'shimla' || d.id === 'chamba';
+      const nameL = (d.name || '').toLowerCase();
+      const descL = (d.description || '').toLowerCase();
+      return d.id === 'dharamshala' || d.id === 'shimla' || d.id === 'chamba' || nameL.includes('dharamshala') || nameL.includes('mcleod') || nameL.includes('shimla') || descL.includes('monastery') || descL.includes('temple');
     }
     return true;
   });
