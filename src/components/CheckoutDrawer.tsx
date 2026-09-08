@@ -42,6 +42,13 @@ interface CheckoutDrawerProps {
     customizedDays?: ItineraryDay[];
     packageItem?: TourPackage;
     transitItem?: TransitOption;
+    customSchedule?: Array<{
+      dayNumber: number;
+      title: string;
+      plan: string;
+      stay: string;
+      highlights: string[];
+    }>;
   } | null;
   onBookingSuccess: (newBooking: BookingItem) => void;
   userProfile?: UserProfile | null;
@@ -57,10 +64,10 @@ export const CheckoutDrawer: React.FC<CheckoutDrawerProps> = ({
   const [step, setStep] = useState<'details' | 'nomadCode' | 'payment' | 'processing' | 'confirmed'>('details');
   const [paymentPlan, setPaymentPlan] = useState<'full' | 'split'>('full');
   const [paymentMethod, setPaymentMethod] = useState<'upi' | 'card' | 'netbanking'>('upi');
-  const [upiId, setUpiId] = useState('ramesh@okaxis');
-  const [travelerName, setTravelerName] = useState(() => userProfile?.name || 'Ramesh Sharma');
-  const [travelerEmail, setTravelerEmail] = useState(() => userProfile?.email || 'ramesh.traveler@example.com');
-  const [travelerPhone, setTravelerPhone] = useState(() => userProfile?.phone ? `+91 ${userProfile.phone.replace(/^91/, '')}` : '+91 98765 43210');
+  const [upiId, setUpiId] = useState('');
+  const [travelerName, setTravelerName] = useState(() => userProfile?.name || '');
+  const [travelerEmail, setTravelerEmail] = useState(() => userProfile?.email || '');
+  const [travelerPhone, setTravelerPhone] = useState(() => userProfile?.phone ? `+91 ${userProfile.phone.replace(/^91/, '')}` : '');
   const [isCopied, setIsCopied] = useState(false);
   
   React.useEffect(() => {
@@ -82,6 +89,17 @@ export const CheckoutDrawer: React.FC<CheckoutDrawerProps> = ({
   const [agreedWeatherFlexibility, setAgreedWeatherFlexibility] = useState(false);
 
   const [completedBooking, setCompletedBooking] = useState<BookingItem | null>(null);
+
+  React.useEffect(() => {
+    if (!isOpen) return;
+    setStep('details');
+    setPaymentPlan('full');
+    setCompletedBooking(null);
+    setAgreedZeroPlastic(false);
+    setAgreedCulturalRespect(false);
+    setAgreedAltitudeSafety(false);
+    setAgreedWeatherFlexibility(false);
+  }, [isOpen, checkoutData?.title, checkoutData?.travelDate]);
 
   if (!isOpen || !checkoutData) return null;
 

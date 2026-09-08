@@ -102,16 +102,24 @@ export function App() {
   const [activeSection, setActiveSection] = useState<string>('hero');
 
   // Application Data States (Enterprise Persistent via storageService, syncService & Cloud Firestore)
-  const [destinations, setDestinations] = useState<Destination[]>([]);
-  const [packages, setPackages] = useState<TourPackage[]>([]);
-  const [stays, setStays] = useState<Stay[]>([]);
-  const [guides, setGuides] = useState<LocalGuide[]>([]);
+  const [destinations, setDestinations] = useState<Destination[]>(() => storageService.loadDestinations());
+  const [packages, setPackages] = useState<TourPackage[]>(() => storageService.loadPackages());
+  const [stays, setStays] = useState<Stay[]>(() => storageService.loadStays());
+  const [guides, setGuides] = useState<LocalGuide[]>(() => storageService.loadGuides());
   const [reels, setReels] = useState<ReelPost[]>([]);
   const [bookings, setBookings] = useState<BookingItem[]>([]);
   const [customRequests, setCustomRequests] = useState<CustomTripRequest[]>([]);
   const [roadAlert, setRoadAlert] = useState<string>(() => storageService.loadRoadAlert());
   const [pricingRules, setPricingRules] = useState<PricingRules>(() => storageService.loadPricingRules());
-  const [dataSourceError, setDataSourceError] = useState<string | null>(null);
+
+  const isLegacyDemoBooking = (booking: BookingItem) => (
+    booking.id === 'bk-1092'
+    || booking.bookingRef === 'HN-SPITI-9842'
+    || booking.contactEmail === 'ramesh.traveler@example.com'
+    || booking.primaryTraveler === 'Ramesh & Partner'
+  );
+
+  const removeLegacyDemoBooking = (list: BookingItem[]) => list.filter((booking) => !isLegacyDemoBooking(booking));
 
   const userEmail = (userProfile?.email || '').trim().toLowerCase();
   const userPhone = (userProfile?.phone || userProfile?.phoneNumber || '').replace(/\D/g, '');
@@ -163,15 +171,10 @@ export function App() {
 
   // Initial Server & Cloud Firestore Synchronization
   useEffect(() => {
-    if (!firestoreService.isAvailable()) {
-      setDataSourceError('Firebase Firestore is not configured in this build.');
-    }
-
     // 1. Fetch initial Cloud Firestore Catalog (Instant Global Source of Truth)
     if (firestoreService.isAvailable()) {
       firestoreService.loadCatalog<Destination[]>('destinations').then(cloudDest => {
         if (cloudDest) setDestinations(cloudDest);
-        else setDataSourceError(firestoreService.getLastError() || 'Could not load destinations from Firebase.');
       });
       firestoreService.loadCatalog<TourPackage[]>('packages').then(cloudPkg => {
         if (cloudPkg) setPackages(cloudPkg);
@@ -198,12 +201,16 @@ export function App() {
         }
       });
       firestoreService.loadCatalog<BookingItem[]>('bookings').then(cloudBookings => {
-        if (cloudBookings && cloudBookings.length > 0) {
+        if (cloudBookings) {
+          const cleanBookings = removeLegacyDemoBooking(cloudBookings);
           setBookings(prev => {
             const map = new Map<string, BookingItem>();
-            [...cloudBookings, ...prev].forEach(b => map.set(b.id, b));
+            [...cleanBookings, ...removeLegacyDemoBooking(prev)].forEach(b => map.set(b.id, b));
             return Array.from(map.values());
           });
+          if (cleanBookings.length !== cloudBookings.length) {
+            firestoreService.saveCatalog('bookings', cleanBookings);
+          }
         }
       });
       firestoreService.loadCatalog<ReelPost[]>('reels').then(cloudReels => {
@@ -236,7 +243,7 @@ export function App() {
         if (Array.isArray(requests)) setCustomRequests(requests);
       });
       const unsubBookings = firestoreService.subscribeToCatalog<BookingItem[]>('bookings', (liveBookings) => {
-        if (Array.isArray(liveBookings)) setBookings(liveBookings);
+        if (Array.isArray(liveBookings)) setBookings(removeLegacyDemoBooking(liveBookings));
       });
 
     }
@@ -259,7 +266,7 @@ export function App() {
       if (serverBookings && serverBookings.length > 0) {
         setBookings(prev => {
           const map = new Map<string, BookingItem>();
-          [...serverBookings, ...prev].forEach(b => map.set(b.id, b));
+          [...removeLegacyDemoBooking(serverBookings), ...removeLegacyDemoBooking(prev)].forEach(b => map.set(b.id, b));
           return Array.from(map.values());
         });
       }
@@ -810,8 +817,9 @@ export function App() {
       storageService.saveCustomRequests(catalog.customRequests);
     }
     if (catalog.bookings && Array.isArray(catalog.bookings)) {
-      setBookings(catalog.bookings);
-      storageService.saveBookings(catalog.bookings);
+      const cleanBookings = removeLegacyDemoBooking(catalog.bookings);
+      setBookings(cleanBookings);
+      storageService.saveBookings(cleanBookings);
     }
     if (catalog.reels && Array.isArray(catalog.reels)) {
       setReels(catalog.reels);
@@ -826,7 +834,7 @@ export function App() {
         pricingRules: catalog.pricingRules || pricingRules,
         roadAlert: catalog.roadAlert || roadAlert,
         customRequests: catalog.customRequests || customRequests,
-        bookings: catalog.bookings || bookings,
+        bookings: catalog.bookings ? removeLegacyDemoBooking(catalog.bookings) : removeLegacyDemoBooking(bookings),
         reels: catalog.reels || reels
       });
     }
@@ -877,11 +885,6 @@ export function App() {
   // --- RENDER USER TRAVELER PORTAL PAGE IF ON / ---
   return (
     <div className="relative min-h-screen text-slate-900 dark:text-slate-100 transition-colors duration-300 selection:bg-pine-600 selection:text-white">
-      {dataSourceError && (
-        <div className="fixed top-0 inset-x-0 z-[100] bg-red-700 px-4 py-2 text-center text-xs font-bold text-white shadow-lg">
-          Live catalog unavailable: {dataSourceError}
-        </div>
-      )}
       {/* GLOBAL FULL-PAGE CINEMATIC MOUNTAIN & VIDEO CANVAS */}
       <div className="fixed inset-0 pointer-events-none z-[-1] overflow-hidden">
         {/* Full-Bleed Drone Mountain Video Loop */}

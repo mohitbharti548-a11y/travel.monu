@@ -247,9 +247,9 @@ export const CustomTripWidget: React.FC<CustomTripWidgetProps> = ({
   const [specialWishes, setSpecialWishes] = useState<string>('');
   
   // Traveler contact info for Monu's quote (Auto-populated from User Profile if logged in)
-  const [travelerName, setTravelerName] = useState<string>(userProfile?.name || 'Ramesh Sharma');
+  const [travelerName, setTravelerName] = useState<string>(userProfile?.name || '');
   const [travelerPhone, setTravelerPhone] = useState<string>(userProfile?.phone ? `+${userProfile.phone}` : '+91 98765 43210');
-  const [travelerEmail, setTravelerEmail] = useState<string>(userProfile?.email || 'ramesh@example.com');
+  const [travelerEmail, setTravelerEmail] = useState<string>(userProfile?.email || '');
 
   useEffect(() => {
     if (userProfile && userProfile.isLoggedIn) {

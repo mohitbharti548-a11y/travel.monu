@@ -843,29 +843,5 @@ export const TRANSIT_OPTIONS: TransitOption[] = [
   }
 ];
 
-export const INITIAL_BOOKINGS: BookingItem[] = [
-  {
-    id: 'bk-1092',
-    bookingRef: 'HN-SPITI-9842',
-    itemType: 'package',
-    title: 'The Legendary Spiti & Kaza Circuit (6D/5N)',
-    destination: 'Spiti Valley',
-    travelDate: '2026-09-15',
-    passengers: 2,
-    totalAmount: 58398,
-    paidAmount: 58398,
-    paymentMethod: 'UPI (GPay / ramesh@okaxis)',
-    paymentDate: '2026-08-28',
-    status: 'Confirmed',
-    customizationDetails: {
-      upgrades: ['Kaza Mud & Stone Solar Haven (Day 1-2)', 'Langza Astro Stargazing Dome (Day 3)'],
-      addOns: ['Night Astrophotography Session with Tenzin', 'Hikkim Postcard Souvenir Pack']
-    },
-    contactEmail: 'ramesh.traveler@example.com',
-    contactPhone: '+91 98765 43210',
-    primaryTraveler: 'Ramesh & Partner'
-  }
-];
-
 export const INITIAL_CUSTOM_REQUESTS: CustomTripRequest[] = [];
 
