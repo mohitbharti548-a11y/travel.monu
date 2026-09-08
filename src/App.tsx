@@ -107,17 +107,59 @@ export function App() {
   const [stays, setStays] = useState<Stay[]>([]);
   const [guides, setGuides] = useState<LocalGuide[]>([]);
   const [reels, setReels] = useState<ReelPost[]>([]);
-  const [bookings, setBookings] = useState<BookingItem[]>(() => storageService.loadBookings());
-  const [customRequests, setCustomRequests] = useState<CustomTripRequest[]>(() => storageService.loadCustomRequests());
+  const [bookings, setBookings] = useState<BookingItem[]>([]);
+  const [customRequests, setCustomRequests] = useState<CustomTripRequest[]>([]);
   const [roadAlert, setRoadAlert] = useState<string>(() => storageService.loadRoadAlert());
   const [pricingRules, setPricingRules] = useState<PricingRules>(() => storageService.loadPricingRules());
   const [dataSourceError, setDataSourceError] = useState<string | null>(null);
+
+  const userEmail = (userProfile?.email || '').trim().toLowerCase();
+  const userPhone = (userProfile?.phone || userProfile?.phoneNumber || '').replace(/\D/g, '');
+  const userBookings = userProfile?.isLoggedIn
+    ? bookings.filter((booking) => {
+        const bookingEmail = (booking.contactEmail || '').trim().toLowerCase();
+        const bookingPhone = (booking.contactPhone || '').replace(/\D/g, '');
+        return (userEmail && bookingEmail === userEmail) || (userPhone && bookingPhone && bookingPhone.endsWith(userPhone.slice(-10)));
+      })
+    : [];
+  const userCustomRequests = userProfile?.isLoggedIn
+    ? customRequests.filter((request) => {
+        const requestEmail = (request.travelerEmail || request.email || request.userEmail || '').trim().toLowerCase();
+        const requestPhone = (request.travelerPhone || request.phone || request.userPhone || '').replace(/\D/g, '');
+        return (userEmail && requestEmail === userEmail) || (userPhone && requestPhone && requestPhone.endsWith(userPhone.slice(-10)));
+      })
+    : [];
 
   // Automatic Persistence Synchronization to localStorage
   useEffect(() => { storageService.saveBookings(bookings); }, [bookings]);
   useEffect(() => { storageService.saveCustomRequests(customRequests); }, [customRequests]);
   useEffect(() => { storageService.saveRoadAlert(roadAlert); }, [roadAlert]);
   useEffect(() => { storageService.savePricingRules(pricingRules); }, [pricingRules]);
+
+  useEffect(() => {
+    if (!userProfile?.isLoggedIn || userCustomRequests.length === 0) return;
+
+    const notifiedKey = 'hn_approved_requests_notified_v1';
+    let notified: string[] = [];
+    try {
+      notified = JSON.parse(localStorage.getItem(notifiedKey) || '[]');
+    } catch {
+      notified = [];
+    }
+
+    const newlyApproved = userCustomRequests.filter((request) =>
+      request.status === 'approved' && !notified.includes(request.id)
+    );
+
+    newlyApproved.forEach((request) => {
+      notificationEngine.notifyCustomRequestApproved(request);
+      notified.push(request.id);
+    });
+
+    if (newlyApproved.length > 0) {
+      localStorage.setItem(notifiedKey, JSON.stringify(notified));
+    }
+  }, [userProfile, userCustomRequests]);
 
   // Initial Server & Cloud Firestore Synchronization
   useEffect(() => {
@@ -189,6 +231,12 @@ export function App() {
       });
       const unsubReels = firestoreService.subscribeToCatalog<ReelPost[]>('reels', (r) => {
         if (r) setReels(r);
+      });
+      const unsubRequests = firestoreService.subscribeToCatalog<CustomTripRequest[]>('custom_requests', (requests) => {
+        if (Array.isArray(requests)) setCustomRequests(requests);
+      });
+      const unsubBookings = firestoreService.subscribeToCatalog<BookingItem[]>('bookings', (liveBookings) => {
+        if (Array.isArray(liveBookings)) setBookings(liveBookings);
       });
 
     }
@@ -793,8 +841,8 @@ export function App() {
             return next;
           });
         }}
-        bookings={bookings}
-        customRequests={customRequests}
+        bookings={userBookings}
+        customRequests={userCustomRequests}
         onApproveCustomRequest={handleApproveCustomRequest}
         onSyncRequests={(updatedList) => setCustomRequests(updatedList)}
         roadAlert={roadAlert}

@@ -11,8 +11,6 @@ import {
   TOUR_PACKAGES, 
   CURATED_STAYS, 
   LOCAL_GUIDES, 
-  INITIAL_BOOKINGS, 
-  INITIAL_CUSTOM_REQUESTS 
 } from '../data/mockData';
 
 const STORAGE_KEYS = {
@@ -101,9 +99,9 @@ export const storageService = {
   loadBookings(): BookingItem[] {
     try {
       const data = localStorage.getItem(STORAGE_KEYS.BOOKINGS);
-      return data ? JSON.parse(data) : INITIAL_BOOKINGS;
+      return data ? JSON.parse(data) : [];
     } catch {
-      return INITIAL_BOOKINGS;
+      return [];
     }
   },
   saveBookings(list: BookingItem[]) {
@@ -118,9 +116,9 @@ export const storageService = {
   loadCustomRequests(): CustomTripRequest[] {
     try {
       const data = localStorage.getItem(STORAGE_KEYS.CUSTOM_REQUESTS);
-      return data ? JSON.parse(data) : INITIAL_CUSTOM_REQUESTS;
+      return data ? JSON.parse(data) : [];
     } catch {
-      return INITIAL_CUSTOM_REQUESTS;
+      return [];
     }
   },
   saveCustomRequests(list: CustomTripRequest[]) {

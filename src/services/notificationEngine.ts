@@ -21,17 +21,6 @@ class NotificationEngine {
         priority: 'normal',
         data: { linkAction: 'open_weather' }
       },
-      {
-        id: 'notif-2',
-        type: 'custom_request_approved',
-        title: 'Monu Approved Custom Itinerary',
-        message: 'Custom Bespoke Trip REQ-HN-9421 (Spiti 5D/4N) has been approved by Monu. Review & proceed with payment.',
-        timestamp: new Date(Date.now() - 45 * 60000).toISOString(),
-        timeAgo: '45m ago',
-        isRead: false,
-        priority: 'high',
-        data: { requestRef: 'REQ-HN-9421', linkAction: 'open_custom_requests' }
-      }
     ];
   }
 
