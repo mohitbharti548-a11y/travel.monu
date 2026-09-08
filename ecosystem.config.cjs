@@ -3,14 +3,14 @@ module.exports = {
     {
       name: 'himachal-nomad-cluster',
       script: './server.js',
-      instances: 'max', // Multi-core CPU utilization
-      exec_mode: 'cluster',
+      instances: 1,
+      exec_mode: 'fork',
       watch: false,
       max_memory_restart: '500M',
       env: {
         NODE_ENV: 'production',
         PORT: 5000,
-        ENABLE_CLUSTER: 'true'
+        ENABLE_CLUSTER: 'false'
       },
       env_development: {
         NODE_ENV: 'development',

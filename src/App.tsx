@@ -618,7 +618,7 @@ export function App() {
   };
 
   // Admin approves & curates day schedule and quote -> Syncs to Server & User
-  const handleApproveCustomRequest = (requestId: string, price: number, schedule: CustomTripDayPlan[], notes: string) => {
+  const handleApproveCustomRequest = async (requestId: string, price: number, schedule: CustomTripDayPlan[], notes: string) => {
     let approvedReq: CustomTripRequest | null = null;
     const nextReqs = customRequests.map(req => {
       if (req.id === requestId) {
@@ -641,6 +641,27 @@ export function App() {
       syncService.approveCustomRequest(requestId, price, schedule, notes);
       firestoreService.saveCatalog('custom_requests', nextReqs);
       syncService.broadcast('CUSTOM_REQUEST_APPROVED', approvedReq);
+
+      const emailRequest = nextReqs.find((request) => request.id === requestId);
+      if (!emailRequest) return;
+
+      try {
+        const emailResponse = await fetch('/api/send-approval-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            travelerEmail: emailRequest.travelerEmail,
+            travelerName: emailRequest.travelerName,
+            requestRef: emailRequest.requestRef,
+            price: emailRequest.adminQuotedPrice
+          })
+        });
+        if (!emailResponse.ok) {
+          console.warn('Approval email was not sent:', await emailResponse.text());
+        }
+      } catch (error) {
+        console.warn('Approval email request failed:', error);
+      }
 
       // 2. Dispatch Enterprise Notification Alert
       notificationEngine.notifyCustomRequestApproved(approvedReq);

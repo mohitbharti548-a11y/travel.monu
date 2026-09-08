@@ -16,6 +16,38 @@ const UPLOADS_DIR = path.join(__dirname, 'uploads');
 const DATA_FILE = path.join(__dirname, 'data_store.json');
 const MAX_BODY_SIZE = 15 * 1024 * 1024; // 15 MB limit for asset uploads
 
+const sendBrevoEmail = async ({ to, subject, text, html }) => {
+  const apiKey = process.env.BREVO_API_KEY;
+  const senderEmail = process.env.BREVO_SENDER_EMAIL;
+  const senderName = process.env.BREVO_SENDER_NAME || 'The Himachal Nomad';
+
+  if (!apiKey || !senderEmail) {
+    throw new Error('Brevo email is not configured');
+  }
+
+  const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+    method: 'POST',
+    headers: {
+      accept: 'application/json',
+      'api-key': apiKey,
+      'content-type': 'application/json'
+    },
+    body: JSON.stringify({
+      sender: { email: senderEmail, name: senderName },
+      to: [{ email: to }],
+      subject,
+      textContent: text,
+      htmlContent: html
+    })
+  });
+
+  if (!response.ok) {
+    throw new Error(`Brevo returned HTTP ${response.status}`);
+  }
+
+  return response.json();
+};
+
 // Ensure uploads directory exists
 if (!fs.existsSync(UPLOADS_DIR)) {
   try {
@@ -652,6 +684,22 @@ const requestHandler = async (req, res) => {
       if (found) {
         persistDB();
         console.log(`✨ [REQUEST APPROVED] ID: ${reqId} quoted at ₹${price}`);
+
+        const approvedRequest = dbState.customRequestsList.find(item => item.id === reqId || item.requestRef === reqId);
+        if (approvedRequest?.travelerEmail) {
+          try {
+            await sendBrevoEmail({
+              to: approvedRequest.travelerEmail,
+              subject: `Your Himachal Nomad itinerary ${approvedRequest.requestRef} is approved`,
+              text: `Your request ${approvedRequest.requestRef} was approved. Quoted price: INR ${Number(price).toLocaleString('en-IN')}. Sign in to the website to review the itinerary and continue to payment.`,
+              html: `<h2>Your itinerary is approved</h2><p>Your request <strong>${approvedRequest.requestRef}</strong> was approved.</p><p>Quoted price: <strong>₹${Number(price).toLocaleString('en-IN')}</strong></p><p>Open the website and sign in with the same account to review the itinerary and continue to payment.</p>`
+            });
+            console.log(`✉️ [APPROVAL EMAIL SENT] Ref: ${approvedRequest.requestRef}`);
+          } catch (error) {
+            console.error(`⚠️ [APPROVAL EMAIL FAILED] Ref: ${approvedRequest.requestRef}: ${error.message}`);
+          }
+        }
+
         return sendJSON(res, 200, { success: true });
       }
       return sendJSON(res, 404, { error: 'Request not found' });
