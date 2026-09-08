@@ -8,11 +8,7 @@ import {
   ShieldAlert
 } from 'lucide-react';
 import { AdminSession } from '../types';
-import { 
-  verifyAdminPasskey, 
-  createSignedAdminSession, 
-  validateAdminSession 
-} from '../utils/securityGuard';
+import { signInAdminWithEmail } from '../utils/firebaseAuth';
 
 interface AdminAuthLockProps {
   onAuthenticated: (session: AdminSession) => void;
@@ -24,100 +20,37 @@ const LOCKOUT_STORAGE_KEY = 'hn_admin_lockout_v4';
 const FAILED_ATTEMPTS_KEY = 'hn_admin_failed_attempts_v4';
 
 export const AdminAuthLock: React.FC<AdminAuthLockProps> = ({ onAuthenticated, onExit }) => {
-  const [passkey, setPasskey] = useState('');
-  const [showPasskey, setShowPasskey] = useState(false);
+  const [email, setEmail] = useState(import.meta.env.VITE_ADMIN_EMAIL || '');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
-  const [failedAttempts, setFailedAttempts] = useState(() => {
-    try {
-      return Number(localStorage.getItem(FAILED_ATTEMPTS_KEY)) || 0;
-    } catch {
-      return 0;
-    }
-  });
-  const [lockoutRemaining, setLockoutRemaining] = useState(0);
-
-  // Check existing session or active lockout on mount
+  // Restore only a Firebase-authenticated admin session.
   useEffect(() => {
     try {
       const savedSession = sessionStorage.getItem(AUTH_STORAGE_KEY);
       if (savedSession) {
         const parsed = JSON.parse(savedSession);
-        if (validateAdminSession(parsed)) {
+        if (parsed?.role === 'super_admin' && parsed?.token && parsed?.email) {
           onAuthenticated(parsed);
           return;
-        } else {
-          sessionStorage.removeItem(AUTH_STORAGE_KEY);
         }
-      }
-
-      const lockoutExpiry = localStorage.getItem(LOCKOUT_STORAGE_KEY);
-      if (lockoutExpiry) {
-        const remaining = Math.ceil((Number(lockoutExpiry) - Date.now()) / 1000);
-        if (remaining > 0) {
-          setLockoutRemaining(remaining);
-        } else {
-          localStorage.removeItem(LOCKOUT_STORAGE_KEY);
-          localStorage.removeItem(FAILED_ATTEMPTS_KEY);
-          setFailedAttempts(0);
-        }
+        sessionStorage.removeItem(AUTH_STORAGE_KEY);
       }
     } catch {
       // Ignored
     }
   }, [onAuthenticated]);
 
-  // Lockout countdown timer
-  useEffect(() => {
-    if (lockoutRemaining <= 0) return;
-    const timer = setInterval(() => {
-      setLockoutRemaining((prev) => {
-        if (prev <= 1) {
-          localStorage.removeItem(LOCKOUT_STORAGE_KEY);
-          localStorage.removeItem(FAILED_ATTEMPTS_KEY);
-          setFailedAttempts(0);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-    return () => clearInterval(timer);
-  }, [lockoutRemaining]);
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (lockoutRemaining > 0) {
-      setErrorMsg(`Security lockout active. Try again in ${lockoutRemaining}s.`);
+    setErrorMsg('');
+    const result = await signInAdminWithEmail(email, password);
+    if (!result.success || !result.session) {
+      setErrorMsg(result.error || 'Admin sign-in failed.');
       return;
     }
-
-    if (verifyAdminPasskey(passkey)) {
-      // Reset lockout counter on success
-      localStorage.removeItem(LOCKOUT_STORAGE_KEY);
-      localStorage.removeItem(FAILED_ATTEMPTS_KEY);
-      setFailedAttempts(0);
-
-      const session = createSignedAdminSession('Monu (Master Creator)');
-      sessionStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(session));
-      onAuthenticated(session as AdminSession);
-    } else {
-      const newAttempts = failedAttempts + 1;
-      setFailedAttempts(newAttempts);
-      try {
-        localStorage.setItem(FAILED_ATTEMPTS_KEY, newAttempts.toString());
-      } catch {
-        // Ignored
-      }
-      setPasskey('');
-
-      if (newAttempts >= 5) {
-        const lockoutUntil = Date.now() + 60 * 1000; // 60s lockout
-        localStorage.setItem(LOCKOUT_STORAGE_KEY, lockoutUntil.toString());
-        setLockoutRemaining(60);
-        setErrorMsg('Security lockout triggered due to 5 failed attempts! Please wait 60 seconds.');
-      } else {
-        setErrorMsg(`Incorrect security passkey! ${5 - newAttempts} attempt(s) remaining.`);
-      }
-    }
+    sessionStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(result.session));
+    onAuthenticated(result.session as AdminSession);
   };
 
   return (
@@ -148,31 +81,37 @@ export const AdminAuthLock: React.FC<AdminAuthLockProps> = ({ onAuthenticated, o
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2 text-center">
-              Enter Operations Passkey
+              Admin Email
             </label>
             <div className="relative">
               <input
-                type={showPasskey ? 'text' : 'password'}
-                value={passkey}
+                type="email"
+                value={email}
                 onChange={(e) => {
-                  setPasskey(e.target.value);
+                  setEmail(e.target.value);
                   setErrorMsg('');
                 }}
-                disabled={lockoutRemaining > 0}
-                placeholder="••••••"
-                maxLength={12}
+                placeholder="admin@example.com"
                 autoFocus
-                autoComplete="off"
-                spellCheck={false}
-                className="w-full px-4 py-3.5 bg-slate-950 border border-slate-700 rounded-2xl text-white text-center font-mono text-xl tracking-[0.3em] focus:outline-none focus:border-amber-400 disabled:opacity-50 transition-colors shadow-inner"
+                autoComplete="username"
+                className="w-full px-4 py-3.5 bg-slate-950 border border-slate-700 rounded-2xl text-white text-center focus:outline-none focus:border-amber-400 transition-colors shadow-inner"
               />
-              <button
-                type="button"
-                onClick={() => setShowPasskey(!showPasskey)}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors p-1"
-                title={showPasskey ? "Hide passkey" : "Show passkey"}
-              >
-                {showPasskey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2 text-center">Password</label>
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => { setPassword(e.target.value); setErrorMsg(''); }}
+                placeholder="Firebase Auth password"
+                autoComplete="current-password"
+                className="w-full px-4 py-3.5 bg-slate-950 border border-slate-700 rounded-2xl text-white text-center focus:outline-none focus:border-amber-400 transition-colors shadow-inner"
+              />
+              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white p-1" title={showPassword ? 'Hide password' : 'Show password'}>
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
           </div>
@@ -184,19 +123,9 @@ export const AdminAuthLock: React.FC<AdminAuthLockProps> = ({ onAuthenticated, o
             </div>
           )}
 
-          {lockoutRemaining > 0 && (
-            <div className="p-3.5 rounded-xl bg-amber-950/80 border border-amber-800 text-amber-300 text-xs flex items-center justify-between">
-              <span className="flex items-center gap-1.5">
-                <ShieldAlert className="w-4 h-4 text-amber-400" />
-                <span>Security lockout active</span>
-              </span>
-              <span className="font-mono font-bold text-amber-400">{lockoutRemaining}s</span>
-            </div>
-          )}
-
           <button
             type="submit"
-            disabled={lockoutRemaining > 0 || !passkey}
+            disabled={!email || !password}
             className="btn-3d w-full py-3.5 bg-pine-700 hover:bg-pine-600 disabled:bg-slate-800 disabled:text-slate-500 text-white font-extrabold text-sm rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer mt-2"
           >
             <Lock className="w-4 h-4 text-amber-400" />

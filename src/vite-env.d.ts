@@ -13,6 +13,7 @@ interface ImportMetaEnv {
 
   // Admin Security
   readonly VITE_ADMIN_PASSKEY: string;
+  readonly VITE_ADMIN_EMAIL: string;
 
   // Payments & Merchant Configuration
   readonly VITE_UPI_VPA: string;

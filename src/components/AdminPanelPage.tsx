@@ -23,7 +23,7 @@ import { MediaUploader } from './MediaUploader';
 import { HomestayGalleryUploader } from './HomestayGalleryUploader';
 import { AdminInvoiceModal } from './AdminInvoiceModal';
 import { AdminAuthLock } from './AdminAuthLock';
-import { validateAdminSession } from '../utils/securityGuard';
+import { signOutTraveler } from '../utils/firebaseAuth';
 import { 
   Settings, 
   DollarSign, 
@@ -178,7 +178,7 @@ export const AdminPanelPage: React.FC<AdminPanelPageProps> = ({
       const saved = sessionStorage.getItem('hn_admin_session_v4');
       if (!saved) return null;
       const parsed = JSON.parse(saved);
-      if (validateAdminSession(parsed)) {
+      if (parsed?.role === 'super_admin' && parsed?.token && parsed?.email) {
         return parsed as AdminSession;
       }
       sessionStorage.removeItem('hn_admin_session_v4');
@@ -630,6 +630,7 @@ export const AdminPanelPage: React.FC<AdminPanelPageProps> = ({
 
   const handleLogout = () => {
     sessionStorage.removeItem('hn_admin_session_v4');
+    signOutTraveler();
     setAuthSession(null);
   };
 

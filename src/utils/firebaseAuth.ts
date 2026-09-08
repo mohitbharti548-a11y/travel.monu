@@ -9,6 +9,7 @@ import {
   signInWithPopup,
   signInWithRedirect,
   getRedirectResult,
+  signInWithEmailAndPassword,
   signOut as firebaseSignOut
 } from 'firebase/auth';
 import { firebaseConfig, isFirebaseConfigured } from '../firebaseConfig';
@@ -21,6 +22,53 @@ export const auth = getAuth(app);
 // Google Auth Provider setup
 export const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({ prompt: 'select_account' });
+
+export interface AdminAuthResult {
+  success: boolean;
+  session?: {
+    role: 'super_admin';
+    adminName: string;
+    loginTime: string;
+    token: string;
+    uid: string;
+    email: string;
+  };
+  error?: string;
+}
+
+export const signInAdminWithEmail = async (email: string, password: string): Promise<AdminAuthResult> => {
+  const normalizedEmail = email.trim().toLowerCase();
+  const allowedEmail = (import.meta.env.VITE_ADMIN_EMAIL || '').trim().toLowerCase();
+
+  if (!allowedEmail || normalizedEmail !== allowedEmail) {
+    return { success: false, error: 'This email is not authorized for Creator Ops.' };
+  }
+
+  try {
+    const credential = await signInWithEmailAndPassword(auth, normalizedEmail, password);
+    const token = await credential.user.getIdToken();
+    return {
+      success: true,
+      session: {
+        role: 'super_admin',
+        adminName: credential.user.displayName || normalizedEmail,
+        loginTime: new Date().toISOString(),
+        token,
+        uid: credential.user.uid,
+        email: normalizedEmail
+      }
+    };
+  } catch (err: any) {
+    const messages: Record<string, string> = {
+      'auth/invalid-credential': 'Incorrect admin email or password.',
+      'auth/user-not-found': 'Incorrect admin email or password.',
+      'auth/wrong-password': 'Incorrect admin email or password.',
+      'auth/too-many-requests': 'Too many attempts. Wait and try again.',
+      'auth/operation-not-allowed': 'Enable Email/Password sign-in in Firebase Authentication.'
+    };
+    return { success: false, error: messages[err?.code] || 'Admin sign-in failed. Please try again.' };
+  }
+};
 
 /**
  * Signs in traveler using Google OAuth via Firebase
