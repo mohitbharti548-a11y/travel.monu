@@ -18,6 +18,7 @@ export interface SyncMessage {
   type: 
     | 'CUSTOM_REQUEST_CREATED' 
     | 'CUSTOM_REQUEST_APPROVED' 
+    | 'CUSTOM_REQUEST_CANCELLED'
     | 'BOOKING_CONFIRMED' 
     | 'ROAD_ALERT_UPDATED'
     | 'PRICING_RULES_UPDATED'
@@ -114,6 +115,17 @@ export const syncService = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ price, schedule, notes })
+      });
+      return res.ok;
+    } catch (e) {
+      return false;
+    }
+  },
+
+  async cancelCustomRequest(requestId: string): Promise<boolean> {
+    try {
+      const res = await fastFetch(`/api/custom-requests/${encodeURIComponent(requestId)}`, {
+        method: 'DELETE'
       });
       return res.ok;
     } catch (e) {

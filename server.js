@@ -655,6 +655,19 @@ const requestHandler = async (req, res) => {
     }
   }
 
+  const cancelMatch = pathname.match(/^\/api\/custom-requests\/([^/]+)$/);
+  if (cancelMatch && req.method === 'DELETE') {
+    const reqId = decodeURIComponent(cancelMatch[1]);
+    const previousLength = dbState.customRequestsList.length;
+    dbState.customRequestsList = dbState.customRequestsList.filter(item => item.id !== reqId && item.requestRef !== reqId);
+    if (dbState.customRequestsList.length === previousLength) {
+      return sendJSON(res, 404, { error: 'Request not found' });
+    }
+    persistDB();
+    console.log(`🗑️ [CUSTOM REQUEST CANCELLED] ID: ${reqId}`);
+    return sendJSON(res, 200, { success: true });
+  }
+
   // Handle Approval: /api/custom-requests/:id/approve
   const approveMatch = pathname.match(/^\/api\/custom-requests\/([^/]+)\/approve$/);
   if (approveMatch && (req.method === 'POST' || req.method === 'PATCH')) {

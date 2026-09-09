@@ -31,6 +31,7 @@ interface MyBookingsModalProps {
   customRequests: CustomTripRequest[];
   onCancelBooking: (bookingId: string) => void;
   onPayCustomTrip: (request: CustomTripRequest) => void;
+  onCancelCustomRequest: (request: CustomTripRequest) => void;
 }
 
 export const MyBookingsModal: React.FC<MyBookingsModalProps> = ({
@@ -39,7 +40,8 @@ export const MyBookingsModal: React.FC<MyBookingsModalProps> = ({
   bookings,
   customRequests,
   onCancelBooking,
-  onPayCustomTrip
+  onPayCustomTrip,
+  onCancelCustomRequest
 }) => {
   const [activeTab, setActiveTab] = useState<'passes' | 'custom_requests'>('passes');
   const [pingedIds, setPingedIds] = useState<Record<string, boolean>>({});
@@ -439,14 +441,18 @@ export const MyBookingsModal: React.FC<MyBookingsModalProps> = ({
 
                       <div className="pt-2 flex justify-end">
                         <button
-                          onClick={() => {
-                            onPayCustomTrip(req);
-                            onClose();
-                          }}
+                          onClick={() => onPayCustomTrip(req)}
                           className="btn-3d px-6 py-3 rounded-xl font-extrabold text-xs bg-pine-700 hover:bg-pine-800 text-white shadow-xl flex items-center gap-2 cursor-pointer"
                         >
                           <span>Review & Pay Now (Split 50% or Full ₹{req.adminQuotedPrice.toLocaleString('en-IN')})</span>
                           <ArrowRight className="w-4 h-4" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => onCancelCustomRequest(req)}
+                          className="px-4 py-3 rounded-xl font-extrabold text-xs border border-rose-300 dark:border-rose-800 text-rose-700 dark:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/40 flex items-center gap-2 cursor-pointer"
+                        >
+                          Cancel Request
                         </button>
                       </div>
                     </div>

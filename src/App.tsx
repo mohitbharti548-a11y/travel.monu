@@ -297,6 +297,9 @@ export function App() {
       } else if (msg.type === 'CUSTOM_REQUEST_APPROVED') {
         const approvedReq = msg.payload as CustomTripRequest;
         setCustomRequests(prev => prev.map(r => (r.id === approvedReq.id || r.requestRef === approvedReq.requestRef) ? approvedReq : r));
+      } else if (msg.type === 'CUSTOM_REQUEST_CANCELLED') {
+        const cancelledRequest = msg.payload as CustomTripRequest;
+        setCustomRequests(prev => prev.filter(r => r.id !== cancelledRequest.id && r.requestRef !== cancelledRequest.requestRef));
       } else if (msg.type === 'BOOKING_CONFIRMED') {
         const newBooking = msg.payload as BookingItem;
         setBookings(prev => {
@@ -678,6 +681,7 @@ export function App() {
   // Traveler clicks "Review & Pay for Approved Custom Trip"
   const handlePayCustomTrip = (request: CustomTripRequest) => {
     const launchCustomTripCheckout = () => {
+      setIsMyBookingsOpen(false);
       setActivePayingCustomReq(request);
       setCheckoutData({
         itemType: 'package',
@@ -688,7 +692,7 @@ export function App() {
         travelDate: request.startDate,
         customSchedule: request.adminCuratedSchedule
       });
-      setIsCheckoutOpen(true);
+      requestAnimationFrame(() => setIsCheckoutOpen(true));
     };
 
     if (!userProfile?.isLoggedIn) {
@@ -696,6 +700,24 @@ export function App() {
       return;
     }
     launchCustomTripCheckout();
+  };
+
+  const handleCancelCustomRequest = (request: CustomTripRequest) => {
+    const confirmed = window.confirm(`Cancel custom trip request ${request.requestRef}? This cannot be undone.`);
+    if (!confirmed) return;
+
+    const nextRequests = customRequests.filter((item) => item.id !== request.id && item.requestRef !== request.requestRef);
+    setCustomRequests(nextRequests);
+    storageService.saveCustomRequests(nextRequests);
+    syncService.cancelCustomRequest(request.id);
+    firestoreService.saveCatalog('custom_requests', nextRequests);
+    syncService.broadcast('CUSTOM_REQUEST_CANCELLED', request);
+    notificationEngine.addNotification({
+      type: 'system_broadcast',
+      title: 'Custom Request Cancelled',
+      message: `Custom trip request ${request.requestRef} was cancelled.`,
+      priority: 'normal'
+    });
   };
 
   // When payment is authorized and confirmed -> Syncs to Server & Dispatches PDF pass
@@ -1108,6 +1130,7 @@ export function App() {
         customRequests={customRequests}
         onCancelBooking={handleCancelBooking}
         onPayCustomTrip={handlePayCustomTrip}
+        onCancelCustomRequest={handleCancelCustomRequest}
       />
 
       {/* 8. Mandatory User Phone Number & OTP Verification Modal */}
