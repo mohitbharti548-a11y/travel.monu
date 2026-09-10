@@ -1049,6 +1049,9 @@ export const AdminPanelPage: React.FC<AdminPanelPageProps> = ({
         name: form.guideName?.value || editingGuide.name,
         nickname: form.guideNickname?.value || editingGuide.nickname,
         destination: form.guideDestination?.value || editingGuide.destination,
+        experienceYears: form.guideExp?.value !== '' && form.guideExp?.value !== undefined
+          ? Math.max(0, Number(form.guideExp.value))
+          : editingGuide.experienceYears,
         specialty: form.guideSpecialty?.value || editingGuide.specialty,
         avatar: guideAvatar || editingGuide.avatar,
         videoIntroUrl: guideVideo || editingGuide.videoIntroUrl,
@@ -3261,6 +3264,18 @@ Verified local mountain guide"
                     name="guideDestination"
                     type="text"
                     defaultValue={editingGuide?.destination || 'Manali & Spiti'}
+                    required
+                    className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-300">Years of Experience</label>
+                  <input
+                    name="guideExp"
+                    type="number"
+                    min="0"
+                    step="1"
+                    defaultValue={editingGuide?.experienceYears ?? 5}
                     required
                     className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white"
                   />
