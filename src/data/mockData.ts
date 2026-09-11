@@ -688,7 +688,7 @@ export const REEL_POSTS: ReelPost[] = [
   {
     id: 'reel-1',
     authorName: 'Monu (The Nomad)',
-    authorHandle: '@travel_monu',
+    authorHandle: '@travelmonu',
     authorAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
     isCreator: true,
     isVerifiedTraveler: true,
@@ -706,7 +706,7 @@ export const REEL_POSTS: ReelPost[] = [
   {
     id: 'reel-chamba',
     authorName: 'Monu (The Nomad)',
-    authorHandle: '@travel_monu',
+    authorHandle: '@travelmonu',
     authorAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
     isCreator: true,
     isVerifiedTraveler: true,
@@ -730,7 +730,7 @@ export const REEL_POSTS: ReelPost[] = [
     isVerifiedTraveler: true,
     videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-sun-setting-over-the-mountain-peaks-41563-large.mp4',
     posterImage: 'https://images.unsplash.com/photo-1587061949409-02df41d5e562?auto=format&fit=crop&w=800&q=80',
-    caption: 'We swapped our hotel for the Cedar Geodesic Dome in Old Manali using @travel_monu package customizer. Waking up to this 360-degree snow view was the best decision ever! ☕❄️',
+    caption: 'We swapped our hotel for the Cedar Geodesic Dome in Old Manali using @travelmonu package customizer. Waking up to this 360-degree snow view was the best decision ever! ☕❄️',
     location: 'Old Manali Geodesic Dome',
     destinationId: 'manali',
     likes: 2190,

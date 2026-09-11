@@ -233,7 +233,7 @@ export const AdminPanelPage: React.FC<AdminPanelPageProps> = ({
   const [newReelCaption, setNewReelCaption] = useState<string>('');
   const [newReelLocation, setNewReelLocation] = useState<string>('Spiti Valley');
   const [newReelAuthor, setNewReelAuthor] = useState<string>('Monu Thakur');
-  const [newReelHandle, setNewReelHandle] = useState<string>('@travel_monu');
+  const [newReelHandle, setNewReelHandle] = useState<string>('@travelmonu');
 
   // Tour Package extra state (overview, highlights, itinerary)
   const [pkgOverview, setPkgOverview] = useState<string>('');
@@ -382,7 +382,10 @@ export const AdminPanelPage: React.FC<AdminPanelPageProps> = ({
         alert("✅ SUCCESS: All customized destination hubs, tour packages, handpicked homestays, and pricing are now pushed to Live Cloud Firestore! Any mobile device, tablet, or desktop opening the website anywhere will now immediately load your live customized data.");
       } else {
         const reason = firestoreService.getLastError();
-        alert(`⚠️ Cloud sync failed.${reason ? `\n\nFirebase: ${reason}` : '\n\nFirestore is unavailable or blocked by its security rules.'}`);
+        const authHint = reason?.toLowerCase().includes('permission')
+          ? '\n\nCheck that your Firebase Auth email exactly matches the email in firestore.rules, then redeploy the rules.'
+          : '';
+        alert(`⚠️ Cloud sync failed.${reason ? `\n\nFirebase: ${reason}` : '\n\nFirestore is unavailable or blocked by its security rules.'}${authHint}`);
       }
     } catch (e) {
       console.error(e);

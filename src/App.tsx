@@ -522,7 +522,11 @@ export function App() {
     setGuides(prev => {
       const next = prev.map(g => g.id === updatedGuide.id ? updatedGuide : g);
       syncService.saveGuides(next);
-      firestoreService.saveCatalog('guides', next);
+      void firestoreService.saveCatalog('guides', next).then((ok) => {
+        if (!ok) {
+          console.error('Guide cloud save failed:', firestoreService.getLastError());
+        }
+      });
       syncService.broadcast('GUIDES_UPDATED', next);
       return next;
     });
@@ -532,7 +536,11 @@ export function App() {
     setGuides(prev => {
       const next = [newGuide, ...prev];
       syncService.saveGuides(next);
-      firestoreService.saveCatalog('guides', next);
+      void firestoreService.saveCatalog('guides', next).then((ok) => {
+        if (!ok) {
+          console.error('Guide cloud save failed:', firestoreService.getLastError());
+        }
+      });
       syncService.broadcast('GUIDES_UPDATED', next);
       return next;
     });
@@ -542,7 +550,11 @@ export function App() {
     setGuides(prev => {
       const next = prev.filter(g => g.id !== guideId);
       syncService.saveGuides(next);
-      firestoreService.saveCatalog('guides', next);
+      void firestoreService.saveCatalog('guides', next).then((ok) => {
+        if (!ok) {
+          console.error('Guide cloud save failed:', firestoreService.getLastError());
+        }
+      });
       syncService.broadcast('GUIDES_UPDATED', next);
       return next;
     });
@@ -1020,14 +1032,16 @@ export function App() {
         />
 
         {/* 4. Interactive Timeline & Bespoke Trip Studio */}
-        <CustomPackageBuilder
-          packages={packages}
-          pricingRules={pricingRules}
-          onProceedToCheckout={handleCustomPackageCheckout}
-          onSubmitCustomRequest={handleSubmitCustomRequest}
-          userProfile={userProfile}
-          onOpenAuth={handleOpenAuth}
-        />
+        {packages.length > 0 && (
+          <CustomPackageBuilder
+            packages={packages}
+            pricingRules={pricingRules}
+            onProceedToCheckout={handleCustomPackageCheckout}
+            onSubmitCustomRequest={handleSubmitCustomRequest}
+            userProfile={userProfile}
+            onOpenAuth={handleOpenAuth}
+          />
+        )}
 
         {/* 5. The Peak Feed (Dedicated Community Feed Section) */}
         <PeakFeedReels

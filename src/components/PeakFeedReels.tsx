@@ -145,14 +145,14 @@ export const PeakFeedReels: React.FC<PeakFeedReelsProps> = ({
         {/* Instagram Admin Profile & Post Memory Buttons */}
         <div className="flex flex-wrap items-center gap-2.5 self-start md:self-auto">
           <a
-            href="https://www.instagram.com/travel_monu?stkn=MWU1YXc0bXZ4ZnBwcg=="
+            href="https://www.instagram.com/travelmonu"
             target="_blank"
             rel="noopener noreferrer"
             className="btn-3d px-4 py-2.5 rounded-2xl font-extrabold text-xs bg-gradient-to-r from-pink-600 via-rose-500 to-amber-500 text-white shadow-lg flex items-center gap-2 hover:opacity-95 hover:scale-105 transition-all cursor-pointer"
             title="Follow Admin Monu on Instagram"
           >
             <InstagramIcon className="w-4 h-4" />
-            <span>Follow @travel_monu</span>
+            <span>Follow @travelmonu</span>
             <ExternalLink className="w-3 h-3" />
           </a>
 
@@ -318,7 +318,7 @@ export const PeakFeedReels: React.FC<PeakFeedReelsProps> = ({
                   </div>
                   <div className="flex items-center gap-1.5 text-[10px] text-slate-300">
                     <a 
-                      href="https://www.instagram.com/travel_monu?stkn=MWU1YXc0bXZ4ZnBwcg==" 
+                      href="https://www.instagram.com/travelmonu" 
                       target="_blank" 
                       rel="noopener noreferrer" 
                       onClick={(e) => e.stopPropagation()}
@@ -438,12 +438,12 @@ export const PeakFeedReels: React.FC<PeakFeedReelsProps> = ({
                 <InstagramIcon className="w-5 h-5" />
               </div>
               <div>
-                <h4 className="font-extrabold text-white text-sm">Official Creator Feed • @travel_monu</h4>
+                <h4 className="font-extrabold text-white text-sm">Official Creator Feed • @travelmonu</h4>
                 <p className="text-slate-400 text-xs">Watch daily high-altitude trail updates, road statuses & snow conditions.</p>
               </div>
             </div>
             <a
-              href="https://www.instagram.com/travel_monu?stkn=MWU1YXc0bXZ4ZnBwcg=="
+              href="https://www.instagram.com/travelmonu"
               target="_blank"
               rel="noopener noreferrer"
               className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 font-extrabold text-xs flex items-center gap-1.5 border border-slate-700 transition-colors"

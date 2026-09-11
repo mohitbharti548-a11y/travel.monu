@@ -14,10 +14,10 @@ import {
 } from '../data/mockData';
 
 const STORAGE_KEYS = {
-  DESTINATIONS: 'hn_destinations_v4',
-  PACKAGES: 'hn_packages_v4',
-  STAYS: 'hn_stays_v4',
-  GUIDES: 'hn_guides_v4',
+  DESTINATIONS: 'hn_destinations_v5',
+  PACKAGES: 'hn_packages_v5',
+  STAYS: 'hn_stays_v5',
+  GUIDES: 'hn_guides_v5',
   BOOKINGS: 'hn_bookings_v4',
   CUSTOM_REQUESTS: 'hn_custom_requests_v4',
   ROAD_ALERT: 'hn_road_alert_v4'
@@ -28,12 +28,12 @@ export const storageService = {
   loadDestinations(): Destination[] {
     try {
       const data = localStorage.getItem(STORAGE_KEYS.DESTINATIONS);
-      if (!data) return DESTINATIONS;
+      if (!data) return [];
       const parsed: Destination[] = JSON.parse(data);
-      if (!Array.isArray(parsed)) return DESTINATIONS;
+      if (!Array.isArray(parsed)) return [];
       return parsed;
     } catch {
-      return DESTINATIONS;
+      return [];
     }
   },
   saveDestinations(list: Destination[]) {
@@ -48,9 +48,9 @@ export const storageService = {
   loadPackages(): TourPackage[] {
     try {
       const data = localStorage.getItem(STORAGE_KEYS.PACKAGES);
-      return data ? JSON.parse(data) : TOUR_PACKAGES;
+      return data ? JSON.parse(data) : [];
     } catch {
-      return TOUR_PACKAGES;
+      return [];
     }
   },
   savePackages(list: TourPackage[]) {
@@ -65,9 +65,9 @@ export const storageService = {
   loadStays(): Stay[] {
     try {
       const data = localStorage.getItem(STORAGE_KEYS.STAYS);
-      return data ? JSON.parse(data) : CURATED_STAYS;
+      return data ? JSON.parse(data) : [];
     } catch {
-      return CURATED_STAYS;
+      return [];
     }
   },
   saveStays(list: Stay[]) {
@@ -82,9 +82,9 @@ export const storageService = {
   loadGuides(): LocalGuide[] {
     try {
       const data = localStorage.getItem(STORAGE_KEYS.GUIDES);
-      return data ? JSON.parse(data) : LOCAL_GUIDES;
+      return data ? JSON.parse(data) : [];
     } catch {
-      return LOCAL_GUIDES;
+      return [];
     }
   },
   saveGuides(list: LocalGuide[]) {

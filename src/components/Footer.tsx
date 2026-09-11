@@ -75,13 +75,13 @@ export const Footer: React.FC<FooterProps> = ({
 
             <div className="pt-2 flex flex-wrap gap-2">
               <a
-                href="https://www.instagram.com/travel_monu?stkn=MWU1YXc0bXZ4ZnBwcg=="
+                href="https://www.instagram.com/travelmonu"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-pink-600 via-rose-500 to-amber-500 hover:opacity-90 text-white shadow transition-all"
               >
                 <InstagramIcon className="w-4 h-4" />
-                <span>@travel_monu</span>
+                <span>@travelmonu</span>
               </a>
 
               <a

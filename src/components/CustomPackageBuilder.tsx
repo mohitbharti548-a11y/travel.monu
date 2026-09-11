@@ -20,7 +20,8 @@ import {
   TrendingUp,
   Tag,
   Minus,
-  Users
+  Users,
+  Image as ImageIcon
 } from 'lucide-react';
 
 interface CustomPackageBuilderProps {
@@ -209,57 +210,95 @@ export const CustomPackageBuilder: React.FC<CustomPackageBuilderProps> = ({
       {/* VIEW 2: Pre-Curated Timeline Package Builder */}
       {activeMode === 'pre-curated' && (
         <div className="space-y-8 animate-fadeIn">
-          {/* Package Selector Tabs */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Package Selector Accordion */}
+          <div className="space-y-3">
             {activePackages.map((pkg) => {
               const isSelected = pkg.id === selectedPackageId;
               const dynamicPkgPrice = Math.round(pkg.basePrice * pricingMultiplier);
               return (
-                <button
+                <div
                   key={pkg.id}
-                  onClick={() => {
-                    setSelectedPackageId(pkg.id);
-                    if (!customDays[pkg.id]) {
-                      setCustomDays(prev => ({
-                        ...prev,
-                        [pkg.id]: (pkg.itinerary || []).map(d => ({
-                          ...d,
-                          activities: (d.activities || []).map(a => ({ ...a }))
-                        }))
-                      }));
-                    }
-                  }}
-                  className={`card-3d p-4 rounded-3xl text-left border transition-all cursor-pointer ${
+                  className={`overflow-hidden rounded-3xl border transition-all ${
                     isSelected
-                      ? 'bg-pine-50 dark:bg-pine-950/60 border-pine-700 dark:border-pine-500 shadow-md ring-2 ring-pine-700/20'
-                      : 'bg-white dark:bg-slatehimachal-900 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 shadow-sm'
+                      ? 'bg-pine-50 dark:bg-pine-950/60 border-pine-700 dark:border-pine-500 shadow-md'
+                      : 'bg-white dark:bg-slatehimachal-900 border-slate-200 dark:border-slate-800 shadow-sm'
                   }`}
                 >
-                  <div className="flex justify-between items-start mb-2">
-                    <span className="text-[10px] uppercase font-extrabold px-2.5 py-0.5 rounded-full bg-pine-100 dark:bg-pine-950 text-pine-900 dark:text-pine-200 border border-pine-200 dark:border-pine-800">
-                      {pkg.badge || 'Curated'}
-                    </span>
-                    <span className="text-xs font-bold text-slate-500 dark:text-slate-400">{pkg.duration}</span>
-                  </div>
-                  <h3 className="font-extrabold text-base text-slate-900 dark:text-white mb-1 leading-snug">
-                    {pkg.title}
-                  </h3>
-                  <p className="text-xs text-slate-600 dark:text-slate-300 line-clamp-1 mb-3">
-                    {pkg.overview}
-                  </p>
-                  <div className="flex justify-between items-baseline pt-2 border-t border-slate-100 dark:border-slate-800">
-                    <span className="text-[11px] text-slate-500 dark:text-slate-400 font-bold">Base Price</span>
-                    <span className="text-sm font-extrabold text-pine-800 dark:text-pine-400">
-                      ₹{dynamicPkgPrice.toLocaleString('en-IN')}<span className="text-[10px] font-normal text-slate-500 dark:text-slate-400">/person</span>
-                    </span>
-                  </div>
-                </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedPackageId(pkg.id);
+                      if (!customDays[pkg.id]) {
+                        setCustomDays(prev => ({
+                          ...prev,
+                          [pkg.id]: (pkg.itinerary || []).map(d => ({
+                            ...d,
+                            activities: (d.activities || []).map(a => ({ ...a }))
+                          }))
+                        }));
+                      }
+                    }}
+                    className="w-full text-left cursor-pointer"
+                    aria-expanded={isSelected}
+                  >
+                    <div className="grid grid-cols-[96px_1fr_auto] sm:grid-cols-[140px_1fr_auto] gap-4 items-stretch">
+                      <div className="relative min-h-28 overflow-hidden bg-slate-100 dark:bg-slate-800">
+                        {pkg.image ? (
+                          <img src={pkg.image} alt={pkg.title} className="absolute inset-0 w-full h-full object-cover" />
+                        ) : (
+                          <div className="absolute inset-0 flex items-center justify-center text-slate-400"><ImageIcon className="w-6 h-6" /></div>
+                        )}
+                      </div>
+                      <div className="py-4 min-w-0">
+                        <div className="flex flex-wrap items-center gap-2 mb-1.5">
+                          <span className="text-[10px] uppercase font-extrabold px-2.5 py-0.5 rounded-full bg-pine-100 dark:bg-pine-950 text-pine-900 dark:text-pine-200 border border-pine-200 dark:border-pine-800">
+                            {pkg.badge || 'Curated'}
+                          </span>
+                          <span className="text-xs font-bold text-slate-500 dark:text-slate-400">{pkg.duration}</span>
+                        </div>
+                        <h3 className="font-extrabold text-base text-slate-900 dark:text-white leading-snug">{pkg.title}</h3>
+                        <p className="text-xs text-slate-600 dark:text-slate-300 line-clamp-1 mt-1">{pkg.overview}</p>
+                      </div>
+                      <div className="py-4 pr-4 flex flex-col items-end justify-between text-right">
+                        <span className="text-slate-400">{isSelected ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}</span>
+                        <span className="text-sm font-extrabold text-pine-800 dark:text-pine-400 whitespace-nowrap">
+                          ₹{dynamicPkgPrice.toLocaleString('en-IN')}<span className="text-[10px] font-normal text-slate-500 dark:text-slate-400">/person</span>
+                        </span>
+                      </div>
+                    </div>
+                  </button>
+
+                  {isSelected && (
+                    <div className="border-t border-pine-200 dark:border-pine-800 px-4 py-4 bg-white/70 dark:bg-slatehimachal-900/60 animate-fadeIn">
+                      <div className="flex flex-wrap gap-2 mb-3">
+                        {(pkg.highlights || []).slice(0, 4).map((highlight) => (
+                          <span key={highlight} className="text-[11px] font-semibold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 rounded-lg px-2.5 py-1">{highlight}</span>
+                        ))}
+                      </div>
+                      <div className="space-y-1.5">
+                        {(pkg.itinerary || []).map((day) => (
+                          <div key={day.dayNumber} className="flex items-start gap-2 text-xs text-slate-700 dark:text-slate-300">
+                            <span className="font-extrabold text-pine-700 dark:text-pine-400 shrink-0">D{day.dayNumber}</span>
+                            <span className="line-clamp-1">{day.title}</span>
+                          </div>
+                        ))}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => document.getElementById('package-customizer')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                        className="mt-4 inline-flex items-center gap-2 text-xs font-extrabold text-pine-800 dark:text-pine-300 hover:text-pine-600"
+                      >
+                        <span>Customize this route</span><ArrowRight className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  )}
+                </div>
               );
             })}
           </div>
 
           {/* Builder Layout: Timeline & Sticky Summary Card that moves gracefully with scroll */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+          <div id="package-customizer" className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
             
             {/* Left 2 Cols: Interactive Timeline Accordion */}
             <div className="lg:col-span-2 space-y-4">
