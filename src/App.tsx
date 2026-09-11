@@ -810,6 +810,36 @@ export function App() {
     });
   };
 
+  const handleCreateReel = (newReel: ReelPost) => {
+    setReels(prev => {
+      const next = [newReel, ...prev];
+      void firestoreService.saveCatalog('reels', next).then((ok) => {
+        if (!ok) console.error('Reel cloud save failed:', firestoreService.getLastError());
+      });
+      return next;
+    });
+  };
+
+  const handleUpdateReel = (updatedReel: ReelPost) => {
+    setReels(prev => {
+      const next = prev.map(reel => reel.id === updatedReel.id ? updatedReel : reel);
+      void firestoreService.saveCatalog('reels', next).then((ok) => {
+        if (!ok) console.error('Reel cloud save failed:', firestoreService.getLastError());
+      });
+      return next;
+    });
+  };
+
+  const handleDeleteReel = (reelId: string) => {
+    setReels(prev => {
+      const next = prev.filter(reel => reel.id !== reelId);
+      void firestoreService.saveCatalog('reels', next).then((ok) => {
+        if (!ok) console.error('Reel cloud delete failed:', firestoreService.getLastError());
+      });
+      return next;
+    });
+  };
+
   // Handler to import entire catalog from JSON backup and sync everywhere
   const handleImportFullCatalog = (catalog: {
     destinations?: Destination[];
@@ -897,13 +927,9 @@ export function App() {
         onCreateGuide={handleCreateGuide}
         onDeleteGuide={handleDeleteGuide}
         reels={reels}
-        onDeleteReel={(reelId) => {
-          setReels(prev => {
-            const next = prev.filter(r => r.id !== reelId);
-            firestoreService.saveCatalog('reels', next);
-            return next;
-          });
-        }}
+        onCreateReel={handleCreateReel}
+        onUpdateReel={handleUpdateReel}
+        onDeleteReel={handleDeleteReel}
         bookings={userBookings}
         customRequests={userCustomRequests}
         onApproveCustomRequest={handleApproveCustomRequest}

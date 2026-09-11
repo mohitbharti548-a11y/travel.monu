@@ -105,6 +105,7 @@ interface AdminPanelPageProps {
   onDeleteGuide: (guideId: string) => void;
   reels: ReelPost[];
   onCreateReel?: (newReel: ReelPost) => void;
+  onUpdateReel?: (updatedReel: ReelPost) => void;
   onDeleteReel: (reelId: string) => void;
   bookings: BookingItem[];
   onUpdateBookingStatus?: (bookingId: string, status: 'Confirmed' | 'Completed' | 'Cancelled') => void;
@@ -162,6 +163,8 @@ export const AdminPanelPage: React.FC<AdminPanelPageProps> = ({
   onCreateGuide,
   onDeleteGuide,
   reels,
+  onCreateReel,
+  onUpdateReel,
   onDeleteReel,
   bookings,
   customRequests,
@@ -226,6 +229,7 @@ export const AdminPanelPage: React.FC<AdminPanelPageProps> = ({
   const [editingGuide, setEditingGuide] = useState<LocalGuide | null>(null);
   const [isCreatingGuide, setIsCreatingGuide] = useState<boolean>(false);
   const [isCreatingReel, setIsCreatingReel] = useState<boolean>(false);
+  const [editingReel, setEditingReel] = useState<ReelPost | null>(null);
 
   // New Reel Form State
   const [newReelVideo, setNewReelVideo] = useState<string>('');
@@ -234,6 +238,12 @@ export const AdminPanelPage: React.FC<AdminPanelPageProps> = ({
   const [newReelLocation, setNewReelLocation] = useState<string>('Spiti Valley');
   const [newReelAuthor, setNewReelAuthor] = useState<string>('Monu Thakur');
   const [newReelHandle, setNewReelHandle] = useState<string>('@travelmonu');
+  const [newReelAuthorAvatar, setNewReelAuthorAvatar] = useState<string>('');
+  const [newReelAudio, setNewReelAudio] = useState<string>('Authentic Pahadi Beats');
+  const [newReelDestinationId, setNewReelDestinationId] = useState<DestinationId>('spiti');
+  const [newReelLikes, setNewReelLikes] = useState<number>(0);
+  const [newReelComments, setNewReelComments] = useState<number>(0);
+  const [newReelLiveStatus, setNewReelLiveStatus] = useState<string>('');
 
   // Tour Package extra state (overview, highlights, itinerary)
   const [pkgOverview, setPkgOverview] = useState<string>('');
@@ -1101,22 +1111,21 @@ export const AdminPanelPage: React.FC<AdminPanelPageProps> = ({
       id: `reel-${Date.now()}`,
       authorName: newReelAuthor,
       authorHandle: newReelHandle,
-      authorAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+      authorAvatar: newReelAuthorAvatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
       isCreator: true,
       isVerifiedTraveler: true,
       videoUrl: newReelVideo,
       posterImage: newReelPoster || 'https://images.unsplash.com/photo-1506197603052-3cc9c3a201bd?auto=format&fit=crop&w=800&q=80',
       caption: newReelCaption || 'Live alpine snow loop from the high passes!',
       location: newReelLocation,
-      destinationId: 'spiti',
-      likes: 42,
-      commentsCount: 6,
+      destinationId: newReelDestinationId,
+      likes: newReelLikes,
+      commentsCount: newReelComments,
       datePosted: 'Just now',
-      audioTrack: 'Authentic Pahadi Beats'
+      audioTrack: newReelAudio,
+      liveUpdateStatus: newReelLiveStatus || undefined
     };
-    if (reels) {
-      reels.unshift(created);
-    }
+    onCreateReel?.(created);
     notificationEngine.addNotification({
       type: 'system_broadcast',
       title: 'New Reel Published to Peak Feed',
@@ -1127,6 +1136,49 @@ export const AdminPanelPage: React.FC<AdminPanelPageProps> = ({
     setNewReelVideo('');
     setNewReelPoster('');
     setNewReelCaption('');
+    setNewReelAuthorAvatar('');
+    setNewReelAudio('Authentic Pahadi Beats');
+    setNewReelDestinationId('spiti');
+    setNewReelLikes(0);
+    setNewReelComments(0);
+    setNewReelLiveStatus('');
+  };
+
+  const openReelEditor = (reel: ReelPost) => {
+    setEditingReel(reel);
+    setNewReelVideo(reel.videoUrl);
+    setNewReelPoster(reel.posterImage);
+    setNewReelCaption(reel.caption);
+    setNewReelLocation(reel.location);
+    setNewReelAuthor(reel.authorName);
+    setNewReelHandle(reel.authorHandle);
+    setNewReelAuthorAvatar(reel.authorAvatar);
+    setNewReelAudio(reel.audioTrack);
+    setNewReelDestinationId(reel.destinationId || 'spiti');
+    setNewReelLikes(reel.likes);
+    setNewReelComments(reel.commentsCount);
+    setNewReelLiveStatus(reel.liveUpdateStatus || '');
+  };
+
+  const handleUpdateReelSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingReel || !newReelVideo) return;
+    onUpdateReel?.({
+      ...editingReel,
+      authorName: newReelAuthor,
+      authorHandle: newReelHandle,
+      authorAvatar: newReelAuthorAvatar,
+      videoUrl: newReelVideo,
+      posterImage: newReelPoster,
+      caption: newReelCaption,
+      location: newReelLocation,
+      destinationId: newReelDestinationId,
+      likes: Math.max(0, newReelLikes),
+      commentsCount: Math.max(0, newReelComments),
+      audioTrack: newReelAudio,
+      liveUpdateStatus: newReelLiveStatus || undefined
+    });
+    setEditingReel(null);
   };
 
   return (
@@ -2335,13 +2387,22 @@ export const AdminPanelPage: React.FC<AdminPanelPageProps> = ({
 
                   <div className="absolute top-2 left-2 right-2 flex justify-between items-center text-[10px] text-white">
                     <span className="font-bold bg-black/60 px-2 py-0.5 rounded-full">{reel.location}</span>
-                    <button
-                      onClick={() => onDeleteReel(reel.id)}
-                      className="p-1 rounded-full bg-rose-600/80 hover:bg-rose-600 text-white transition-colors"
-                      title="Delete / Moderate Reel"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => openReelEditor(reel)}
+                        className="p-1 rounded-full bg-slate-800/90 hover:bg-pine-600 text-white transition-colors"
+                        title="Edit Reel"
+                      >
+                        <Edit2 className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={() => onDeleteReel(reel.id)}
+                        className="p-1 rounded-full bg-rose-600/80 hover:bg-rose-600 text-white transition-colors"
+                        title="Delete / Moderate Reel"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   </div>
 
                   <div className="absolute bottom-2 left-2 right-2 text-white space-y-1">
@@ -3361,20 +3422,20 @@ Verified local mountain guide"
       )}
 
       {/* ================= MODAL: REEL UPLOADER WITH DEVICE VIDEO & POSTER PICKER ================= */}
-      {isCreatingReel && (
+      {(isCreatingReel || editingReel) && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 animate-fadeIn">
           <div className="relative w-full max-w-xl bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center border-b border-slate-800 pb-3">
               <h3 className="text-base font-extrabold text-white flex items-center gap-2">
                 <Film className="w-4 h-4 text-amber-400" />
-                <span>Publish New Reel to The Peak Feed</span>
+                <span>{editingReel ? 'Edit Peak Feed Reel' : 'Publish New Reel to The Peak Feed'}</span>
               </h3>
-              <button onClick={() => setIsCreatingReel(false)} className="text-slate-400 hover:text-white">
+              <button onClick={() => { setIsCreatingReel(false); setEditingReel(null); }} className="text-slate-400 hover:text-white">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <form onSubmit={handleCreateReelSubmit} className="space-y-4">
+            <form onSubmit={editingReel ? handleUpdateReelSubmit : handleCreateReelSubmit} className="space-y-4">
               <div>
                 <label className="block text-xs font-bold text-slate-300">Reel Caption & Hashtags</label>
                 <input
@@ -3408,7 +3469,54 @@ Verified local mountain guide"
                     className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white"
                   />
                 </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-300">Instagram / Creator Handle</label>
+                  <input
+                    type="text"
+                    value={newReelHandle}
+                    onChange={(e) => setNewReelHandle(e.target.value)}
+                    required
+                    className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white"
+                  />
+                </div>
               </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-slate-300">Destination Region</label>
+                  <select value={newReelDestinationId} onChange={(e) => setNewReelDestinationId(e.target.value as DestinationId)} className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white">
+                    {destinations.map((destination) => <option key={destination.id} value={destination.id}>{destination.name}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-300">Audio Track</label>
+                  <input type="text" value={newReelAudio} onChange={(e) => setNewReelAudio(e.target.value)} className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white" />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-slate-300">Likes</label>
+                  <input type="number" min="0" value={newReelLikes} onChange={(e) => setNewReelLikes(Number(e.target.value) || 0)} className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white" />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-300">Comments</label>
+                  <input type="number" min="0" value={newReelComments} onChange={(e) => setNewReelComments(Number(e.target.value) || 0)} className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white" />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-300">Live Status</label>
+                  <input type="text" value={newReelLiveStatus} onChange={(e) => setNewReelLiveStatus(e.target.value)} placeholder="e.g. Pass open" className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white" />
+                </div>
+              </div>
+
+              <MediaUploader
+                label="Creator Avatar (Optional)"
+                mediaUrl={newReelAuthorAvatar}
+                onMediaChange={(url) => setNewReelAuthorAvatar(url)}
+                accept="image"
+                aspectRatio="square"
+                helperText="Customize the profile image shown with this Peak Feed story."
+              />
 
               {/* Direct Video Upload from Device Gallery */}
               <MediaUploader
@@ -3423,7 +3531,7 @@ Verified local mountain guide"
 
               {/* Optional Poster Image */}
               <MediaUploader
-                label="Thumbnail Poster Image (Optional)"
+                  label="Thumbnail Poster Image (Optional)"
                 mediaUrl={newReelPoster}
                 onMediaChange={(url) => setNewReelPoster(url)}
                 accept="image"
@@ -3434,7 +3542,7 @@ Verified local mountain guide"
               <div className="flex justify-end gap-2 pt-2 border-t border-slate-800">
                 <button
                   type="button"
-                  onClick={() => setIsCreatingReel(false)}
+                  onClick={() => { setIsCreatingReel(false); setEditingReel(null); }}
                   className="px-4 py-2 rounded-xl bg-slate-800 text-xs font-bold text-slate-300"
                 >
                   Cancel
@@ -3443,7 +3551,7 @@ Verified local mountain guide"
                   type="submit"
                   className="btn-3d px-5 py-2 rounded-xl bg-pine-600 hover:bg-pine-500 text-xs font-extrabold text-white"
                 >
-                  Publish Reel Live
+                  {editingReel ? 'Save Reel Changes' : 'Publish Reel Live'}
                 </button>
               </div>
             </form>
