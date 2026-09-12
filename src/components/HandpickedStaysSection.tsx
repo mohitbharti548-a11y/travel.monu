@@ -1,7 +1,7 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { 
   Home, MapPin, Star, ShieldCheck, Sparkles, Wifi, 
-  Flame, Coffee, Eye, ChevronRight, Filter, Compass, Video
+  Flame, Coffee, Eye, ChevronRight, ChevronLeft, Filter, Compass, Video
 } from 'lucide-react';
 import { Stay, UserProfile } from '../types';
 
@@ -22,6 +22,9 @@ export const HandpickedStaysSection: React.FC<HandpickedStaysSectionProps> = ({
   const [selectedType, setSelectedType] = useState<string>('all');
   const [activeGalleryStay, setActiveGalleryStay] = useState<Stay | null>(null);
   const [activePhotoIdx, setActivePhotoIdx] = useState<number>(0);
+  const railRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
 
   const destinations = useMemo(() => {
     const list = Array.from(new Set(stays.map(s => s.location))).filter(Boolean);
@@ -35,6 +38,37 @@ export const HandpickedStaysSection: React.FC<HandpickedStaysSectionProps> = ({
       return matchDest && matchType;
     });
   }, [stays, selectedDestination, selectedType]);
+
+  const updateRailScrollState = () => {
+    const rail = railRef.current;
+    if (!rail) return;
+    setCanScrollLeft(rail.scrollLeft > 4);
+    setCanScrollRight(rail.scrollLeft + rail.clientWidth < rail.scrollWidth - 4);
+  };
+
+  useEffect(() => {
+    const rail = railRef.current;
+    if (!rail) return;
+    rail.scrollTo({ left: 0, behavior: 'smooth' });
+    updateRailScrollState();
+  }, [selectedDestination, selectedType, filteredStays.length]);
+
+  useEffect(() => {
+    updateRailScrollState();
+    const handleResize = () => updateRailScrollState();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [filteredStays.length]);
+
+  const scrollRail = (direction: 'left' | 'right') => {
+    const rail = railRef.current;
+    if (!rail) return;
+    rail.scrollBy({
+      left: direction === 'right' ? rail.clientWidth * 0.82 : -rail.clientWidth * 0.82,
+      behavior: 'smooth'
+    });
+    window.setTimeout(updateRailScrollState, 350);
+  };
 
   const openGalleryModal = (stay: Stay, initialIdx: number = 0) => {
     setActiveGalleryStay(stay);
@@ -98,7 +132,7 @@ export const HandpickedStaysSection: React.FC<HandpickedStaysSectionProps> = ({
           </div>
         </div>
 
-        {/* Stays Grid */}
+        {/* Horizontal Stays Rail */}
         {filteredStays.length === 0 ? (
           <div className="text-center py-16 bg-stone-900/30 rounded-3xl border border-stone-800/80">
             <Compass className="w-12 h-12 text-stone-600 mx-auto mb-3 animate-pulse" />
@@ -111,16 +145,31 @@ export const HandpickedStaysSection: React.FC<HandpickedStaysSectionProps> = ({
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+          <div className="relative group/rail">
+            <button
+              type="button"
+              onClick={() => scrollRail('left')}
+              disabled={!canScrollLeft}
+              className="hidden lg:flex absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20 w-10 h-10 items-center justify-center rounded-full bg-stone-900 border border-stone-700 text-white shadow-xl transition disabled:opacity-30 disabled:cursor-not-allowed hover:bg-emerald-500 hover:text-stone-950"
+              aria-label="Show previous homestays"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+
+            <div
+              ref={railRef}
+              onScroll={updateRailScrollState}
+              className="flex gap-4 sm:gap-5 overflow-x-auto snap-x snap-mandatory scroll-smooth pb-4 px-1 scrollbar-none"
+            >
             {filteredStays.map((stay) => {
               const allPhotos = [(stay.imageUrl || stay.image), ...(stay.galleryImages || [])].filter(Boolean);
               return (
                 <div
                   key={stay.id}
-                  className="group bg-stone-900/80 rounded-3xl overflow-hidden border border-stone-800/90 hover:border-emerald-500/50 transition-all duration-300 flex flex-col hover:shadow-2xl hover:shadow-emerald-500/10"
+                  className="group w-[86vw] sm:w-[48vw] lg:w-[calc((100%-2.5rem)/3)] shrink-0 snap-start bg-stone-900/80 rounded-3xl overflow-hidden border border-stone-800/90 hover:border-emerald-500/50 transition-all duration-300 flex flex-col hover:shadow-2xl hover:shadow-emerald-500/10"
                 >
                   {/* Image & Badges */}
-                  <div className="relative h-60 bg-stone-950 overflow-hidden cursor-pointer" onClick={() => openGalleryModal(stay, 0)}>
+                  <div className="relative h-44 sm:h-48 bg-stone-950 overflow-hidden cursor-pointer" onClick={() => openGalleryModal(stay, 0)}>
                     <img
                       src={(stay.imageUrl || stay.image)}
                       alt={stay.name}
@@ -167,17 +216,17 @@ export const HandpickedStaysSection: React.FC<HandpickedStaysSectionProps> = ({
                   </div>
 
                   {/* Body Content */}
-                  <div className="p-5 sm:p-6 flex-1 flex flex-col justify-between">
+                  <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between">
                     <div>
                       <h3 className="text-lg font-bold text-white group-hover:text-emerald-400 transition-colors">
                         {stay.name}
                       </h3>
-                      <p className="mt-2 text-xs text-stone-400 line-clamp-2 leading-relaxed">
+                      <p className="mt-1.5 text-xs text-stone-400 line-clamp-2 leading-relaxed">
                         {(stay.description || stay.creatorNote)}
                       </p>
 
                       {/* Amenities pills */}
-                      <div className="mt-4 flex flex-wrap gap-1.5">
+                      <div className="mt-3 flex flex-wrap gap-1.5">
                         {stay.amenities?.slice(0, 4).map((amenity, idx) => (
                           <span
                             key={idx}
@@ -190,7 +239,7 @@ export const HandpickedStaysSection: React.FC<HandpickedStaysSectionProps> = ({
                     </div>
 
                     {/* Footer / CTA */}
-                    <div className="mt-6 pt-4 border-t border-stone-800 flex items-center justify-between">
+                    <div className="mt-4 pt-3 border-t border-stone-800 flex items-center justify-between">
                       <div>
                         <span className="text-[11px] text-stone-400 block">Direct Host Rate</span>
                         <div className="flex items-baseline space-x-1">
@@ -226,6 +275,23 @@ export const HandpickedStaysSection: React.FC<HandpickedStaysSectionProps> = ({
                 </div>
               );
             })}
+          </div>
+
+            <button
+              type="button"
+              onClick={() => scrollRail('right')}
+              disabled={!canScrollRight}
+              className="hidden lg:flex absolute right-0 top-1/2 translate-x-1/2 -translate-y-1/2 z-20 w-10 h-10 items-center justify-center rounded-full bg-stone-900 border border-stone-700 text-white shadow-xl transition disabled:opacity-30 disabled:cursor-not-allowed hover:bg-emerald-500 hover:text-stone-950"
+              aria-label="Show more homestays"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+
+            <div className="flex items-center justify-center gap-2 mt-2 lg:hidden text-[11px] text-stone-500">
+              <ChevronLeft className="w-3.5 h-3.5" />
+              <span>Swipe to explore more stays</span>
+              <ChevronRight className="w-3.5 h-3.5" />
+            </div>
           </div>
         )}
       </div>
