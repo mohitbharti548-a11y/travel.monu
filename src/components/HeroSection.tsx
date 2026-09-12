@@ -7,8 +7,6 @@ import {
   MapPin, 
   Sparkles, 
   Home, 
-  Volume2, 
-  VolumeX, 
   ArrowRight
 } from 'lucide-react';
 import { Destination, DestinationId } from '../types';
@@ -28,9 +26,6 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   const [selectedDest, setSelectedDest] = useState<string>('spiti');
   const [travelDate, setTravelDate] = useState<string>('2026-09-15');
   const [travelers, setTravelers] = useState<number>(2);
-  const [isMuted, setIsMuted] = useState(true);
-
-  const [isVideoPlaying, setIsVideoPlaying] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   // 3D Scroll Depth Fade-Out for Hero Text
@@ -43,17 +38,6 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   const heroTextOpacity = useTransform(scrollYProgress, [0, 0.45, 0.8], [1, 0.6, 0]);
   const heroTextY = useTransform(scrollYProgress, [0, 0.8], [0, -60]);
   const heroTextScale = useTransform(scrollYProgress, [0, 0.8], [1, 0.94]);
-
-  const toggleVideoPlay = () => {
-    if (!videoRef.current) return;
-    if (isVideoPlaying) {
-      videoRef.current.pause();
-      setIsVideoPlaying(false);
-    } else {
-      videoRef.current.play();
-      setIsVideoPlaying(true);
-    }
-  };
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -78,7 +62,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
           ref={videoRef}
           autoPlay
           loop
-          muted={isMuted}
+          muted
           playsInline
           poster="https://images.unsplash.com/photo-1581793745862-99fde7fa73d2?auto=format&fit=crop&w=2000&q=85"
           className="w-full h-full object-cover object-center scale-105 transition-all duration-1000 brightness-[0.95] dark:brightness-[0.75]"
@@ -98,26 +82,6 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 
         {/* Delicate Cinematic Vignette (Ensures vibrant colors while guaranteeing white text readability) */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/20 to-black/65 dark:from-black/75 dark:via-black/40 dark:to-slate-950"></div>
-      </div>
-
-      {/* Floating Video Ambient Controls (Mute & Play/Pause) */}
-      <div className="absolute top-5 right-5 z-20 flex items-center gap-2">
-        <button
-          onClick={toggleVideoPlay}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-black/60 text-white backdrop-blur-md shadow-md border border-white/20 hover:bg-black/80 transition-all cursor-pointer"
-          title={isVideoPlaying ? "Pause background drone video" : "Play background drone video"}
-        >
-          <span className={`w-2 h-2 rounded-full ${isVideoPlaying ? 'bg-emerald-400 animate-ping' : 'bg-amber-400'}`}></span>
-          <span>{isVideoPlaying ? 'Live Reel' : 'Paused'}</span>
-        </button>
-
-        <button
-          onClick={() => setIsMuted(!isMuted)}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-black/60 text-white backdrop-blur-md shadow-md border border-white/20 hover:bg-black/80 transition-all cursor-pointer"
-        >
-          {isMuted ? <VolumeX className="w-3.5 h-3.5 text-slate-300" /> : <Volume2 className="w-3.5 h-3.5 text-amber-400" />}
-          <span>{isMuted ? 'Muted' : 'Pahadi Audio'}</span>
-        </button>
       </div>
 
       {/* 3D Animated Hero Typography */}
