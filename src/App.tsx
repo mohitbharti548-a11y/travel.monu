@@ -36,7 +36,6 @@ import { PeakFeedReels } from './components/PeakFeedReels';
 import { PostMemoryModal } from './components/PostMemoryModal';
 import { LocalGuidesSection } from './components/LocalGuidesSection';
 import { MiniReelFloatingCard } from './components/MiniReelFloatingCard';
-import { FloatingAlertsWidget } from './components/FloatingAlertsWidget';
 import { RefundPolicyModal } from './components/RefundPolicyModal';
 import { TermsAndConditionsModal } from './components/TermsAndConditionsModal';
 import { AdminPanelPage } from './components/AdminPanelPage';
@@ -1004,19 +1003,6 @@ export function App() {
           const elem = document.getElementById('peak-feed');
           if (elem) elem.scrollIntoView({ behavior: 'smooth' });
         }}
-      />
-
-      {/* Floating Live Road Advisory & Alerts Dispatch Center on Right Side */}
-      <FloatingAlertsWidget
-        roadAlert={roadAlert}
-        onOpenBookings={() => {
-          if (!userProfile?.isLoggedIn) {
-            handleOpenAuth("Sign in with your phone number to access your confirmed passes & custom itineraries.");
-          } else {
-            setIsMyBookingsOpen(true);
-          }
-        }}
-        onOpenWeatherSecurity={() => setIsRefundModalOpen(true)}
       />
 
       {/* Main Content Sections */}
