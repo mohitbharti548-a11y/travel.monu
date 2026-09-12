@@ -106,10 +106,6 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
           </span>
         </h1>
 
-        <p className="text-sm sm:text-lg text-slate-100 font-medium max-w-2xl mx-auto mb-8 leading-relaxed drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)]">
-          Handpicked mountain chalets, secret trails, private 4x4 Spiti safaris, and direct WhatsApp access to local creators.
-        </p>
-
         {/* Minimalist Category Tabs */}
         <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 mb-6">
           {[
