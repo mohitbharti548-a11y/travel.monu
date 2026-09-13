@@ -107,13 +107,14 @@ export const StayBookingModal: React.FC<StayBookingModalProps> = ({
       });
 
       if (!res.ok) {
-        throw new Error('Failed to submit stay booking request.');
+        const errorBody = await res.json().catch(() => null);
+        throw new Error(errorBody?.error || `Stay booking request failed (${res.status}).`);
       }
 
       const resData = await res.json();
       setSubmitSuccess(true);
       if (onBookingSubmitted) {
-        onBookingSubmitted(resData);
+        onBookingSubmitted(resData.request || resData);
       }
     } catch (err: any) {
       setError(err.message || 'Error sending stay booking request. Please retry.');
