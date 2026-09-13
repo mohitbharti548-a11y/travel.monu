@@ -32,7 +32,7 @@ interface CustomPackageBuilderProps {
     travelers: number;
     travelDate: string;
   }) => void;
-  onSubmitCustomRequest: (request: Omit<CustomTripRequest, 'id' | 'requestRef' | 'status' | 'adminQuotedPrice' | 'adminCuratedSchedule' | 'submittedAt'>) => void;
+  onSubmitCustomRequest: (request: Omit<CustomTripRequest, 'id' | 'requestRef' | 'status' | 'adminQuotedPrice' | 'adminCuratedSchedule' | 'submittedAt'>) => Promise<void>;
   packages?: TourPackage[];
   pricingRules?: PricingRules;
   userProfile?: UserProfile | null;

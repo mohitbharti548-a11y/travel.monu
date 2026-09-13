@@ -614,7 +614,7 @@ export function App() {
   };
 
   // Submit new custom trip request from Traveler -> Syncs to Server & Admin Panel
-  const handleSubmitCustomRequest = (reqData: Omit<CustomTripRequest, 'id' | 'requestRef' | 'status' | 'adminQuotedPrice' | 'adminCuratedSchedule' | 'submittedAt'>) => {
+  const handleSubmitCustomRequest = async (reqData: Omit<CustomTripRequest, 'id' | 'requestRef' | 'status' | 'adminQuotedPrice' | 'adminCuratedSchedule' | 'submittedAt'>) => {
     const newRequest: CustomTripRequest = {
       ...reqData,
       id: `req-${Date.now()}`,
@@ -625,17 +625,15 @@ export function App() {
       submittedAt: new Date().toISOString().split('T')[0]
     };
 
-    // 1. Update local state
-    const nextReqs = [newRequest, ...customRequests];
+    // Persist first so the success screen only appears after admin can read it.
+    const savedRequest = await syncService.postCustomRequest(newRequest);
+    const nextReqs = [savedRequest, ...customRequests.filter((request) => request.id !== savedRequest.id)];
     setCustomRequests(nextReqs);
-
-    // 2. Post to Backend Server, Cloud Firestore & Broadcast to Admin Panel
-    syncService.postCustomRequest(newRequest);
-    firestoreService.saveCatalog('custom_requests', nextReqs);
-    syncService.broadcast('CUSTOM_REQUEST_CREATED', newRequest);
+    storageService.saveCustomRequests(nextReqs);
+    syncService.broadcast('CUSTOM_REQUEST_CREATED', savedRequest);
 
     // 3. Dispatch Enterprise Notification Alert
-    notificationEngine.notifyCustomRequestCreated(newRequest);
+    notificationEngine.notifyCustomRequestCreated(savedRequest);
   };
 
   // Admin approves & curates day schedule and quote -> Syncs to Server & User

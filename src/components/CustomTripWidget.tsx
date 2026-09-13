@@ -33,7 +33,7 @@ import {
 import { InteractiveDynamicMap, MapSiteLocation, HIMACHAL_GPS_COORDINATES } from './InteractiveDynamicMap';
 
 interface CustomTripWidgetProps {
-  onSubmitRequest: (request: Omit<CustomTripRequest, 'id' | 'requestRef' | 'status' | 'adminQuotedPrice' | 'adminCuratedSchedule' | 'submittedAt'>) => void;
+  onSubmitRequest: (request: Omit<CustomTripRequest, 'id' | 'requestRef' | 'status' | 'adminQuotedPrice' | 'adminCuratedSchedule' | 'submittedAt'>) => Promise<void>;
   userProfile?: UserProfile | null;
   onOpenAuth?: (prompt?: string) => void;
 }
@@ -262,6 +262,8 @@ export const CustomTripWidget: React.FC<CustomTripWidgetProps> = ({
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
   const [submittedRef, setSubmittedRef] = useState<string>('');
   const [isPreviewOpen, setIsPreviewOpen] = useState<boolean>(false);
+  const [submitError, setSubmitError] = useState<string>('');
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const activeRegion = HIMACHAL_REGIONS.find(r => r.id === selectedPlaceId) || HIMACHAL_REGIONS[0];
 
@@ -511,8 +513,9 @@ export const CustomTripWidget: React.FC<CustomTripWidgetProps> = ({
     doc.save(`HimachalNomad-DraftItinerary-${travelerName.replace(/\s+/g, '_')}.pdf`);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitError('');
     if (!userProfile?.isLoggedIn) {
       if (onOpenAuth) {
         onOpenAuth("Please verify your mobile number with OTP so Monu can send your customized itinerary and live updates!");
@@ -528,24 +531,30 @@ export const CustomTripWidget: React.FC<CustomTripWidgetProps> = ({
     const generatedRef = `REQ-HN-${Math.floor(1000 + Math.random() * 9000)}`;
     setSubmittedRef(generatedRef);
 
-    onSubmitRequest({
-      requestRef: generatedRef,
-      travelerName,
-      travelerEmail,
-      travelerPhone,
-      travelers,
-      days,
-      nights,
-      targetBudgetPerPerson: 18000,
-      selectedSpots: selectedSites,
-      preferredStayType: preferredStay,
-      preferredTransit,
-      specialWishes,
-      startDate
-    } as any);
-
-    setIsSubmitted(true);
-    setIsPreviewOpen(false);
+    setIsSubmitting(true);
+    try {
+      await onSubmitRequest({
+        requestRef: generatedRef,
+        travelerName,
+        travelerEmail,
+        travelerPhone,
+        travelers,
+        days,
+        nights,
+        targetBudgetPerPerson: 18000,
+        selectedSpots: selectedSites,
+        preferredStayType: preferredStay,
+        preferredTransit,
+        specialWishes,
+        startDate
+      } as any);
+      setIsSubmitted(true);
+      setIsPreviewOpen(false);
+    } catch (error) {
+      setSubmitError(error instanceof Error ? error.message : 'Unable to send your request. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const currentBgImage = REGION_BACKGROUND_IMAGES[selectedPlaceId] || REGION_BACKGROUND_IMAGES.manali;
@@ -623,6 +632,11 @@ export const CustomTripWidget: React.FC<CustomTripWidgetProps> = ({
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="relative z-10 space-y-6 sm:space-y-8">
+          {submitError && (
+            <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 text-xs font-semibold">
+              {submitError}
+            </div>
+          )}
           
           {/* 1. Trip Dynamics Grid (Travelers & Duration) */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
@@ -1272,9 +1286,10 @@ export const CustomTripWidget: React.FC<CustomTripWidgetProps> = ({
               <button
                 type="button"
                 onClick={handleSubmit}
+                disabled={isSubmitting}
                 className="btn-3d px-5 py-2.5 rounded-xl bg-pine-700 hover:bg-pine-800 text-white font-extrabold text-xs shadow-xl flex items-center justify-center gap-1.5 cursor-pointer"
               >
-                <span>Confirm & Submit Request</span>
+                <span>{isSubmitting ? 'Sending Request...' : 'Confirm & Submit Request'}</span>
                 <Send className="w-3.5 h-3.5" />
               </button>
             </div>
