@@ -319,6 +319,38 @@ export const AdminPanelPage: React.FC<AdminPanelPageProps> = ({
   const [guideVideo, setGuideVideo] = useState<string>('');
   const [guideLanguages, setGuideLanguages] = useState<string[]>([]);
 
+  const normalizeCustomRequest = (request: Partial<CustomTripRequest>): CustomTripRequest => ({
+    ...request,
+    id: request.id || `req-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+    requestRef: request.requestRef || 'REQ-HN-UNKNOWN',
+    requestType: request.requestType || 'custom_circuit',
+    travelerName: request.travelerName || request.userName || 'Nomad Traveler',
+    travelerEmail: request.travelerEmail || request.email || request.userEmail || '',
+    travelerPhone: request.travelerPhone || request.phone || request.userPhone || '',
+    travelers: Number(request.travelers || request.travelerCount || request.guestCount || 1),
+    days: Number(request.days || request.durationDays || 1),
+    nights: Number(request.nights || Math.max(0, Number(request.days || request.durationDays || 1) - 1)),
+    targetBudgetPerPerson: Number(request.targetBudgetPerPerson || 0),
+    selectedSpots: Array.isArray(request.selectedSpots) ? request.selectedSpots : [],
+    preferredStayType: request.preferredStayType || 'Curated Homestay',
+    preferredTransit: request.preferredTransit || 'Private Mountain Taxi',
+    specialWishes: request.specialWishes || request.specialNotes || '',
+    startDate: request.startDate || request.checkInDate || '',
+    status: ((request.status as string) === 'pending' ? 'pending_review' : (request.status || 'pending_review')) as CustomTripRequest['status'],
+    adminQuotedPrice: Number(request.adminQuotedPrice || 0),
+    adminCuratedSchedule: Array.isArray(request.adminCuratedSchedule) ? request.adminCuratedSchedule : [],
+    submittedAt: request.submittedAt || request.createdAt || new Date().toISOString()
+  } as CustomTripRequest);
+
+  const mergeCustomRequests = (lists: CustomTripRequest[][]) => {
+    const merged = new Map<string, CustomTripRequest>();
+    lists.flat().forEach((request) => {
+      const normalized = normalizeCustomRequest(request);
+      merged.set(normalized.id, normalized);
+    });
+    return Array.from(merged.values());
+  };
+
   // Auto-sync custom requests from Cloud Firestore & server
   const fetchLatestCustomRequests = async () => {
     try {
@@ -327,10 +359,8 @@ export const AdminPanelPage: React.FC<AdminPanelPageProps> = ({
       if (firestoreService.isAvailable()) {
         const cloudReqs = await firestoreService.loadCatalog<CustomTripRequest[]>('custom_requests');
         if (cloudReqs && Array.isArray(cloudReqs) && onSyncRequests) {
-          onSyncRequests(cloudReqs);
+          onSyncRequests(cloudReqs.map(normalizeCustomRequest));
           setLastSyncTime(new Date().toLocaleTimeString());
-          setIsSyncing(false);
-          return;
         }
       }
 
@@ -343,7 +373,7 @@ export const AdminPanelPage: React.FC<AdminPanelPageProps> = ({
       if (res.ok) {
         const list = await res.json();
         if (Array.isArray(list) && onSyncRequests) {
-          onSyncRequests(list);
+          onSyncRequests(list.map(normalizeCustomRequest));
         }
       }
     } catch {
@@ -659,7 +689,9 @@ export const AdminPanelPage: React.FC<AdminPanelPageProps> = ({
 
   const isSuperAdmin = authSession.role === 'super_admin';
   const totalRevenue = bookings.reduce((acc, b) => b.status === 'Confirmed' ? acc + b.paidAmount : acc, 0);
-  const pendingRequests = customRequests.filter(r => r.status === 'pending_review');
+  const pendingRequests = customRequests
+    .map(normalizeCustomRequest)
+    .filter(r => r.status === 'pending_review');
   const approvedRequests = customRequests.filter(r => r.status === 'approved' || r.status === 'paid_finalized');
 
   // Filter bookings
