@@ -9,6 +9,25 @@ Do not commit passwords, API keys, or email-provider secrets.
 5. Deploy rules with `firebase deploy --only firestore:rules`.
 6. Store the admin password only in Firebase Auth. It is never written to this repository.
 
+## Vercel Stay Requests
+
+The public stay-booking form submits to `/api/custom-requests`. That Vercel function writes requests to the `catalog_v1/custom_requests` Firestore catalog using Firebase Admin credentials, because public browser clients are not allowed to write directly by `firestore.rules`.
+
+Create a Firebase service-account key in the Firebase Console, then add the entire JSON value to Vercel as a production environment variable named `FIREBASE_SERVICE_ACCOUNT_JSON`. Keep this value secret and never commit it.
+
+```powershell
+vercel env add FIREBASE_SERVICE_ACCOUNT_JSON production
+npx vercel --prod --yes --scope me1-7120
+```
+
+Paste the service-account JSON only into the terminal prompt. After redeployment, verify:
+
+```powershell
+curl.exe -i https://travelmonu1.vercel.app/api/custom-requests
+```
+
+The endpoint should return HTTP 200 instead of HTTP 503.
+
 Approval emails are sent by a Vercel serverless function through the Brevo HTTP API. Configure these environment variables in Vercel under Project Settings -> Environment Variables:
 
 - `BREVO_API_KEY`
