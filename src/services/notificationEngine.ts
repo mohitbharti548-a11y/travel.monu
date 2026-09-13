@@ -139,6 +139,7 @@ class NotificationEngine {
   }
 
   public notifyCustomRequestCreated(request: CustomTripRequest) {
+    const selectedSpots = Array.isArray(request.selectedSpots) ? request.selectedSpots : [];
     return this.addNotification({
       type: 'custom_request_created',
       title: 'Custom Query Sent to Monu 📝',
@@ -147,7 +148,7 @@ class NotificationEngine {
       data: {
         requestRef: request.requestRef,
         travelerName: request.travelerName,
-        destination: request.selectedSpots.join(', '),
+        destination: selectedSpots.join(', ') || request.destination || request.stayName || 'Custom Himachal Trip',
         linkAction: 'open_custom_requests'
       }
     });

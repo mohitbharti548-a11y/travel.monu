@@ -110,7 +110,7 @@ interface AdminPanelPageProps {
   bookings: BookingItem[];
   onUpdateBookingStatus?: (bookingId: string, status: 'Confirmed' | 'Completed' | 'Cancelled') => void;
   customRequests: CustomTripRequest[];
-  onApproveCustomRequest: (requestId: string, price: number, schedule: CustomTripDayPlan[], notes: string) => void;
+  onApproveCustomRequest: (requestId: string, price: number, schedule: CustomTripDayPlan[], notes: string) => Promise<void>;
   onSyncRequests?: (updated: CustomTripRequest[]) => void;
   roadAlert: string;
   onUpdateRoadAlert: (alert: string) => void;
@@ -774,15 +774,19 @@ export const AdminPanelPage: React.FC<AdminPanelPageProps> = ({
     setCuratedSchedule(prev => prev.filter((_, i) => i !== index).map((day, idx) => ({ ...day, dayNumber: idx + 1 })));
   };
 
-  const handleSaveAndApproveRequest = () => {
+  const handleSaveAndApproveRequest = async () => {
     if (!selectedReqForCuration) return;
     if (curatedPrice <= 0) {
       alert("Please specify a valid approved price quote for the traveler!");
       return;
     }
 
-    onApproveCustomRequest(selectedReqForCuration.id, curatedPrice, curatedSchedule, curatedNotes);
-    setSelectedReqForCuration(null);
+    try {
+      await onApproveCustomRequest(selectedReqForCuration.id, curatedPrice, curatedSchedule, curatedNotes);
+      setSelectedReqForCuration(null);
+    } catch (error) {
+      alert(error instanceof Error ? error.message : 'Approval could not be saved. Please try again.');
+    }
   };
 
   // Direct WhatsApp Generator

@@ -68,16 +68,18 @@ export const MyBookingsModal: React.FC<MyBookingsModalProps> = ({
 
   // Dual Ping Monu: WhatsApp + Website Real-Time Alert Engine
   const handlePingMonu = (req: CustomTripRequest) => {
+    const selectedSpots = Array.isArray(req.selectedSpots) ? req.selectedSpots : [];
+    const routeLabel = selectedSpots.join(', ') || req.destination || req.stayName || 'Custom Himachal Trip';
     // 1. Trigger in-app Website Notification Alert
     notificationEngine.addNotification({
       type: 'custom_request_created',
       title: '🚨 Ping Received by Monu',
-      message: `${req.travelerName} pinged for update on Ticket #${req.requestRef} (${req.selectedSpots.join(', ')}).`,
+      message: `${req.travelerName} pinged for update on Ticket #${req.requestRef} (${routeLabel}).`,
       priority: 'urgent',
       data: {
         requestRef: req.requestRef,
         travelerName: req.travelerName,
-        destination: req.selectedSpots.join(', '),
+        destination: routeLabel,
         linkAction: 'open_custom_requests'
       }
     });
@@ -87,7 +89,7 @@ export const MyBookingsModal: React.FC<MyBookingsModalProps> = ({
 
     // 3. Open WhatsApp Direct Message
     const msg = encodeURIComponent(
-      `Hi Monu! Following up on my Custom Trip Request (Ticket #${req.requestRef}).\nTraveler: ${req.travelerName}\nRoute: ${req.selectedSpots.join(' → ')}\nDates: ${formatTripDateRange(req.startDate, req.days, req.nights)}\nTravelers: ${req.travelers} Nomads.\nPlease share the curated itinerary update!`
+      `Hi Monu! Following up on my Custom Trip Request (Ticket #${req.requestRef}).\nTraveler: ${req.travelerName}\nRoute: ${selectedSpots.join(' → ') || routeLabel}\nDates: ${formatTripDateRange(req.startDate, req.days, req.nights)}\nTravelers: ${req.travelers} Nomads.\nPlease share the curated itinerary update!`
     );
     window.open(`https://wa.me/919653240540?text=${msg}`, '_blank');
   };
@@ -269,7 +271,7 @@ export const MyBookingsModal: React.FC<MyBookingsModalProps> = ({
                         Ticket #{req.requestRef}
                       </span>
                       <strong className="text-slate-900 dark:text-white text-sm sm:text-base font-extrabold">
-                        {req.selectedSpots.join(' → ')}
+                        {(Array.isArray(req.selectedSpots) ? req.selectedSpots : []).join(' → ') || req.destination || req.stayName || 'Custom Himachal Trip'}
                       </strong>
                     </div>
 
@@ -427,7 +429,7 @@ export const MyBookingsModal: React.FC<MyBookingsModalProps> = ({
 
                       {req.adminCuratedSchedule && req.adminCuratedSchedule.length > 0 && (
                         <div className="space-y-1.5 pt-2 border-t border-emerald-200 dark:border-emerald-800">
-                          {req.adminCuratedSchedule.map((day) => (
+                          {(Array.isArray(req.adminCuratedSchedule) ? req.adminCuratedSchedule : []).map((day) => (
                             <div key={day.dayNumber} className="p-2.5 rounded-xl bg-white dark:bg-slatehimachal-900 border border-emerald-200 dark:border-emerald-800 text-[11px]">
                               <div className="flex justify-between items-center mb-0.5 font-bold">
                                 <span className="text-slate-900 dark:text-white">Day {day.dayNumber}: {day.title}</span>

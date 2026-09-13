@@ -638,31 +638,28 @@ export function App() {
 
   // Admin approves & curates day schedule and quote -> Syncs to Server & User
   const handleApproveCustomRequest = async (requestId: string, price: number, schedule: CustomTripDayPlan[], notes: string) => {
-    let approvedReq: CustomTripRequest | null = null;
-    const nextReqs = customRequests.map(req => {
-      if (req.id === requestId) {
-        approvedReq = {
-          ...req,
-          status: 'approved' as const,
-          adminQuotedPrice: price,
-          adminCuratedSchedule: schedule,
-          adminNotes: notes,
-          approvedAt: new Date().toISOString().split('T')[0]
-        };
-        return approvedReq;
-      }
-      return req;
+    const currentRequest = customRequests.find((request) => request.id === requestId || request.requestRef === requestId);
+    if (!currentRequest) return;
+
+    const approvalResponse = await fetch(`/api/request-approval?id=${encodeURIComponent(requestId)}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ price, schedule, notes })
     });
+    const approvalData = await approvalResponse.json().catch(() => null);
+    if (!approvalResponse.ok || !approvalData?.request) {
+      throw new Error(approvalData?.error || `Approval failed (${approvalResponse.status}).`);
+    }
+
+    const approvedReq = approvalData.request as CustomTripRequest;
+    const nextReqs = customRequests.map(req =>
+      req.id === approvedReq.id || req.requestRef === approvedReq.requestRef ? approvedReq : req
+    );
     setCustomRequests(nextReqs);
+    storageService.saveCustomRequests(nextReqs);
+    syncService.broadcast('CUSTOM_REQUEST_APPROVED', approvedReq);
 
-    if (approvedReq) {
-      // 1. Post approval to Server, Cloud Firestore & Broadcast
-      syncService.approveCustomRequest(requestId, price, schedule, notes);
-      firestoreService.saveCatalog('custom_requests', nextReqs);
-      syncService.broadcast('CUSTOM_REQUEST_APPROVED', approvedReq);
-
-      const emailRequest = nextReqs.find((request) => request.id === requestId);
-      if (!emailRequest) return;
+    const emailRequest = approvedReq;
 
       try {
         const emailResponse = await fetch('/api/send-approval-email', {
@@ -684,18 +681,18 @@ export function App() {
 
       // 2. Dispatch Enterprise Notification Alert
       notificationEngine.notifyCustomRequestApproved(approvedReq);
-    }
   };
 
   // Traveler clicks "Review & Pay for Approved Custom Trip"
   const handlePayCustomTrip = (request: CustomTripRequest) => {
     const launchCustomTripCheckout = () => {
+      const selectedSpots = Array.isArray(request.selectedSpots) ? request.selectedSpots : [];
       setIsMyBookingsOpen(false);
       setActivePayingCustomReq(request);
       setCheckoutData({
         itemType: 'package',
         title: `Custom Bespoke Expedition (${request.days}D/${request.nights}N)`,
-        destination: request.selectedSpots.join(' → '),
+        destination: selectedSpots.join(' → ') || request.destination || request.stayName || 'Custom Himachal Trip',
         totalAmount: request.adminQuotedPrice,
         travelers: request.travelers,
         travelDate: request.startDate,
