@@ -508,7 +508,7 @@ export const CustomTripWidget: React.FC<CustomTripWidgetProps> = ({
     // Footer
     doc.setFontSize(8);
     doc.setTextColor(100, 116, 139);
-    doc.text("Curated by Monu | Helpline: +91 96532 40540 | Instagram: @travelmonu", 14, 285);
+    doc.text("Curated by Monu | Helpline: +91 96532 40540 | Instagram: @travel_monu", 14, 285);
 
     doc.save(`HimachalNomad-DraftItinerary-${travelerName.replace(/\s+/g, '_')}.pdf`);
   };

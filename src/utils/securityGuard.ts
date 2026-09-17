@@ -147,3 +147,28 @@ export function enforceFrameIsolation(): void {
     }
   }
 }
+
+/** Adds lightweight browser deterrence without interfering with form controls. */
+export function enforceBrowserProtection(): () => void {
+  if (typeof window === 'undefined') return () => {};
+
+  const blockContextMenu = (event: MouseEvent) => event.preventDefault();
+  const blockInspectShortcuts = (event: KeyboardEvent) => {
+    const key = event.key.toLowerCase();
+    const blocked = event.key === 'F12'
+      || (event.ctrlKey && event.shiftKey && ['i', 'j', 'c'].includes(key))
+      || (event.ctrlKey && key === 'u');
+    if (blocked) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+  };
+
+  document.addEventListener('contextmenu', blockContextMenu, { capture: true });
+  document.addEventListener('keydown', blockInspectShortcuts, { capture: true });
+
+  return () => {
+    document.removeEventListener('contextmenu', blockContextMenu, { capture: true });
+    document.removeEventListener('keydown', blockInspectShortcuts, { capture: true });
+  };
+}

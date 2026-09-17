@@ -20,7 +20,7 @@ import { syncService } from './utils/syncService';
 import { firestoreService } from './services/firestoreService';
 import { signOutTraveler } from './utils/firebaseAuth';
 import { notificationEngine } from './services/notificationEngine';
-import { enforceFrameIsolation } from './utils/securityGuard';
+import { enforceBrowserProtection, enforceFrameIsolation } from './utils/securityGuard';
 
 // Components
 import { Header } from './components/Header';
@@ -47,6 +47,7 @@ export function App() {
   // Enforce frame isolation & anti-clickjacking
   useEffect(() => {
     enforceFrameIsolation();
+    return enforceBrowserProtection();
   }, []);
 
   // Routing State: 'user' | 'admin'
