@@ -107,7 +107,7 @@ export const signInWithGoogle = async (): Promise<{ success: boolean; user?: Use
     console.error('Firebase Google Sign-In error:', err);
     let message = 'Unable to sign in with Google. Please try again.';
     if (err.code === 'auth/popup-closed-by-user') {
-      message = 'Popup closed. If you are switching accounts, please click "Continue with Google" again.';
+      message = 'Login was cancelled. Please click the button to try again.';
     } else if (err.code === 'auth/popup-blocked') {
       message = 'Popup blocked by your browser. Please allow popups for this site.';
     } else if (err.code === 'auth/unauthorized-domain') {

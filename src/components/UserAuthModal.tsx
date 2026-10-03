@@ -43,11 +43,15 @@ export const UserAuthModal: React.FC<UserAuthModalProps> = ({
   };
 
   const handleGoogleSignIn = async () => {
-    setIsLoading(true);
-    setErrorMsg('');
-
     try {
-      const res = await signInWithGoogle();
+      // CRITICAL: Call Firebase auth immediately before ANY React state updates
+      // so the browser does not block the popup due to lost click-context
+      const resPromise = signInWithGoogle();
+      
+      setIsLoading(true);
+      setErrorMsg('');
+
+      const res = await resPromise;
 
       if (res.success && res.user) {
         // If phone is missing, prompt optional phone or finalize directly
