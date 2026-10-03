@@ -75,6 +75,10 @@ export const signInAdminWithEmail = async (email: string, password: string): Pro
  */
 export const signInWithGoogle = async (): Promise<{ success: boolean; user?: UserProfile; error?: string }> => {
   try {
+    // CRITICAL: Clear any stale auth state before opening popup to prevent 'popup-closed-by-user' when switching accounts
+    await firebaseSignOut(auth).catch(() => {});
+    googleProvider.setCustomParameters({ prompt: 'select_account' });
+
     const result: UserCredential = await signInWithPopup(auth, googleProvider);
     const firebaseUser = result.user;
 
@@ -105,9 +109,9 @@ export const signInWithGoogle = async (): Promise<{ success: boolean; user?: Use
     console.error('Firebase Google Sign-In error:', err);
     let message = 'Unable to sign in with Google. Please try again.';
     if (err.code === 'auth/popup-closed-by-user') {
-      message = 'Sign-in cancelled. Please click "Continue with Google" again.';
+      message = 'Popup closed. If you are switching accounts, please click "Continue with Google" again.';
     } else if (err.code === 'auth/popup-blocked') {
-      message = 'Sign-in popup was blocked by browser. Please allow popups or use redirect.';
+      message = 'Popup blocked by your browser. Please allow popups for this site.';
     } else if (err.code === 'auth/unauthorized-domain') {
       message = 'Domain not authorized in Firebase. Please contact Monu support.';
     } else if (err.message) {
