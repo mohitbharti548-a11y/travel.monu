@@ -26,6 +26,7 @@ import { enforceBrowserProtection, enforceFrameIsolation } from './utils/securit
 import { Header } from './components/Header';
 import { HeroSection } from './components/HeroSection';
 import { ConfirmModal } from './components/ConfirmModal';
+import { telegramBot } from './utils/telegramBot';
 import { ParallaxBanner } from './components/ParallaxBanner';
 import { DestinationHubs } from './components/DestinationHubs';
 import { DestinationDetailModal } from './components/DestinationDetailModal';
@@ -637,6 +638,7 @@ export function App() {
 
     // 3. Dispatch Enterprise Notification Alert
     notificationEngine.notifyCustomRequestCreated(savedRequest);
+    telegramBot.sendCustomRequestAlert(savedRequest);
   };
 
   // Admin approves & curates day schedule and quote -> Syncs to Server & User
@@ -760,6 +762,7 @@ export function App() {
     notificationEngine.notifyPaymentReceived(newBooking.paidAmount, newBooking.bookingRef, newBooking.primaryTraveler);
     notificationEngine.notifyBookingConfirmed(newBooking);
     notificationEngine.notifyTicketGenerated(newBooking);
+    telegramBot.sendBookingAlert(newBooking);
   };
 
   const handleCancelBooking = (bookingId: string) => {
