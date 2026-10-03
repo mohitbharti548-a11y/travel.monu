@@ -75,8 +75,6 @@ export const signInAdminWithEmail = async (email: string, password: string): Pro
  */
 export const signInWithGoogle = async (): Promise<{ success: boolean; user?: UserProfile; error?: string }> => {
   try {
-    // CRITICAL: Clear any stale auth state before opening popup to prevent 'popup-closed-by-user' when switching accounts
-    await firebaseSignOut(auth).catch(() => {});
     googleProvider.setCustomParameters({ prompt: 'select_account' });
 
     const result: UserCredential = await signInWithPopup(auth, googleProvider);
