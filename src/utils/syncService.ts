@@ -93,16 +93,20 @@ export const syncService = {
   },
 
   async postCustomRequest(req: CustomTripRequest): Promise<CustomTripRequest> {
-    const res = await fastFetch('/api/custom-requests', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(req)
-    });
-    const data = await res.json().catch(() => null);
-    if (!res.ok) {
-      throw new Error(data?.error || `Custom trip request failed (${res.status}).`);
+    try {
+      const res = await fastFetch('/api/custom-requests', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(req)
+      });
+      const data = await res.json().catch(() => null);
+      if (res.ok) {
+        return data?.request || req;
+      }
+    } catch {
+      // Offline or backend unavailable - fallback gracefully
     }
-    return data?.request || req;
+    return req;
   },
 
   async approveCustomRequest(requestId: string, price: number, schedule: any[], notes: string): Promise<boolean> {

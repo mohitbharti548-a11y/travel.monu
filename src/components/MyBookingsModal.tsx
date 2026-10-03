@@ -96,7 +96,7 @@ export const MyBookingsModal: React.FC<MyBookingsModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 animate-fadeIn">
-      <div className="relative w-full max-w-4xl bg-white dark:bg-slatehimachal-900 rounded-3xl overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800 p-6 sm:p-8 space-y-6 max-h-[90vh] flex flex-col text-slate-900 dark:text-white">
+      <div className="relative w-full max-w-4xl bg-white dark:bg-slate-900 rounded-3xl overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800 p-6 sm:p-8 space-y-6 max-h-[90vh] flex flex-col text-slate-900 dark:text-white">
         
         {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
@@ -116,7 +116,7 @@ export const MyBookingsModal: React.FC<MyBookingsModalProps> = ({
 
           <button
             onClick={onClose}
-            className="p-2 rounded-full text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slatehimachal-800 transition-colors cursor-pointer"
+            className="p-2 rounded-full text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -162,7 +162,7 @@ export const MyBookingsModal: React.FC<MyBookingsModalProps> = ({
               bookings.map((booking) => (
                 <div
                   key={booking.id}
-                  className="card-3d p-5 rounded-3xl bg-slate-50 dark:bg-slatehimachal-800/80 border border-slate-200 dark:border-slate-700 space-y-4 text-xs"
+                  className="card-3d p-5 rounded-3xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 space-y-4 text-xs"
                 >
                   <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200/80 dark:border-slate-700/80 pb-3">
                     <div className="flex items-center gap-2">
@@ -199,7 +199,7 @@ export const MyBookingsModal: React.FC<MyBookingsModalProps> = ({
                   </div>
 
                   {booking.customDaySchedule && booking.customDaySchedule.length > 0 && (
-                    <div className="p-3.5 rounded-2xl bg-white dark:bg-slatehimachal-900 border border-slate-200 dark:border-slate-700 space-y-2">
+                    <div className="p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 space-y-2">
                       <span className="text-[10px] font-extrabold text-pine-800 dark:text-pine-400 uppercase tracking-wider block">
                         ★ Monu's Tailored Day-by-Day Schedule:
                       </span>
@@ -262,7 +262,7 @@ export const MyBookingsModal: React.FC<MyBookingsModalProps> = ({
               customRequests.map((req) => (
                 <div
                   key={req.id}
-                  className="card-3d p-5 rounded-3xl bg-slate-50 dark:bg-slatehimachal-800/80 border border-slate-200 dark:border-slate-700 space-y-4 text-xs transition-all"
+                  className="card-3d p-5 rounded-3xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 space-y-4 text-xs transition-all"
                 >
                   {/* 1. Ticket Header */}
                   <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200/80 dark:border-slate-700/80 pb-3">
@@ -297,7 +297,7 @@ export const MyBookingsModal: React.FC<MyBookingsModalProps> = ({
                   </div>
 
                   {/* 2. Overview of Trip Details & Start-to-End Dates (No Budget Section) */}
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3.5 rounded-2xl bg-white dark:bg-slatehimachal-900 border border-slate-200/80 dark:border-slate-700/80 text-slate-700 dark:text-slate-300">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700/80 text-slate-700 dark:text-slate-300">
                     <div className="flex items-start gap-2.5">
                       <Calendar className="w-4 h-4 text-pine-700 dark:text-amber-400 shrink-0 mt-0.5" />
                       <div>
@@ -339,7 +339,7 @@ export const MyBookingsModal: React.FC<MyBookingsModalProps> = ({
                   </div>
 
                   {/* 3. Clean Visual Progress Tracker */}
-                  <div className="p-3.5 rounded-2xl bg-white/70 dark:bg-slatehimachal-900/70 border border-slate-200 dark:border-slate-700/80 space-y-2.5">
+                  <div className="p-3.5 rounded-2xl bg-white/70 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-700/80 space-y-2.5">
                     <div className="flex items-center justify-between text-[10px] font-bold text-slate-500 dark:text-slate-400">
                       <span className="uppercase tracking-wider">Itinerary Curation Progress</span>
                       <span className="font-mono text-pine-700 dark:text-pine-300 font-extrabold">
@@ -430,7 +430,7 @@ export const MyBookingsModal: React.FC<MyBookingsModalProps> = ({
                       {req.adminCuratedSchedule && req.adminCuratedSchedule.length > 0 && (
                         <div className="space-y-1.5 pt-2 border-t border-emerald-200 dark:border-emerald-800">
                           {(Array.isArray(req.adminCuratedSchedule) ? req.adminCuratedSchedule : []).map((day) => (
-                            <div key={day.dayNumber} className="p-2.5 rounded-xl bg-white dark:bg-slatehimachal-900 border border-emerald-200 dark:border-emerald-800 text-[11px]">
+                            <div key={day.dayNumber} className="p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-emerald-200 dark:border-emerald-800 text-[11px]">
                               <div className="flex justify-between items-center mb-0.5 font-bold">
                                 <span className="text-slate-900 dark:text-white">Day {day.dayNumber}: {day.title}</span>
                                 <span className="text-pine-800 dark:text-pine-300 text-[10px]">Stay: {day.stay}</span>

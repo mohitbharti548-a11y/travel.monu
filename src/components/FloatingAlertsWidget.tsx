@@ -196,7 +196,7 @@ export const FloatingAlertsWidget: React.FC<FloatingAlertsWidgetProps> = ({
         <div className="relative">
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="group relative backdrop-blur-2xl bg-white/85 dark:bg-slatehimachal-950/85 text-slate-900 dark:text-white border border-white/60 dark:border-white/10 shadow-[0_15px_35px_rgba(0,0,0,0.15)] hover:shadow-[0_20px_45px_rgba(20,83,45,0.25)] rounded-3xl p-2.5 sm:p-3 pr-3.5 sm:pr-4.5 flex items-center gap-3 transition-all duration-300 hover:scale-105 cursor-pointer text-left max-w-[280px] sm:max-w-[320px]"
+            className="group relative backdrop-blur-2xl bg-white/85 dark:bg-slate-950/85 text-slate-900 dark:text-white border border-white/60 dark:border-white/10 shadow-[0_15px_35px_rgba(0,0,0,0.15)] hover:shadow-[0_20px_45px_rgba(20,83,45,0.25)] rounded-3xl p-2.5 sm:p-3 pr-3.5 sm:pr-4.5 flex items-center gap-3 transition-all duration-300 hover:scale-105 cursor-pointer text-left max-w-[280px] sm:max-w-[320px]"
             title="Click to open Live Alerts & Dispatch Hub"
           >
             {/* Glass Gradient Shimmer */}
@@ -247,10 +247,10 @@ export const FloatingAlertsWidget: React.FC<FloatingAlertsWidgetProps> = ({
 
           {/* 2. DROPDOWN DRAWER / FLYOUT ATTACHED TO FLOATING WIDGET */}
           {isOpen && (
-            <div className="absolute right-0 mt-3 w-80 sm:w-96 rounded-3xl bg-white dark:bg-slatehimachal-950 text-slate-900 dark:text-white shadow-2xl border border-slate-200 dark:border-slate-800 z-50 overflow-hidden animate-fadeIn backdrop-blur-xl">
+            <div className="absolute right-0 mt-3 w-80 sm:w-96 rounded-3xl bg-white dark:bg-slate-950 text-slate-900 dark:text-white shadow-2xl border border-slate-200 dark:border-slate-800 z-50 overflow-hidden animate-fadeIn backdrop-blur-xl">
               
               {/* Header */}
-              <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/80 dark:bg-slatehimachal-900/80">
+              <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/80 dark:bg-slate-900/80">
                 <div className="flex items-center gap-2">
                   <div className="p-2 rounded-xl bg-pine-100 dark:bg-pine-950 text-pine-800 dark:text-pine-300">
                     <Bell className="w-4 h-4 text-pine-700 dark:text-amber-400" />
@@ -267,7 +267,7 @@ export const FloatingAlertsWidget: React.FC<FloatingAlertsWidgetProps> = ({
                   {unreadCount > 0 && (
                     <button
                       onClick={() => notificationEngine.markAllAsRead()}
-                      className="p-1.5 rounded-lg text-slate-500 hover:text-pine-700 dark:hover:text-amber-400 hover:bg-slate-200 dark:hover:bg-slatehimachal-800 transition-colors text-[10px] font-bold flex items-center gap-1 cursor-pointer"
+                      className="p-1.5 rounded-lg text-slate-500 hover:text-pine-700 dark:hover:text-amber-400 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors text-[10px] font-bold flex items-center gap-1 cursor-pointer"
                       title="Mark all as read"
                     >
                       <Check className="w-3 h-3" />
@@ -276,7 +276,7 @@ export const FloatingAlertsWidget: React.FC<FloatingAlertsWidgetProps> = ({
                   )}
                   <button
                     onClick={() => setIsOpen(false)}
-                    className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slatehimachal-800 transition-colors cursor-pointer"
+                    className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -319,7 +319,7 @@ export const FloatingAlertsWidget: React.FC<FloatingAlertsWidgetProps> = ({
                 </button>
 
                 {showTestPanel && (
-                  <div className="p-3 bg-white/80 dark:bg-slatehimachal-900/80 border-t border-amber-200/50 dark:border-amber-900/50 grid grid-cols-2 gap-1.5 text-[10px] animate-fadeIn">
+                  <div className="p-3 bg-white/80 dark:bg-slate-900/80 border-t border-amber-200/50 dark:border-amber-900/50 grid grid-cols-2 gap-1.5 text-[10px] animate-fadeIn">
                     <button
                       onClick={handleSimulateBooking}
                       className="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 font-bold hover:bg-emerald-100 flex items-center gap-1.5 cursor-pointer text-left"
@@ -364,7 +364,7 @@ export const FloatingAlertsWidget: React.FC<FloatingAlertsWidgetProps> = ({
               </div>
 
               {/* Filter Tabs */}
-              <div className="p-2 border-b border-slate-100 dark:border-slate-800 flex gap-1 overflow-x-auto text-[10px] font-bold bg-slate-50/50 dark:bg-slatehimachal-900/40">
+              <div className="p-2 border-b border-slate-100 dark:border-slate-800 flex gap-1 overflow-x-auto text-[10px] font-bold bg-slate-50/50 dark:bg-slate-900/40">
                 {[
                   { id: 'all', label: 'All' },
                   { id: 'bookings', label: 'Bookings & Passes' },
@@ -400,11 +400,11 @@ export const FloatingAlertsWidget: React.FC<FloatingAlertsWidgetProps> = ({
                       onClick={() => handleActionClick(notif)}
                       className={`p-3.5 rounded-2xl transition-all cursor-pointer flex gap-3 text-xs ${
                         notif.isRead
-                          ? 'hover:bg-slate-50 dark:hover:bg-slatehimachal-900/60 opacity-80'
+                          ? 'hover:bg-slate-50 dark:hover:bg-slate-900/60 opacity-80'
                           : 'bg-pine-50/60 dark:bg-pine-950/30 hover:bg-pine-50 dark:hover:bg-pine-950/50 border-l-4 border-pine-600'
                       }`}
                     >
-                      <div className="p-2 rounded-xl bg-white dark:bg-slatehimachal-800 border border-slate-200 dark:border-slate-700 shrink-0 h-fit shadow-xs">
+                      <div className="p-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shrink-0 h-fit shadow-xs">
                         {renderIcon(notif.type)}
                       </div>
 
@@ -433,7 +433,7 @@ export const FloatingAlertsWidget: React.FC<FloatingAlertsWidgetProps> = ({
 
               {/* Footer */}
               {notifications.length > 0 && (
-                <div className="p-2.5 bg-slate-50 dark:bg-slatehimachal-900/90 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center text-[10px] text-slate-500 dark:text-slate-400 px-4">
+                <div className="p-2.5 bg-slate-50 dark:bg-slate-900/90 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center text-[10px] text-slate-500 dark:text-slate-400 px-4">
                   <span className="flex items-center gap-1">
                     <Volume2 className="w-3 h-3 text-pine-600 dark:text-amber-400" />
                     <span>Real-Time Chimes Active</span>

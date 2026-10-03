@@ -100,7 +100,7 @@ export const PostMemoryModal: React.FC<PostMemoryModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-fadeIn">
-      <div className="relative w-full max-w-lg bg-white dark:bg-slatehimachal-950 rounded-3xl overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800 p-6 sm:p-8">
+      <div className="relative w-full max-w-lg bg-white dark:bg-slate-950 rounded-3xl overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800 p-6 sm:p-8">
         
         {/* Close Button */}
         <button
@@ -182,7 +182,7 @@ export const PostMemoryModal: React.FC<PostMemoryModalProps> = ({
                 className={`p-6 rounded-2xl border-2 border-dashed transition-all text-center cursor-pointer ${
                   isDragging 
                     ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-950/40' 
-                    : 'border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slatehimachal-900/60 hover:border-pine-600 dark:hover:border-goldenhour-500'
+                    : 'border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/60 hover:border-pine-600 dark:hover:border-goldenhour-500'
                 }`}
               >
                 <UploadCloud className="w-8 h-8 text-pine-600 dark:text-goldenhour-400 mx-auto mb-2" />
@@ -205,7 +205,7 @@ export const PostMemoryModal: React.FC<PostMemoryModalProps> = ({
                   placeholder="e.g. Ramesh"
                   value={authorName}
                   onChange={(e) => setAuthorName(e.target.value)}
-                  className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slatehimachal-900 font-medium focus:outline-none"
+                  className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 font-medium focus:outline-none"
                 />
               </div>
               <div>
@@ -215,7 +215,7 @@ export const PostMemoryModal: React.FC<PostMemoryModalProps> = ({
                   placeholder="@yourhandle"
                   value={authorHandle}
                   onChange={(e) => setAuthorHandle(e.target.value)}
-                  className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slatehimachal-900 font-medium focus:outline-none"
+                  className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 font-medium focus:outline-none"
                 />
               </div>
             </div>
@@ -230,7 +230,7 @@ export const PostMemoryModal: React.FC<PostMemoryModalProps> = ({
                   const found = destinations.find(d => d.id === e.target.value);
                   if (found) setLocation(found.name);
                 }}
-                className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slatehimachal-900 font-bold focus:outline-none"
+                className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 font-bold focus:outline-none"
               >
                 {destinations.map(d => (
                   <option key={d.id} value={d.id} className="dark:bg-slate-900">{d.name} ({d.hindiName})</option>
@@ -247,7 +247,7 @@ export const PostMemoryModal: React.FC<PostMemoryModalProps> = ({
                 placeholder="What was the weather like? Any secret chai stall or photography advice?"
                 value={caption}
                 onChange={(e) => setCaption(e.target.value)}
-                className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slatehimachal-900 font-medium focus:outline-none"
+                className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 font-medium focus:outline-none"
               />
             </div>
 

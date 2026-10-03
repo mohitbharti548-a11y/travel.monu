@@ -94,3 +94,9 @@
   @apply bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border border-slate-200/90 dark:border-slate-800 shadow-xl;
 }
 
+
+@media (prefers-reduced-motion: reduce) {
+  video { display: none !important; }
+  .animate-float, .animate-spin, .animate-pulse { animation: none !important; }
+  * { transition-duration: 0.01ms !important; }
+}

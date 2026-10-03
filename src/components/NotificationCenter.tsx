@@ -195,7 +195,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
       <div className="relative">
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="relative p-2.5 rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-slatehimachal-800 dark:hover:bg-slatehimachal-700 text-slate-700 dark:text-slate-200 transition-all cursor-pointer shadow-xs"
+          className="relative p-2.5 rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slatehimachal-700 text-slate-700 dark:text-slate-200 transition-all cursor-pointer shadow-xs"
           title="Real-Time Alerts & Notification Center"
           aria-label="Alerts Center"
         >
@@ -210,10 +210,10 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
 
         {/* 2. Dropdown Drawer / Flyout */}
         {isOpen && (
-          <div className="absolute right-0 mt-3 w-80 sm:w-96 rounded-3xl bg-white dark:bg-slatehimachal-950 text-slate-900 dark:text-white shadow-2xl border border-slate-200 dark:border-slate-800 z-50 overflow-hidden animate-fadeIn">
+          <div className="absolute right-0 mt-3 w-80 sm:w-96 rounded-3xl bg-white dark:bg-slate-950 text-slate-900 dark:text-white shadow-2xl border border-slate-200 dark:border-slate-800 z-50 overflow-hidden animate-fadeIn">
             
             {/* Header */}
-            <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/80 dark:bg-slatehimachal-900/80">
+            <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/80 dark:bg-slate-900/80">
               <div className="flex items-center gap-2">
                 <div className="p-2 rounded-xl bg-pine-100 dark:bg-pine-950 text-pine-800 dark:text-pine-300">
                   <Bell className="w-4 h-4 text-pine-700 dark:text-amber-400" />
@@ -230,7 +230,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
                 {unreadCount > 0 && (
                   <button
                     onClick={() => notificationEngine.markAllAsRead()}
-                    className="p-1.5 rounded-lg text-slate-500 hover:text-pine-700 dark:hover:text-amber-400 hover:bg-slate-200 dark:hover:bg-slatehimachal-800 transition-colors text-[10px] font-bold flex items-center gap-1 cursor-pointer"
+                    className="p-1.5 rounded-lg text-slate-500 hover:text-pine-700 dark:hover:text-amber-400 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors text-[10px] font-bold flex items-center gap-1 cursor-pointer"
                     title="Mark all as read"
                   >
                     <Check className="w-3 h-3" />
@@ -239,7 +239,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
                 )}
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slatehimachal-800 transition-colors cursor-pointer"
+                  className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -261,7 +261,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
               </button>
 
               {showTestPanel && (
-                <div className="p-3 bg-white/80 dark:bg-slatehimachal-900/80 border-t border-amber-200/50 dark:border-amber-900/50 grid grid-cols-2 gap-1.5 text-[10px] animate-fadeIn">
+                <div className="p-3 bg-white/80 dark:bg-slate-900/80 border-t border-amber-200/50 dark:border-amber-900/50 grid grid-cols-2 gap-1.5 text-[10px] animate-fadeIn">
                   <button
                     onClick={handleSimulateBooking}
                     className="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 font-bold hover:bg-emerald-100 flex items-center gap-1.5 cursor-pointer text-left"
@@ -306,7 +306,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
             </div>
 
             {/* Filter Tabs */}
-            <div className="p-2 border-b border-slate-100 dark:border-slate-800 flex gap-1 overflow-x-auto text-[10px] font-bold bg-slate-50/50 dark:bg-slatehimachal-900/40">
+            <div className="p-2 border-b border-slate-100 dark:border-slate-800 flex gap-1 overflow-x-auto text-[10px] font-bold bg-slate-50/50 dark:bg-slate-900/40">
               {[
                 { id: 'all', label: 'All' },
                 { id: 'bookings', label: 'Bookings & Passes' },
@@ -342,11 +342,11 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
                     onClick={() => handleActionClick(notif)}
                     className={`p-3.5 rounded-2xl transition-all cursor-pointer flex gap-3 text-xs ${
                       notif.isRead
-                        ? 'hover:bg-slate-50 dark:hover:bg-slatehimachal-900/60 opacity-80'
+                        ? 'hover:bg-slate-50 dark:hover:bg-slate-900/60 opacity-80'
                         : 'bg-pine-50/60 dark:bg-pine-950/30 hover:bg-pine-50 dark:hover:bg-pine-950/50 border-l-4 border-pine-600'
                     }`}
                   >
-                    <div className="p-2 rounded-xl bg-white dark:bg-slatehimachal-800 border border-slate-200 dark:border-slate-700 shrink-0 h-fit shadow-xs">
+                    <div className="p-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shrink-0 h-fit shadow-xs">
                       {renderIcon(notif.type)}
                     </div>
 
@@ -375,7 +375,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
 
             {/* Footer */}
             {notifications.length > 0 && (
-              <div className="p-2.5 bg-slate-50 dark:bg-slatehimachal-900/90 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center text-[10px] text-slate-500 dark:text-slate-400 px-4">
+              <div className="p-2.5 bg-slate-50 dark:bg-slate-900/90 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center text-[10px] text-slate-500 dark:text-slate-400 px-4">
                 <span className="flex items-center gap-1">
                   <Volume2 className="w-3 h-3 text-pine-600 dark:text-amber-400" />
                   <span>Real-Time Chimes Active</span>

@@ -168,7 +168,7 @@ export const CustomPackageBuilder: React.FC<CustomPackageBuilderProps> = ({
           )}
 
           {/* Mode Switcher Tabs */}
-          <div className="flex flex-col sm:inline-flex sm:flex-row p-1.5 bg-slate-200/80 dark:bg-slatehimachal-800/80 rounded-2xl mt-6 border border-slate-300/70 dark:border-slate-700 shadow-inner max-w-xl mx-auto gap-1">
+          <div className="flex flex-col sm:inline-flex sm:flex-row p-1.5 bg-slate-200/80 dark:bg-slate-800/80 rounded-2xl mt-6 border border-slate-300/70 dark:border-slate-700 shadow-inner max-w-xl mx-auto gap-1">
             <button
               onClick={() => setActiveMode('pre-curated')}
               className={`btn-3d flex items-center justify-center gap-2 px-4 py-3 sm:py-2.5 rounded-xl font-extrabold text-xs transition-all cursor-pointer ${
@@ -221,7 +221,7 @@ export const CustomPackageBuilder: React.FC<CustomPackageBuilderProps> = ({
                   className={`overflow-hidden rounded-3xl border transition-all ${
                     isSelected
                       ? 'bg-pine-50 dark:bg-pine-950/60 border-pine-700 dark:border-pine-500 shadow-md'
-                      : 'bg-white dark:bg-slatehimachal-900 border-slate-200 dark:border-slate-800 shadow-sm'
+                      : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm'
                   }`}
                 >
                   <button
@@ -269,7 +269,7 @@ export const CustomPackageBuilder: React.FC<CustomPackageBuilderProps> = ({
                   </button>
 
                   {isSelected && (
-                    <div className="border-t border-pine-200 dark:border-pine-800 px-4 py-4 bg-white/70 dark:bg-slatehimachal-900/60 animate-fadeIn">
+                    <div className="border-t border-pine-200 dark:border-pine-800 px-4 py-4 bg-white/70 dark:bg-slate-900/60 animate-fadeIn">
                       <div className="flex flex-wrap gap-2 mb-3">
                         {(pkg.highlights || []).slice(0, 4).map((highlight) => (
                           <span key={highlight} className="text-[11px] font-semibold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 rounded-lg px-2.5 py-1">{highlight}</span>
@@ -302,7 +302,7 @@ export const CustomPackageBuilder: React.FC<CustomPackageBuilderProps> = ({
             
             {/* Left 2 Cols: Interactive Timeline Accordion */}
             <div className="lg:col-span-2 space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-slatehimachal-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
                 <div>
                   <h4 className="font-extrabold text-base text-slate-900 dark:text-white flex items-center gap-2">
                     <span>{currentPackage.title}</span>
@@ -365,12 +365,12 @@ export const CustomPackageBuilder: React.FC<CustomPackageBuilderProps> = ({
                 return (
                   <div
                     key={day.dayNumber}
-                    className="card-3d bg-white dark:bg-slatehimachal-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden transition-all"
+                    className="card-3d bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden transition-all"
                   >
                     {/* Day Header Trigger */}
                     <button
                       onClick={() => setExpandedDay(isExpanded ? null : day.dayNumber)}
-                      className="w-full p-5 text-left flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slatehimachal-800 transition-colors cursor-pointer"
+                      className="w-full p-5 text-left flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                     >
                       <div className="flex items-center gap-3.5">
                         <div className="w-10 h-10 rounded-2xl bg-pine-100 dark:bg-pine-950 text-pine-800 dark:text-pine-300 font-extrabold flex items-center justify-center text-sm shadow-inner shrink-0">
@@ -398,7 +398,7 @@ export const CustomPackageBuilder: React.FC<CustomPackageBuilderProps> = ({
 
                     {/* Day Expandable Content */}
                     {isExpanded && (
-                      <div className="p-5 border-t border-slate-100 dark:border-slate-800 bg-slate-50/60 dark:bg-slatehimachal-850/60 space-y-5 text-xs animate-fadeIn">
+                      <div className="p-5 border-t border-slate-100 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-900/60 space-y-5 text-xs animate-fadeIn">
                         <p className="text-slate-600 dark:text-slate-300 leading-relaxed font-normal">
                           {day.description}
                         </p>
@@ -414,8 +414,8 @@ export const CustomPackageBuilder: React.FC<CustomPackageBuilderProps> = ({
                               onClick={() => handleToggleStay(day.dayNumber, 'standard')}
                               className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer ${
                                 day.selectedStay === 'standard'
-                                  ? 'bg-white dark:bg-slatehimachal-900 border-pine-700 dark:border-pine-500 shadow-sm ring-1 ring-pine-700'
-                                  : 'bg-white/80 dark:bg-slatehimachal-900/80 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-slate-300'
+                                  ? 'bg-white dark:bg-slate-900 border-pine-700 dark:border-pine-500 shadow-sm ring-1 ring-pine-700'
+                                  : 'bg-white/80 dark:bg-slate-900/80 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-slate-300'
                               }`}
                             >
                               <div className="flex justify-between items-center mb-1">
@@ -432,7 +432,7 @@ export const CustomPackageBuilder: React.FC<CustomPackageBuilderProps> = ({
                               className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer ${
                                 day.selectedStay === 'luxury'
                                   ? 'bg-amber-50/80 dark:bg-amber-950/40 border-amber-500 shadow-sm ring-1 ring-amber-500'
-                                  : 'bg-white/80 dark:bg-slatehimachal-900/80 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-slate-300'
+                                  : 'bg-white/80 dark:bg-slate-900/80 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-slate-300'
                               }`}
                             >
                               <div className="flex justify-between items-center mb-1">
@@ -460,7 +460,7 @@ export const CustomPackageBuilder: React.FC<CustomPackageBuilderProps> = ({
                                     ? 'bg-emerald-50/60 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-900/40'
                                     : act.selected
                                     ? 'bg-pine-50 dark:bg-pine-950/60 border-pine-600 dark:border-pine-500 shadow-sm cursor-pointer'
-                                    : 'bg-white dark:bg-slatehimachal-900 border-slate-200 dark:border-slate-700 hover:border-slate-300 cursor-pointer'
+                                    : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 hover:border-slate-300 cursor-pointer'
                                 }`}
                               >
                                 <div className="flex items-center gap-2.5">
@@ -497,7 +497,7 @@ export const CustomPackageBuilder: React.FC<CustomPackageBuilderProps> = ({
 
             {/* Right 1 Col: Sticky Calculation & Booking Summary Card */}
             <div className="lg:col-span-1">
-              <div className="sticky top-24 bg-white dark:bg-slatehimachal-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xl p-6 space-y-6">
+              <div className="sticky top-24 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xl p-6 space-y-6">
                 <div>
                   <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">
                     Tailored Itinerary Summary
@@ -522,12 +522,12 @@ export const CustomPackageBuilder: React.FC<CustomPackageBuilderProps> = ({
                     </div>
 
                     {/* Manual Stepper & Input Count Box */}
-                    <div className="flex items-center gap-2 bg-slate-50 dark:bg-slatehimachal-800 p-1.5 rounded-2xl border border-slate-200 dark:border-slate-700">
+                    <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-800 p-1.5 rounded-2xl border border-slate-200 dark:border-slate-700">
                       <button
                         type="button"
                         onClick={() => setTravelersCount(Math.max(1, travelersCount - 1))}
                         disabled={travelersCount <= 1}
-                        className="w-9 h-9 rounded-xl flex items-center justify-center font-bold bg-white dark:bg-slatehimachal-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slatehimachal-700 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer shadow-sm text-base"
+                        className="w-9 h-9 rounded-xl flex items-center justify-center font-bold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slatehimachal-700 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer shadow-sm text-base"
                         title="Decrease Travelers"
                       >
                         <Minus className="w-4 h-4" />
@@ -593,7 +593,7 @@ export const CustomPackageBuilder: React.FC<CustomPackageBuilderProps> = ({
                           className={`flex-1 py-1 rounded-lg font-bold text-[11px] transition-all cursor-pointer ${
                             travelersCount === num
                               ? 'bg-pine-700 text-white shadow-sm'
-                              : 'bg-slate-100 dark:bg-slatehimachal-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slatehimachal-700'
+                              : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slatehimachal-700'
                           }`}
                         >
                           {num}
@@ -608,7 +608,7 @@ export const CustomPackageBuilder: React.FC<CustomPackageBuilderProps> = ({
                       type="date"
                       value={travelDate}
                       onChange={(e) => setTravelDate(e.target.value)}
-                      className="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slatehimachal-800 text-slate-900 dark:text-white font-bold focus:outline-none focus:ring-2 focus:ring-pine-700"
+                      className="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white font-bold focus:outline-none focus:ring-2 focus:ring-pine-700"
                     />
                   </div>
                 </div>

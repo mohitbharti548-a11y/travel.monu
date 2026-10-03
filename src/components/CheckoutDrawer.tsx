@@ -52,6 +52,7 @@ interface CheckoutDrawerProps {
   } | null;
   onBookingSuccess: (newBooking: BookingItem) => void;
   userProfile?: UserProfile | null;
+  pricingRules?: { defaultUpiVpa?: string; [key: string]: any } | null;
 }
 
 export const CheckoutDrawer: React.FC<CheckoutDrawerProps> = ({
@@ -59,7 +60,8 @@ export const CheckoutDrawer: React.FC<CheckoutDrawerProps> = ({
   onClose,
   checkoutData,
   onBookingSuccess,
-  userProfile
+  userProfile,
+  pricingRules
 }) => {
   const [step, setStep] = useState<'details' | 'nomadCode' | 'payment' | 'processing' | 'confirmed'>('details');
   const [paymentPlan, setPaymentPlan] = useState<'full' | 'split'>('full');
@@ -69,6 +71,7 @@ export const CheckoutDrawer: React.FC<CheckoutDrawerProps> = ({
   const [travelerEmail, setTravelerEmail] = useState(() => userProfile?.email || '');
   const [travelerPhone, setTravelerPhone] = useState(() => userProfile?.phone ? `+91 ${userProfile.phone.replace(/^91/, '')}` : '');
   const [isCopied, setIsCopied] = useState(false);
+  const [paymentError, setPaymentError] = useState<string | null>(null);
   
   React.useEffect(() => {
     if (userProfile) {
@@ -126,7 +129,7 @@ export const CheckoutDrawer: React.FC<CheckoutDrawerProps> = ({
     screenshotUrl?: string;
     paidAmount: number;
   }) => {
-    const generatedRef = `HN-${Math.floor(100000 + Math.random() * 900000)}`;
+    const generatedRef = `HN-${crypto.randomUUID().split('-')[0].toUpperCase()}`;
     const newBooking: BookingItem = {
       id: `book-${Date.now()}`,
       bookingRef: generatedRef,
@@ -177,6 +180,7 @@ export const CheckoutDrawer: React.FC<CheckoutDrawerProps> = ({
 
   const handlePayNow = async (e: React.FormEvent) => {
     e.preventDefault();
+    setPaymentError(null);
     setStep('processing');
 
     try {
@@ -194,7 +198,7 @@ export const CheckoutDrawer: React.FC<CheckoutDrawerProps> = ({
       console.log('💳 Razorpay Order Created:', orderData.orderId);
 
       setTimeout(() => {
-        const generatedRef = `HN-${Math.floor(100000 + Math.random() * 900000)}`;
+        const generatedRef = `HN-${crypto.randomUUID().split('-')[0].toUpperCase()}`;
         const newBooking: BookingItem = {
           id: `book-${Date.now()}`,
           bookingRef: generatedRef,
@@ -236,6 +240,8 @@ export const CheckoutDrawer: React.FC<CheckoutDrawerProps> = ({
       }, 1500);
     } catch (err) {
       console.warn('Payment gateway fallback:', err);
+      setStep('payment');
+      setPaymentError('Payment processing failed. Please try again or use UPI QR above.');
     }
   };
 
@@ -255,10 +261,10 @@ export const CheckoutDrawer: React.FC<CheckoutDrawerProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 overflow-hidden bg-slate-950/75 backdrop-blur-sm flex justify-end animate-fadeIn">
-      <div className="relative w-full max-w-xl bg-white dark:bg-slatehimachal-900 text-slate-900 dark:text-white h-full shadow-2xl border-l border-slate-200 dark:border-slate-800 flex flex-col justify-between overflow-y-auto">
+      <div className="relative w-full max-w-xl bg-white dark:bg-slate-900 text-slate-900 dark:text-white h-full shadow-2xl border-l border-slate-200 dark:border-slate-800 flex flex-col justify-between overflow-y-auto">
         
         {/* Top Drawer Header with Step Indicator */}
-        <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slatehimachal-950 sticky top-0 z-10">
+        <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-950 sticky top-0 z-10">
           <div className="flex items-center gap-2.5">
             <div className="p-2.5 rounded-xl bg-pine-700 text-white shadow">
               <Lock className="w-4 h-4" />
@@ -279,7 +285,7 @@ export const CheckoutDrawer: React.FC<CheckoutDrawerProps> = ({
 
           <button
             onClick={onClose}
-            className="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slatehimachal-800 text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors cursor-pointer"
+            className="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -323,7 +329,7 @@ export const CheckoutDrawer: React.FC<CheckoutDrawerProps> = ({
                   required
                   value={travelerName}
                   onChange={(e) => setTravelerName(e.target.value)}
-                  className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slatehimachal-800 text-slate-900 dark:text-white font-bold focus:outline-none focus:ring-2 focus:ring-pine-700"
+                  className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white font-bold focus:outline-none focus:ring-2 focus:ring-pine-700"
                 />
               </div>
               <div className="grid grid-cols-2 gap-3">
@@ -334,7 +340,7 @@ export const CheckoutDrawer: React.FC<CheckoutDrawerProps> = ({
                     required
                     value={travelerEmail}
                     onChange={(e) => setTravelerEmail(e.target.value)}
-                    className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slatehimachal-800 text-slate-900 dark:text-white font-medium focus:outline-none focus:ring-2 focus:ring-pine-700"
+                    className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white font-medium focus:outline-none focus:ring-2 focus:ring-pine-700"
                   />
                 </div>
                 <div>
@@ -344,7 +350,7 @@ export const CheckoutDrawer: React.FC<CheckoutDrawerProps> = ({
                     required
                     value={travelerPhone}
                     onChange={(e) => setTravelerPhone(e.target.value)}
-                    className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slatehimachal-800 text-slate-900 dark:text-white font-medium focus:outline-none focus:ring-2 focus:ring-pine-700"
+                    className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white font-medium focus:outline-none focus:ring-2 focus:ring-pine-700"
                   />
                 </div>
               </div>
@@ -384,7 +390,7 @@ export const CheckoutDrawer: React.FC<CheckoutDrawerProps> = ({
               <div 
                 onClick={() => setAgreedZeroPlastic(!agreedZeroPlastic)}
                 className={`p-3.5 rounded-2xl border-2 cursor-pointer transition-all flex items-start gap-3 ${
-                  agreedZeroPlastic ? 'bg-pine-50 dark:bg-pine-950/60 border-pine-700 dark:border-pine-500 shadow-sm' : 'bg-slate-50 dark:bg-slatehimachal-800/80 border-slate-200 dark:border-slate-700 hover:border-slate-300'
+                  agreedZeroPlastic ? 'bg-pine-50 dark:bg-pine-950/60 border-pine-700 dark:border-pine-500 shadow-sm' : 'bg-slate-50 dark:bg-slate-800/80 border-slate-200 dark:border-slate-700 hover:border-slate-300'
                 }`}
               >
                 <input
@@ -403,7 +409,7 @@ export const CheckoutDrawer: React.FC<CheckoutDrawerProps> = ({
               <div 
                 onClick={() => setAgreedCulturalRespect(!agreedCulturalRespect)}
                 className={`p-3.5 rounded-2xl border-2 cursor-pointer transition-all flex items-start gap-3 ${
-                  agreedCulturalRespect ? 'bg-pine-50 dark:bg-pine-950/60 border-pine-700 dark:border-pine-500 shadow-sm' : 'bg-slate-50 dark:bg-slatehimachal-800/80 border-slate-200 dark:border-slate-700 hover:border-slate-300'
+                  agreedCulturalRespect ? 'bg-pine-50 dark:bg-pine-950/60 border-pine-700 dark:border-pine-500 shadow-sm' : 'bg-slate-50 dark:bg-slate-800/80 border-slate-200 dark:border-slate-700 hover:border-slate-300'
                 }`}
               >
                 <input
@@ -422,7 +428,7 @@ export const CheckoutDrawer: React.FC<CheckoutDrawerProps> = ({
               <div 
                 onClick={() => setAgreedAltitudeSafety(!agreedAltitudeSafety)}
                 className={`p-3.5 rounded-2xl border-2 cursor-pointer transition-all flex items-start gap-3 ${
-                  agreedAltitudeSafety ? 'bg-pine-50 dark:bg-pine-950/60 border-pine-700 dark:border-pine-500 shadow-sm' : 'bg-slate-50 dark:bg-slatehimachal-800/80 border-slate-200 dark:border-slate-700 hover:border-slate-300'
+                  agreedAltitudeSafety ? 'bg-pine-50 dark:bg-pine-950/60 border-pine-700 dark:border-pine-500 shadow-sm' : 'bg-slate-50 dark:bg-slate-800/80 border-slate-200 dark:border-slate-700 hover:border-slate-300'
                 }`}
               >
                 <input
@@ -441,7 +447,7 @@ export const CheckoutDrawer: React.FC<CheckoutDrawerProps> = ({
               <div 
                 onClick={() => setAgreedWeatherFlexibility(!agreedWeatherFlexibility)}
                 className={`p-3.5 rounded-2xl border-2 cursor-pointer transition-all flex items-start gap-3 ${
-                  agreedWeatherFlexibility ? 'bg-pine-50 dark:bg-pine-950/60 border-pine-700 dark:border-pine-500 shadow-sm' : 'bg-slate-50 dark:bg-slatehimachal-800/80 border-slate-200 dark:border-slate-700 hover:border-slate-300'
+                  agreedWeatherFlexibility ? 'bg-pine-50 dark:bg-pine-950/60 border-pine-700 dark:border-pine-500 shadow-sm' : 'bg-slate-50 dark:bg-slate-800/80 border-slate-200 dark:border-slate-700 hover:border-slate-300'
                 }`}
               >
                 <input
@@ -462,7 +468,7 @@ export const CheckoutDrawer: React.FC<CheckoutDrawerProps> = ({
               <button
                 type="button"
                 onClick={() => setStep('details')}
-                className="w-1/3 py-3.5 rounded-2xl font-bold bg-slate-100 dark:bg-slatehimachal-800 hover:bg-slate-200 dark:hover:bg-slatehimachal-700 text-slate-800 dark:text-slate-200 transition-colors cursor-pointer"
+                className="w-1/3 py-3.5 rounded-2xl font-bold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slatehimachal-700 text-slate-800 dark:text-slate-200 transition-colors cursor-pointer"
               >
                 Back
               </button>
@@ -580,7 +586,7 @@ export const CheckoutDrawer: React.FC<CheckoutDrawerProps> = ({
             </div>
 
             {/* Boarding Pass Preview Card */}
-            <div className="p-5 rounded-3xl bg-slate-50 dark:bg-slatehimachal-800/80 border border-slate-200 dark:border-slate-700 space-y-4">
+            <div className="p-5 rounded-3xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 space-y-4">
               <div className="flex justify-between items-center border-b border-slate-200 dark:border-slate-700 pb-3">
                 <div>
                   <span className="text-[10px] uppercase font-bold text-slate-400 block">Boarding Pass</span>
@@ -653,7 +659,7 @@ export const CheckoutDrawer: React.FC<CheckoutDrawerProps> = ({
 
               <button
                 onClick={handleCopyConfirmationLink}
-                className="w-full py-3 rounded-2xl font-bold text-xs border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slatehimachal-800 hover:bg-slate-100 dark:hover:bg-slatehimachal-700 text-slate-800 dark:text-slate-200 flex items-center justify-center gap-2 transition-all cursor-pointer"
+                className="w-full py-3 rounded-2xl font-bold text-xs border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slatehimachal-700 text-slate-800 dark:text-slate-200 flex items-center justify-center gap-2 transition-all cursor-pointer"
               >
                 {isCopied ? (
                   <>
@@ -679,7 +685,7 @@ export const CheckoutDrawer: React.FC<CheckoutDrawerProps> = ({
         )}
 
         {/* Security Footer Note */}
-        <div className="p-4 bg-slate-50 dark:bg-slatehimachal-950 border-t border-slate-100 dark:border-slate-800 text-[11px] text-slate-500 dark:text-slate-400 flex items-center justify-center gap-1.5">
+        <div className="p-4 bg-slate-50 dark:bg-slate-950 border-t border-slate-100 dark:border-slate-800 text-[11px] text-slate-500 dark:text-slate-400 flex items-center justify-center gap-1.5">
           <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
           <span>Protected under Monu's 365-Day Weather & Road Guarantee</span>
         </div>

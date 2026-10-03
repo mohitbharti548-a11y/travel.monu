@@ -56,7 +56,7 @@ export const MiniReelFloatingCard: React.FC<MiniReelFloatingCardProps> = ({
 
   return (
     <div className="fixed bottom-6 left-6 z-40 max-w-[280px] sm:max-w-[300px] animate-fadeIn hidden sm:block">
-      <div className="relative bg-white/95 dark:bg-slatehimachal-900/95 text-slate-900 dark:text-white border-2 border-pine-700/40 dark:border-pine-500/40 rounded-3xl p-3.5 shadow-2xl backdrop-blur-md hover:shadow-pine-900/20 transition-all">
+      <div className="relative bg-white/95 dark:bg-slate-900/95 text-slate-900 dark:text-white border-2 border-pine-700/40 dark:border-pine-500/40 rounded-3xl p-3.5 shadow-2xl backdrop-blur-md hover:shadow-pine-900/20 transition-all">
         
         {/* Dismiss Cross Button */}
         <button
@@ -64,7 +64,7 @@ export const MiniReelFloatingCard: React.FC<MiniReelFloatingCardProps> = ({
             e.stopPropagation();
             setIsDismissed(true);
           }}
-          className="absolute -top-2 -right-2 p-1.5 rounded-full bg-slate-900 dark:bg-slatehimachal-950 text-white hover:bg-black shadow-lg transition-transform hover:scale-110 z-20 cursor-pointer"
+          className="absolute -top-2 -right-2 p-1.5 rounded-full bg-slate-900 dark:bg-slate-950 text-white hover:bg-black shadow-lg transition-transform hover:scale-110 z-20 cursor-pointer"
           title="Dismiss mini preview"
         >
           <X className="w-3.5 h-3.5" />
@@ -97,7 +97,7 @@ export const MiniReelFloatingCard: React.FC<MiniReelFloatingCardProps> = ({
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
           
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-9 h-9 rounded-full bg-white/90 dark:bg-slatehimachal-900/90 text-pine-900 dark:text-amber-400 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+            <div className="w-9 h-9 rounded-full bg-white/90 dark:bg-slate-900/90 text-pine-900 dark:text-amber-400 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
               <Play className="w-4 h-4 fill-current ml-0.5" />
             </div>
           </div>

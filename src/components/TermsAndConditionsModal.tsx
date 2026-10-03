@@ -22,7 +22,7 @@ export const TermsAndConditionsModal: React.FC<TermsAndConditionsModalProps> = (
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/75 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 animate-fadeIn">
-      <div className="relative w-full max-w-4xl bg-white dark:bg-slatehimachal-900 rounded-3xl overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800 p-6 sm:p-8 space-y-6 max-h-[90vh] flex flex-col text-slate-900 dark:text-white">
+      <div className="relative w-full max-w-4xl bg-white dark:bg-slate-900 rounded-3xl overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800 p-6 sm:p-8 space-y-6 max-h-[90vh] flex flex-col text-slate-900 dark:text-white">
         
         {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
@@ -42,7 +42,7 @@ export const TermsAndConditionsModal: React.FC<TermsAndConditionsModalProps> = (
 
           <button
             onClick={onClose}
-            className="p-2 rounded-full text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slatehimachal-800 transition-colors"
+            className="p-2 rounded-full text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -63,7 +63,7 @@ export const TermsAndConditionsModal: React.FC<TermsAndConditionsModalProps> = (
           </div>
 
           {/* 2. Cultural Respect */}
-          <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slatehimachal-800/80 border border-slate-200 dark:border-slate-700 space-y-1.5">
+          <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 space-y-1.5">
             <div className="flex items-center gap-2 font-extrabold text-slate-900 dark:text-white text-sm">
               <Compass className="w-4 h-4 text-pine-700 dark:text-amber-400" />
               <span>2. Sacred Monasteries, Temples & Devta Customs</span>
@@ -79,7 +79,7 @@ export const TermsAndConditionsModal: React.FC<TermsAndConditionsModalProps> = (
           </div>
 
           {/* 3. High Altitude & Physical Health */}
-          <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slatehimachal-800/80 border border-slate-200 dark:border-slate-700 space-y-1.5">
+          <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 space-y-1.5">
             <div className="flex items-center gap-2 font-extrabold text-slate-900 dark:text-white text-sm">
               <Mountain className="w-4 h-4 text-pine-700 dark:text-amber-400" />
               <span>3. Physical Fitness & Medical Responsibility</span>
@@ -93,7 +93,7 @@ export const TermsAndConditionsModal: React.FC<TermsAndConditionsModalProps> = (
           <PreBookingAdvisory defaultLang="both" />
 
           {/* 4. Permits & Border Protocols */}
-          <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slatehimachal-800/80 border border-slate-200 dark:border-slate-700 space-y-1.5">
+          <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 space-y-1.5">
             <div className="flex items-center gap-2 font-extrabold text-slate-900 dark:text-white text-sm">
               <ShieldCheck className="w-4 h-4 text-pine-700 dark:text-amber-400" />
               <span>4. Green Permits & Identification</span>

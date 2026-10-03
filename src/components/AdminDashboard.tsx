@@ -55,7 +55,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 animate-fadeIn">
-      <div className="relative w-full max-w-5xl bg-white dark:bg-slatehimachal-950 rounded-3xl overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col max-h-[90vh]">
+      <div className="relative w-full max-w-5xl bg-white dark:bg-slate-950 rounded-3xl overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col max-h-[90vh]">
         
         {/* Admin Header */}
         <div className="p-6 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800">
@@ -85,7 +85,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         </div>
 
         {/* Navigation Tabs */}
-        <div className="flex border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slatehimachal-900 px-6 gap-2 overflow-x-auto text-xs font-bold">
+        <div className="flex border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 px-6 gap-2 overflow-x-auto text-xs font-bold">
           {[
             { id: 'analytics', label: 'Overview & Revenue', icon: TrendingUp },
             { id: 'packages', label: 'Package Pricing', icon: DollarSign },
@@ -118,7 +118,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           {activeTab === 'analytics' && (
             <div className="space-y-6">
               <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-                <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slatehimachal-900 border border-slate-200 dark:border-slate-800">
+                <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
                   <span className="text-xs text-slate-400 font-bold uppercase">Total Revenue</span>
                   <h4 className="text-2xl font-extrabold text-pine-800 dark:text-goldenhour-400 mt-1">
                     ₹{totalRevenue.toLocaleString('en-IN')}
@@ -126,7 +126,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   <span className="text-[10px] text-emerald-600 font-semibold">100% Direct Gateway</span>
                 </div>
 
-                <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slatehimachal-900 border border-slate-200 dark:border-slate-800">
+                <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
                   <span className="text-xs text-slate-400 font-bold uppercase">Active Bookings</span>
                   <h4 className="text-2xl font-extrabold text-slate-900 dark:text-white mt-1">
                     {bookings.length}
@@ -134,7 +134,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   <span className="text-[10px] text-slate-400">All passes issued</span>
                 </div>
 
-                <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slatehimachal-900 border border-slate-200 dark:border-slate-800">
+                <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
                   <span className="text-xs text-slate-400 font-bold uppercase">Community Reels</span>
                   <h4 className="text-2xl font-extrabold text-slate-900 dark:text-white mt-1">
                     {reels.length}
@@ -142,7 +142,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   <span className="text-[10px] text-emerald-600">Active on Peak Feed</span>
                 </div>
 
-                <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slatehimachal-900 border border-slate-200 dark:border-slate-800">
+                <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
                   <span className="text-xs text-slate-400 font-bold uppercase">Partner Stays</span>
                   <h4 className="text-2xl font-extrabold text-slate-900 dark:text-white mt-1">
                     {stays.length}
@@ -156,7 +156,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 <h4 className="font-extrabold text-sm text-slate-900 dark:text-white">Recent Traveler Reservations</h4>
                 <div className="space-y-2">
                   {bookings.map(b => (
-                    <div key={b.id} className="p-3.5 rounded-xl bg-slate-50 dark:bg-slatehimachal-900 border border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs">
+                    <div key={b.id} className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs">
                       <div>
                         <strong className="text-slate-900 dark:text-white">{b.primaryTraveler}</strong>
                         <span className="text-slate-500 block">{b.title} • {b.travelDate} ({b.passengers} people)</span>
@@ -181,7 +181,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
               <div className="space-y-3">
                 {packages.map(pkg => (
-                  <div key={pkg.id} className="p-4 rounded-2xl bg-slate-50 dark:bg-slatehimachal-900 border border-slate-200 dark:border-slate-800 flex items-center justify-between">
+                  <div key={pkg.id} className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-between">
                     <div>
                       <h5 className="font-bold text-sm text-slate-900 dark:text-white">{pkg.title}</h5>
                       <span className="text-xs text-slate-500">{pkg.destination} • {pkg.duration}</span>
@@ -236,7 +236,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <p className="text-xs text-slate-500">Toggle curated stays visible to travelers booking via Himachal Nomad.</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {stays.map(stay => (
-                  <div key={stay.id} className="p-4 rounded-2xl bg-slate-50 dark:bg-slatehimachal-900 border border-slate-200 dark:border-slate-800 flex items-center justify-between gap-3">
+                  <div key={stay.id} className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
                       <img src={stay.image} alt={stay.name} className="w-12 h-12 rounded-xl object-cover" />
                       <div>
@@ -267,7 +267,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <p className="text-xs text-slate-500">Review community uploads and remove inappropriate content from The Peak Feed.</p>
               <div className="space-y-2">
                 {reels.map(reel => (
-                  <div key={reel.id} className="p-3 rounded-2xl bg-slate-50 dark:bg-slatehimachal-900 border border-slate-200 dark:border-slate-800 flex items-center justify-between gap-3">
+                  <div key={reel.id} className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
                       <img src={reel.posterImage} alt={reel.authorName} className="w-12 h-14 rounded-xl object-cover" />
                       <div>
@@ -305,7 +305,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 rows={3}
                 value={newRoadAlertText}
                 onChange={(e) => setNewRoadAlertText(e.target.value)}
-                className="w-full p-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slatehimachal-900 text-xs font-bold focus:outline-none"
+                className="w-full p-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-xs font-bold focus:outline-none"
               />
 
               <button
@@ -322,7 +322,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="p-4 bg-slate-100 dark:bg-slatehimachal-900 border-t border-slate-200 dark:border-slate-800 flex justify-end">
+        <div className="p-4 bg-slate-100 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex justify-end">
           <button
             onClick={onClose}
             className="px-5 py-2 rounded-xl text-xs font-bold bg-slate-800 text-white hover:bg-slate-700"

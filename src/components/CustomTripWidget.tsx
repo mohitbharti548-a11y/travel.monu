@@ -616,7 +616,7 @@ export const CustomTripWidget: React.FC<CustomTripWidgetProps> = ({
           <div className="pt-2 flex flex-col sm:flex-row gap-2.5 sm:gap-3 justify-center">
             <button
               onClick={() => setIsSubmitted(false)}
-              className="btn-3d w-full sm:w-auto px-5 py-3 rounded-xl font-extrabold text-xs bg-slate-100 dark:bg-slatehimachal-800 hover:bg-slate-200 dark:hover:bg-slatehimachal-700 text-slate-800 dark:text-slate-200 cursor-pointer"
+              className="btn-3d w-full sm:w-auto px-5 py-3 rounded-xl font-extrabold text-xs bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slatehimachal-700 text-slate-800 dark:text-slate-200 cursor-pointer"
             >
               Configure Another Trip
             </button>
@@ -642,7 +642,7 @@ export const CustomTripWidget: React.FC<CustomTripWidgetProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             
             {/* A. Travelers Count */}
-            <div className="p-4 sm:p-5 rounded-2xl bg-slate-50 dark:bg-slatehimachal-800/80 border border-slate-200 dark:border-slate-700 space-y-2.5">
+            <div className="p-4 sm:p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 space-y-2.5">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
                   <Users className="w-4 h-4 text-pine-700 dark:text-amber-400" /> Travelers
@@ -661,7 +661,7 @@ export const CustomTripWidget: React.FC<CustomTripWidgetProps> = ({
                     className={`py-2.5 sm:py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer flex items-center justify-center min-h-[40px] ${
                       travelers === num
                         ? 'bg-pine-700 text-white shadow-sm ring-2 ring-pine-700/30 font-black'
-                        : 'bg-white dark:bg-slatehimachal-900 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slatehimachal-700 border border-slate-200 dark:border-slate-700'
+                        : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slatehimachal-700 border border-slate-200 dark:border-slate-700'
                     }`}
                   >
                     {num}
@@ -671,7 +671,7 @@ export const CustomTripWidget: React.FC<CustomTripWidgetProps> = ({
             </div>
 
             {/* B. Duration (Days & Nights) */}
-            <div className="p-4 sm:p-5 rounded-2xl bg-slate-50 dark:bg-slatehimachal-800/80 border border-slate-200 dark:border-slate-700 space-y-2.5">
+            <div className="p-4 sm:p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 space-y-2.5">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
                   <Calendar className="w-4 h-4 text-pine-700 dark:text-amber-400" /> Duration
@@ -693,7 +693,7 @@ export const CustomTripWidget: React.FC<CustomTripWidgetProps> = ({
                     className={`py-2.5 sm:py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer flex items-center justify-center min-h-[40px] ${
                       days === d
                         ? 'bg-pine-700 text-white shadow-sm ring-2 ring-pine-700/30 font-black'
-                        : 'bg-white dark:bg-slatehimachal-900 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slatehimachal-700 border border-slate-200 dark:border-slate-700'
+                        : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slatehimachal-700 border border-slate-200 dark:border-slate-700'
                     }`}
                   >
                     {d}D
@@ -705,7 +705,7 @@ export const CustomTripWidget: React.FC<CustomTripWidgetProps> = ({
           </div>
 
           {/* 2. PLACES & SITES DISCOVERY MATRIX */}
-          <div className="space-y-4 p-4 sm:p-6 rounded-3xl bg-slate-50 dark:bg-slatehimachal-850 border border-slate-200 dark:border-slate-800">
+          <div className="space-y-4 p-4 sm:p-6 rounded-3xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div>
                 <label className="text-xs sm:text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-1.5">
@@ -740,7 +740,7 @@ export const CustomTripWidget: React.FC<CustomTripWidgetProps> = ({
                         ? 'bg-pine-700 text-white shadow-md ring-2 ring-pine-700/30'
                         : hasSelected
                         ? 'bg-pine-50 dark:bg-pine-950/60 border-pine-400 dark:border-pine-700 text-slate-900 dark:text-white shadow-sm'
-                        : 'bg-white dark:bg-slatehimachal-900 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-slate-300'
+                        : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-slate-300'
                     }`}
                   >
                     <div>
@@ -772,7 +772,7 @@ export const CustomTripWidget: React.FC<CustomTripWidgetProps> = ({
             </div>
 
             {/* B. Specific Sites Tray for Currently Active Place */}
-            <div className="mt-4 p-3.5 sm:p-5 rounded-2xl bg-white dark:bg-slatehimachal-900 border-2 border-pine-200 dark:border-slate-700 space-y-3 shadow-inner">
+            <div className="mt-4 p-3.5 sm:p-5 rounded-2xl bg-white dark:bg-slate-900 border-2 border-pine-200 dark:border-slate-700 space-y-3 shadow-inner">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-b border-slate-100 dark:border-slate-800 pb-3">
                 <div className="flex items-center gap-2">
                   <span className="text-xl shrink-0">{activeRegion.icon}</span>
@@ -788,7 +788,7 @@ export const CustomTripWidget: React.FC<CustomTripWidgetProps> = ({
                 <button
                   type="button"
                   onClick={() => handleSelectAllSitesInPlace(activeRegion)}
-                  className="w-full sm:w-auto px-3 py-2 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slatehimachal-800 dark:hover:bg-slatehimachal-700 text-slate-800 dark:text-slate-200 transition-colors cursor-pointer text-center shrink-0"
+                  className="w-full sm:w-auto px-3 py-2 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slatehimachal-700 text-slate-800 dark:text-slate-200 transition-colors cursor-pointer text-center shrink-0"
                 >
                   {getSelectedCountForPlace(activeRegion) === activeRegion.sites.length ? 'Deselect All in ' + activeRegion.name : 'Select All in ' + activeRegion.name}
                 </button>
@@ -805,7 +805,7 @@ export const CustomTripWidget: React.FC<CustomTripWidgetProps> = ({
                       className={`p-2.5 sm:p-3 rounded-xl border flex items-center justify-between gap-2.5 transition-all cursor-pointer select-none min-h-[50px] ${
                         isChecked
                           ? 'bg-pine-50 dark:bg-pine-950/70 border-pine-600 dark:border-pine-500 shadow-sm'
-                          : 'bg-slate-50/70 dark:bg-slatehimachal-800/40 border-slate-200 dark:border-slate-700/80 hover:border-slate-300'
+                          : 'bg-slate-50/70 dark:bg-slate-800/40 border-slate-200 dark:border-slate-700/80 hover:border-slate-300'
                       }`}
                     >
                       <div className="flex items-start gap-2.5 flex-1 min-w-0">
@@ -981,7 +981,7 @@ export const CustomTripWidget: React.FC<CustomTripWidgetProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             
             {/* Preferred Stay */}
-            <div className="p-4 sm:p-5 rounded-2xl bg-slate-50 dark:bg-slatehimachal-800/80 border border-slate-200 dark:border-slate-700 space-y-2.5">
+            <div className="p-4 sm:p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 space-y-2.5">
               <label className="text-xs font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
                 <Home className="w-4 h-4 text-pine-700 dark:text-amber-400" /> 2. Preferred Stay Type
               </label>
@@ -1006,7 +1006,7 @@ export const CustomTripWidget: React.FC<CustomTripWidgetProps> = ({
                     className={`p-3 sm:p-3.5 rounded-xl border text-left transition-all cursor-pointer min-h-[70px] ${
                       preferredStay === stay.id
                         ? 'bg-pine-700 text-white shadow-sm ring-2 ring-pine-700/30'
-                        : 'bg-white dark:bg-slatehimachal-900 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-slate-300'
+                        : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-slate-300'
                     }`}
                   >
                     <strong className="block text-xs font-bold leading-tight">{stay.label}</strong>
@@ -1019,7 +1019,7 @@ export const CustomTripWidget: React.FC<CustomTripWidgetProps> = ({
             </div>
 
             {/* Preferred Transit */}
-            <div className="p-4 sm:p-5 rounded-2xl bg-slate-50 dark:bg-slatehimachal-800/80 border border-slate-200 dark:border-slate-700 space-y-2.5">
+            <div className="p-4 sm:p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 space-y-2.5">
               <label className="text-xs font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
                 <Compass className="w-4 h-4 text-pine-700 dark:text-amber-400" /> 3. Preferred Mountain Transit
               </label>
@@ -1049,7 +1049,7 @@ export const CustomTripWidget: React.FC<CustomTripWidgetProps> = ({
                     className={`p-2.5 sm:p-3 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between min-h-[70px] ${
                       preferredTransit === transit.id
                         ? 'bg-pine-700 text-white shadow-sm ring-2 ring-pine-700/30'
-                        : 'bg-white dark:bg-slatehimachal-900 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-slate-300'
+                        : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-slate-300'
                     }`}
                   >
                     <div>
@@ -1066,7 +1066,7 @@ export const CustomTripWidget: React.FC<CustomTripWidgetProps> = ({
           </div>
 
           {/* 5. Special Wishes & Departure Date & Contact */}
-          <div className="p-4 sm:p-5 rounded-2xl bg-slate-50 dark:bg-slatehimachal-800/80 border border-slate-200 dark:border-slate-700 space-y-3.5">
+          <div className="p-4 sm:p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 space-y-3.5">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <div>
                 <label className="block text-xs font-extrabold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
@@ -1076,7 +1076,7 @@ export const CustomTripWidget: React.FC<CustomTripWidgetProps> = ({
                   type="date"
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
-                  className="w-full p-2.5 sm:p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slatehimachal-900 text-slate-900 dark:text-white font-bold text-sm sm:text-xs focus:outline-none focus:ring-2 focus:ring-pine-700 min-h-[42px]"
+                  className="w-full p-2.5 sm:p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-bold text-sm sm:text-xs focus:outline-none focus:ring-2 focus:ring-pine-700 min-h-[42px]"
                 />
               </div>
 
@@ -1089,7 +1089,7 @@ export const CustomTripWidget: React.FC<CustomTripWidgetProps> = ({
                   placeholder="e.g. Stargazing with Tenzin, Riverside trout angling, secret chai..."
                   value={specialWishes}
                   onChange={(e) => setSpecialWishes(e.target.value)}
-                  className="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slatehimachal-900 text-slate-900 dark:text-white text-sm sm:text-xs focus:outline-none focus:ring-2 focus:ring-pine-700 min-h-[42px]"
+                  className="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-sm sm:text-xs focus:outline-none focus:ring-2 focus:ring-pine-700 min-h-[42px]"
                 />
               </div>
             </div>
@@ -1104,7 +1104,7 @@ export const CustomTripWidget: React.FC<CustomTripWidgetProps> = ({
                   placeholder="e.g. Ramesh Sharma"
                   value={travelerName}
                   onChange={(e) => setTravelerName(e.target.value)}
-                  className="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slatehimachal-900 text-slate-900 dark:text-white text-sm sm:text-xs font-bold focus:outline-none min-h-[42px]"
+                  className="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-sm sm:text-xs font-bold focus:outline-none min-h-[42px]"
                 />
               </div>
 
@@ -1117,7 +1117,7 @@ export const CustomTripWidget: React.FC<CustomTripWidgetProps> = ({
                   placeholder="+91 98765 43210"
                   value={travelerPhone}
                   onChange={(e) => setTravelerPhone(e.target.value)}
-                  className="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slatehimachal-900 text-slate-900 dark:text-white text-sm sm:text-xs font-medium focus:outline-none min-h-[42px]"
+                  className="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-sm sm:text-xs font-medium focus:outline-none min-h-[42px]"
                 />
               </div>
 
@@ -1130,7 +1130,7 @@ export const CustomTripWidget: React.FC<CustomTripWidgetProps> = ({
                   placeholder="traveler@example.com"
                   value={travelerEmail}
                   onChange={(e) => setTravelerEmail(e.target.value)}
-                  className="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slatehimachal-900 text-slate-900 dark:text-white text-sm sm:text-xs font-medium focus:outline-none min-h-[42px]"
+                  className="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-sm sm:text-xs font-medium focus:outline-none min-h-[42px]"
                 />
               </div>
             </div>
@@ -1152,7 +1152,7 @@ export const CustomTripWidget: React.FC<CustomTripWidgetProps> = ({
               <button
                 type="button"
                 onClick={() => setIsPreviewOpen(true)}
-                className="btn-3d w-full sm:w-auto px-5 py-3.5 rounded-2xl font-bold text-xs bg-slate-100 dark:bg-slatehimachal-800 hover:bg-slate-200 dark:hover:bg-slatehimachal-700 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 flex items-center justify-center gap-2 cursor-pointer transition-all min-h-[44px]"
+                className="btn-3d w-full sm:w-auto px-5 py-3.5 rounded-2xl font-bold text-xs bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slatehimachal-700 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 flex items-center justify-center gap-2 cursor-pointer transition-all min-h-[44px]"
               >
                 <Eye className="w-4 h-4 text-pine-600 dark:text-pine-400" />
                 <span>Preview Draft Itinerary</span>
@@ -1174,7 +1174,7 @@ export const CustomTripWidget: React.FC<CustomTripWidgetProps> = ({
       {/* DRAFT ITINERARY PREVIEW & WHATSAPP MODAL (Mobile-Optimized Modal Sheet) */}
       {isPreviewOpen && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-2.5 sm:p-6 animate-fadeIn">
-          <div className="relative w-full max-w-2xl bg-white dark:bg-slatehimachal-900 rounded-3xl overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-8 space-y-4 text-slate-900 dark:text-white max-h-[92vh] flex flex-col my-auto">
+          <div className="relative w-full max-w-2xl bg-white dark:bg-slate-900 rounded-3xl overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-8 space-y-4 text-slate-900 dark:text-white max-h-[92vh] flex flex-col my-auto">
             
             {/* Header */}
             <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3 shrink-0">
@@ -1194,7 +1194,7 @@ export const CustomTripWidget: React.FC<CustomTripWidgetProps> = ({
 
               <button
                 onClick={() => setIsPreviewOpen(false)}
-                className="p-2 rounded-full text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slatehimachal-800 cursor-pointer"
+                className="p-2 rounded-full text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -1204,7 +1204,7 @@ export const CustomTripWidget: React.FC<CustomTripWidgetProps> = ({
             <div className="space-y-3.5 overflow-y-auto pr-1 flex-1 text-xs">
               
               {/* Trip Highlights Banner */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 p-3 rounded-2xl bg-slate-50 dark:bg-slatehimachal-800/80 border border-slate-200 dark:border-slate-700">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700">
                 <div>
                   <span className="text-[9px] sm:text-[10px] text-slate-400 uppercase font-bold block">Start Date</span>
                   <strong className="text-slate-900 dark:text-white text-xs">{startDate}</strong>
@@ -1239,7 +1239,7 @@ export const CustomTripWidget: React.FC<CustomTripWidgetProps> = ({
                 </span>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 max-h-48 overflow-y-auto pr-1">
                   {selectedSiteObjects.map((item, i) => (
-                    <div key={i} className="p-2 rounded-xl bg-white dark:bg-slatehimachal-900 border border-slate-200 dark:border-slate-700 flex items-center justify-between gap-2">
+                    <div key={i} className="p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 flex items-center justify-between gap-2">
                       <div className="min-w-0 flex-1">
                         <strong className="text-slate-900 dark:text-white text-xs block truncate">{item.site.name}</strong>
                         <span className="text-[10px] text-slate-400 block truncate">{item.region.name} • {item.site.type}</span>
@@ -1266,7 +1266,7 @@ export const CustomTripWidget: React.FC<CustomTripWidgetProps> = ({
                 <button
                   type="button"
                   onClick={handleDownloadDraftPDF}
-                  className="btn-3d px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slatehimachal-800 hover:bg-slate-200 dark:hover:bg-slatehimachal-700 text-slate-800 dark:text-slate-200 font-bold text-xs border border-slate-300 dark:border-slate-700 flex items-center justify-center gap-1.5 shadow"
+                  className="btn-3d px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slatehimachal-700 text-slate-800 dark:text-slate-200 font-bold text-xs border border-slate-300 dark:border-slate-700 flex items-center justify-center gap-1.5 shadow"
                 >
                   <Download className="w-3.5 h-3.5 text-pine-600 dark:text-pine-400" />
                   <span>Draft PDF</span>

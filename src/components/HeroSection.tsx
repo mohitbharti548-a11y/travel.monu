@@ -24,7 +24,10 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<'packages' | 'stays'>('packages');
   const [selectedDest, setSelectedDest] = useState<string>('spiti');
-  const [travelDate, setTravelDate] = useState<string>('2026-09-15');
+  const [travelDate, setTravelDate] = useState<string>(() => {
+    const d = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+    return d.toISOString().split('T')[0];
+  });
   const [travelers, setTravelers] = useState<number>(2);
   const videoRef = useRef<HTMLVideoElement>(null);
 

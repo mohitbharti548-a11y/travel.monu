@@ -23,6 +23,7 @@ import { MediaUploader } from './MediaUploader';
 import { HomestayGalleryUploader } from './HomestayGalleryUploader';
 import { AdminInvoiceModal } from './AdminInvoiceModal';
 import { AdminAuthLock } from './AdminAuthLock';
+import { ConfirmModal } from './ConfirmModal';
 import { signOutTraveler } from '../utils/firebaseAuth';
 import { 
   Settings, 
@@ -191,6 +192,7 @@ export const AdminPanelPage: React.FC<AdminPanelPageProps> = ({
     }
   });
 
+  const [confirmModal, setConfirmModal] = useState<{isOpen: boolean, title: string, message: string, onConfirm: () => void} | null>(null);
   const [activeTab, setActiveTab] = useState<
     'custom_trips' | 'pricing' | 'bookings' | 'destinations' | 'packages' | 'stays' | 'guides' | 'reels' | 'broadcast' | 'alerts_stream'
   >('custom_trips');
@@ -3821,7 +3823,7 @@ Verified local mountain guide"
           </div>
         </div>
       )}
-
+      {confirmModal && <ConfirmModal isOpen={confirmModal.isOpen} title={confirmModal.title} message={confirmModal.message} danger={true} onCancel={() => setConfirmModal(null)} onConfirm={confirmModal.onConfirm} />}
     </div>
   );
 };

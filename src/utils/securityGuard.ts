@@ -1,11 +1,15 @@
 /**
- * Rust-inspired Zero-Trust Security & Firewall Module
+ * Zero-Trust Security & Firewall Module
  * Provides timing-safe comparisons, input sanitization, anti-tamper session integrity,
- * prototype pollution protection, and brute-force defenses.
+ * and prototype pollution protection.
+ *
+ * NOTE: The DevTools/F12 blocker has been intentionally removed.
+ * Blocking DevTools is security theater — it is trivially bypassed and hurts legitimate
+ * developer UX. Real security comes from server-side validation.
  */
 
-// Master Passkey
-const MASTER_PASSKEY = import.meta.env.VITE_ADMIN_PASSKEY || '963210';
+// Master Passkey — must be set via VITE_ADMIN_PASSKEY env var. No hardcoded fallback.
+const MASTER_PASSKEY = import.meta.env.VITE_ADMIN_PASSKEY ?? '';
 const INTEGRITY_SALT = 'hn_nomad_sec_salt_2026_spiti';
 
 /**
@@ -15,7 +19,7 @@ const INTEGRITY_SALT = 'hn_nomad_sec_salt_2026_spiti';
 export function timingSafeEqual(a: string, b: string): boolean {
   const strA = String(a || '');
   const strB = String(b || '');
-  
+
   const lenA = strA.length;
   const lenB = strB.length;
   let result = lenA ^ lenB;
@@ -148,27 +152,10 @@ export function enforceFrameIsolation(): void {
   }
 }
 
-/** Adds lightweight browser deterrence without interfering with form controls. */
+/**
+ * No-op — DevTools blocking is security theater and actively hurts developer UX.
+ * Real security comes from server-side validation, not client-side obfuscation.
+ */
 export function enforceBrowserProtection(): () => void {
-  if (typeof window === 'undefined') return () => {};
-
-  const blockContextMenu = (event: MouseEvent) => event.preventDefault();
-  const blockInspectShortcuts = (event: KeyboardEvent) => {
-    const key = event.key.toLowerCase();
-    const blocked = event.key === 'F12'
-      || (event.ctrlKey && event.shiftKey && ['i', 'j', 'c'].includes(key))
-      || (event.ctrlKey && key === 'u');
-    if (blocked) {
-      event.preventDefault();
-      event.stopPropagation();
-    }
-  };
-
-  document.addEventListener('contextmenu', blockContextMenu, { capture: true });
-  document.addEventListener('keydown', blockInspectShortcuts, { capture: true });
-
-  return () => {
-    document.removeEventListener('contextmenu', blockContextMenu, { capture: true });
-    document.removeEventListener('keydown', blockInspectShortcuts, { capture: true });
-  };
+  return () => {};
 }

@@ -14,7 +14,7 @@ import {
   UserProfile,
   PricingRules 
 } from './types';
-import { REEL_POSTS, DESTINATIONS } from './data/mockData';
+import { DESTINATIONS } from './data/mockData';
 import { storageService } from './utils/storageService';
 import { syncService } from './utils/syncService';
 import { firestoreService } from './services/firestoreService';
@@ -25,6 +25,7 @@ import { enforceBrowserProtection, enforceFrameIsolation } from './utils/securit
 // Components
 import { Header } from './components/Header';
 import { HeroSection } from './components/HeroSection';
+import { ConfirmModal } from './components/ConfirmModal';
 import { ParallaxBanner } from './components/ParallaxBanner';
 import { DestinationHubs } from './components/DestinationHubs';
 import { DestinationDetailModal } from './components/DestinationDetailModal';
@@ -98,8 +99,9 @@ export function App() {
   };
 
   // Theme State
-  const [darkMode, setDarkMode] = useState<boolean>(false);
+  const [darkMode, setDarkMode] = useState<boolean>(() => { try { return localStorage.getItem('hn_theme') === 'dark'; } catch { return false; } });
   const [activeSection, setActiveSection] = useState<string>('hero');
+  const [confirmModal, setConfirmModal] = useState<{isOpen: boolean, title: string, message: string, onConfirm: () => void} | null>(null);
 
   // Application Data States (Enterprise Persistent via storageService, syncService & Cloud Firestore)
   const [destinations, setDestinations] = useState<Destination[]>(() => storageService.loadDestinations());
@@ -390,9 +392,9 @@ export function App() {
   // Synchronize Dark Mode
   useEffect(() => {
     if (darkMode) {
-      document.documentElement.classList.add('dark');
+      document.documentElement.classList.add('dark'); localStorage.setItem('hn_theme', 'dark');
     } else {
-      document.documentElement.classList.remove('dark');
+      document.documentElement.classList.remove('dark'); localStorage.setItem('hn_theme', 'light');
     }
   }, [darkMode]);
 
@@ -619,7 +621,7 @@ export function App() {
     const newRequest: CustomTripRequest = {
       ...reqData,
       id: `req-${Date.now()}`,
-      requestRef: (reqData as any).requestRef || `REQ-HN-${Math.floor(1000 + Math.random() * 9000)}`,
+      requestRef: `REQ-HN-${Math.floor(1000 + Math.random() * 9000)}`,
       status: 'pending_review',
       adminQuotedPrice: 0,
       adminCuratedSchedule: [],
@@ -770,7 +772,7 @@ export function App() {
       message: `Reservation ${bookingId} has been cancelled and credit note issued.`,
       priority: 'normal'
     });
-    alert("Cancellation request registered. Your refund credit note has been initiated.");
+    notificationEngine.addNotification({ type: 'system_broadcast', title: 'Refund Initiated', message: 'Cancellation request registered. Refund credit note initiated.', priority: 'normal' });
   };
 
   const handlePostSubmitted = (newReel: Partial<ReelPost>) => {
@@ -925,8 +927,8 @@ export function App() {
         onCreateReel={handleCreateReel}
         onUpdateReel={handleUpdateReel}
         onDeleteReel={handleDeleteReel}
-        bookings={userBookings}
-        customRequests={userCustomRequests}
+        bookings={bookings}
+        customRequests={customRequests}
         onApproveCustomRequest={handleApproveCustomRequest}
         onSyncRequests={(updatedList) => setCustomRequests(updatedList)}
         roadAlert={roadAlert}
@@ -943,8 +945,7 @@ export function App() {
       {/* GLOBAL FULL-PAGE CINEMATIC MOUNTAIN & VIDEO CANVAS */}
       <div className="fixed inset-0 pointer-events-none z-[-1] overflow-hidden">
         {/* Full-Bleed Drone Mountain Video Loop */}
-        <video
-          autoPlay
+        <video aria-hidden="true" autoPlay
           loop
           muted
           playsInline

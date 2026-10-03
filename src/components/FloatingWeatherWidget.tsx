@@ -131,7 +131,7 @@ export const FloatingWeatherWidget: React.FC<FloatingWeatherWidgetProps> = () =>
             setSelectedRegionId(currentWeatherPill.id);
             setIsModalOpen(true);
           }}
-          className="group relative backdrop-blur-2xl bg-white/75 dark:bg-slatehimachal-950/80 text-slate-900 dark:text-white border border-white/60 dark:border-white/10 shadow-[0_15px_35px_rgba(0,0,0,0.15)] hover:shadow-[0_20px_45px_rgba(20,83,45,0.25)] rounded-3xl p-3 pr-4.5 flex items-center gap-3.5 transition-all duration-300 hover:scale-105 cursor-pointer text-left"
+          className="group relative backdrop-blur-2xl bg-white/75 dark:bg-slate-950/80 text-slate-900 dark:text-white border border-white/60 dark:border-white/10 shadow-[0_15px_35px_rgba(0,0,0,0.15)] hover:shadow-[0_20px_45px_rgba(20,83,45,0.25)] rounded-3xl p-3 pr-4.5 flex items-center gap-3.5 transition-all duration-300 hover:scale-105 cursor-pointer text-left"
           title="Click to view live satellite weather & road radar for all 7 regions"
         >
           {/* Glass Gradient Shimmer */}
@@ -178,7 +178,7 @@ export const FloatingWeatherWidget: React.FC<FloatingWeatherWidgetProps> = () =>
       {/* 2. REAL WEATHER APP MODAL (APPLE / WEATHER CHANNEL GRADE) */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/80 backdrop-blur-xl flex items-center justify-center p-3 sm:p-6 animate-fadeIn">
-          <div className="relative w-full max-w-4xl bg-white dark:bg-slatehimachal-950 rounded-3xl overflow-hidden shadow-2xl border border-white/20 dark:border-slate-800 flex flex-col max-h-[92vh] text-slate-900 dark:text-white">
+          <div className="relative w-full max-w-4xl bg-white dark:bg-slate-950 rounded-3xl overflow-hidden shadow-2xl border border-white/20 dark:border-slate-800 flex flex-col max-h-[92vh] text-slate-900 dark:text-white">
             
             {/* Modal Header with Live Region Switcher */}
             <div className="bg-slate-900 text-white p-4 sm:p-5 flex items-center justify-between border-b border-slate-800 shrink-0">
@@ -364,7 +364,7 @@ export const FloatingWeatherWidget: React.FC<FloatingWeatherWidgetProps> = () =>
               })()}
 
               {/* 3. 24-Hour Hourly Forecast Slider */}
-              <div className="p-5 rounded-3xl bg-slate-50 dark:bg-slatehimachal-900 border border-slate-200 dark:border-slate-800 space-y-3">
+              <div className="p-5 rounded-3xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-3">
                 <div className="flex items-center justify-between">
                   <h4 className="text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
                     <Sparkles className="w-3.5 h-3.5 text-pine-700 dark:text-amber-400" />
@@ -377,7 +377,7 @@ export const FloatingWeatherWidget: React.FC<FloatingWeatherWidgetProps> = () =>
                   {activeModalWeather.hourly.map((hour, idx) => (
                     <div
                       key={idx}
-                      className="p-3 rounded-2xl bg-white dark:bg-slatehimachal-800 border border-slate-200 dark:border-slate-700 min-w-[76px] flex flex-col items-center justify-between gap-1 shadow-xs"
+                      className="p-3 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 min-w-[76px] flex flex-col items-center justify-between gap-1 shadow-xs"
                     >
                       <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400">{hour.hourLabel}</span>
                       <div className="my-1">
@@ -397,7 +397,7 @@ export const FloatingWeatherWidget: React.FC<FloatingWeatherWidgetProps> = () =>
               </div>
 
               {/* 3. 7-Day Extended Forecast */}
-              <div className="p-5 rounded-3xl bg-slate-50 dark:bg-slatehimachal-900 border border-slate-200 dark:border-slate-800 space-y-3">
+              <div className="p-5 rounded-3xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-3">
                 <h4 className="text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                   7-Day Extended Outlook
                 </h4>
@@ -406,7 +406,7 @@ export const FloatingWeatherWidget: React.FC<FloatingWeatherWidgetProps> = () =>
                   {activeModalWeather.daily.map((day, idx) => (
                     <div
                       key={idx}
-                      className="p-3 rounded-2xl bg-white dark:bg-slatehimachal-800 border border-slate-200 dark:border-slate-700 flex items-center justify-between text-xs gap-3"
+                      className="p-3 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-between text-xs gap-3"
                     >
                       <span className="font-extrabold text-slate-900 dark:text-white w-16">{day.dayName}</span>
                       
@@ -437,7 +437,7 @@ export const FloatingWeatherWidget: React.FC<FloatingWeatherWidgetProps> = () =>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
                 
                 {/* UV Index */}
-                <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slatehimachal-900 border border-slate-200 dark:border-slate-800 space-y-1">
+                <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-1">
                   <div className="flex items-center gap-1.5 text-slate-400 font-bold uppercase text-[10px]">
                     <Sun className="w-3.5 h-3.5 text-amber-500" /> UV Index
                   </div>
@@ -448,7 +448,7 @@ export const FloatingWeatherWidget: React.FC<FloatingWeatherWidgetProps> = () =>
                 </div>
 
                 {/* Wind */}
-                <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slatehimachal-900 border border-slate-200 dark:border-slate-800 space-y-1">
+                <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-1">
                   <div className="flex items-center gap-1.5 text-slate-400 font-bold uppercase text-[10px]">
                     <Wind className="w-3.5 h-3.5 text-teal-500" /> Wind
                   </div>
@@ -457,7 +457,7 @@ export const FloatingWeatherWidget: React.FC<FloatingWeatherWidgetProps> = () =>
                 </div>
 
                 {/* Humidity */}
-                <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slatehimachal-900 border border-slate-200 dark:border-slate-800 space-y-1">
+                <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-1">
                   <div className="flex items-center gap-1.5 text-slate-400 font-bold uppercase text-[10px]">
                     <Droplets className="w-3.5 h-3.5 text-sky-500" /> Humidity
                   </div>
@@ -466,7 +466,7 @@ export const FloatingWeatherWidget: React.FC<FloatingWeatherWidgetProps> = () =>
                 </div>
 
                 {/* Barometer */}
-                <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slatehimachal-900 border border-slate-200 dark:border-slate-800 space-y-1">
+                <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-1">
                   <div className="flex items-center gap-1.5 text-slate-400 font-bold uppercase text-[10px]">
                     <Gauge className="w-3.5 h-3.5 text-indigo-500" /> Pressure
                   </div>
@@ -498,7 +498,7 @@ export const FloatingWeatherWidget: React.FC<FloatingWeatherWidgetProps> = () =>
             </div>
 
             {/* Footer */}
-            <div className="p-4 bg-slate-50 dark:bg-slatehimachal-900 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 shrink-0">
+            <div className="p-4 bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 shrink-0">
               <div className="flex items-center gap-1.5">
                 <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                 <span>Weather data auto-synced with Border Roads Organisation (BRO) advisories</span>

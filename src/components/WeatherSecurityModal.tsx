@@ -60,7 +60,7 @@ export const WeatherSecurityModal: React.FC<WeatherSecurityModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-fadeIn">
-      <div className="relative w-full max-w-2xl bg-white dark:bg-slatehimachal-950 rounded-3xl overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800 p-6 sm:p-8 space-y-6">
+      <div className="relative w-full max-w-2xl bg-white dark:bg-slate-950 rounded-3xl overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800 p-6 sm:p-8 space-y-6">
         
         {/* Close Button */}
         <button
@@ -107,7 +107,7 @@ export const WeatherSecurityModal: React.FC<WeatherSecurityModalProps> = ({
         </div>
 
         {/* The Creator Weather Security Clause */}
-        <div className="p-5 rounded-2xl bg-gradient-to-r from-pine-900 to-pine-800 dark:from-slatehimachal-900 dark:to-slatehimachal-850 text-white border border-pine-700/80 dark:border-goldenhour-800/60 space-y-2">
+        <div className="p-5 rounded-2xl bg-gradient-to-r from-pine-900 to-pine-800 dark:from-slate-900 dark:to-slate-900 text-white border border-pine-700/80 dark:border-goldenhour-800/60 space-y-2">
           <div className="flex items-center gap-2 text-goldenhour-300 text-xs font-extrabold uppercase tracking-wider">
             <CloudSnow className="w-4 h-4 text-sky-300" />
             <span>The Creator Weather Security Clause</span>
@@ -118,7 +118,7 @@ export const WeatherSecurityModal: React.FC<WeatherSecurityModalProps> = ({
         </div>
 
         {/* Interactive Refund Simulator */}
-        <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slatehimachal-900 border border-slate-200 dark:border-slate-800 space-y-4">
+        <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-xs font-bold text-slate-900 dark:text-white">
               <Calculator className="w-4 h-4 text-pine-600 dark:text-goldenhour-400" />

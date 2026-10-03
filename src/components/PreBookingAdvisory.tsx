@@ -86,7 +86,7 @@ export const PreBookingAdvisory: React.FC<PreBookingAdvisoryProps> = ({
   ];
 
   return (
-    <div className={`rounded-3xl bg-slate-900 dark:bg-slatehimachal-900 border border-slate-700/80 text-white overflow-hidden shadow-xl ${className}`}>
+    <div className={`rounded-3xl bg-slate-900 dark:bg-slate-900 border border-slate-700/80 text-white overflow-hidden shadow-xl ${className}`}>
       
       {/* Header with Bilingual Language Toggle */}
       <div className="p-4 sm:p-5 bg-gradient-to-r from-pine-950 via-slate-900 to-slate-950 border-b border-slate-800 flex flex-wrap items-center justify-between gap-3">

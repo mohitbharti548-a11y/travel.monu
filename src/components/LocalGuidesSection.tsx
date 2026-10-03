@@ -55,7 +55,7 @@ export const LocalGuidesSection: React.FC<LocalGuidesSectionProps> = ({ guides }
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 perspective-container">
         {guides.map((guide, idx) => (
           <ScrollReveal key={guide.id} delay={idx * 0.1} direction="up">
-            <div className="card-3d group bg-white dark:bg-slatehimachal-900 rounded-3xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-md hover:shadow-2xl transition-all duration-300 flex flex-col justify-between h-full">
+            <div className="card-3d group bg-white dark:bg-slate-900 rounded-3xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-md hover:shadow-2xl transition-all duration-300 flex flex-col justify-between h-full">
               {/* Guide Avatar & Video Preview */}
               <div className="relative h-72 overflow-hidden">
                 <img
@@ -124,7 +124,7 @@ export const LocalGuidesSection: React.FC<LocalGuidesSectionProps> = ({ guides }
                   href={`https://wa.me/919653240540?text=Hi%20Monu!%20I%20would%20like%20to%20request%20guide%20${encodeURIComponent(guide.name)}%20allocation%20for%20my%20Himachal%20tour.`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="btn-3d w-full py-2.5 rounded-xl font-bold text-xs bg-slate-100 dark:bg-slatehimachal-800 hover:bg-pine-50 dark:hover:bg-slatehimachal-700 text-slate-900 dark:text-slate-100 flex items-center justify-center gap-2 transition-colors border border-slate-200 dark:border-slate-700 shadow-sm"
+                  className="btn-3d w-full py-2.5 rounded-xl font-bold text-xs bg-slate-100 dark:bg-slate-800 hover:bg-pine-50 dark:hover:bg-slatehimachal-700 text-slate-900 dark:text-slate-100 flex items-center justify-center gap-2 transition-colors border border-slate-200 dark:border-slate-700 shadow-sm"
                 >
                   <MessageCircle className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                   <span>Request {guide.name.split(' ')[0]} via Monu</span>

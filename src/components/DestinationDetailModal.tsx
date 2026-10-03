@@ -39,7 +39,7 @@ export const DestinationDetailModal: React.FC<DestinationDetailModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 animate-fadeIn">
-      <div className="relative w-full max-w-4xl bg-white dark:bg-slatehimachal-950 rounded-3xl overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800 my-8">
+      <div className="relative w-full max-w-4xl bg-white dark:bg-slate-950 rounded-3xl overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800 my-8">
         
         {/* Close Button */}
         <button
@@ -83,7 +83,7 @@ export const DestinationDetailModal: React.FC<DestinationDetailModalProps> = ({
         {/* Modal Body Content */}
         <div className="p-6 sm:p-8 space-y-8 max-h-[60vh] overflow-y-auto">
           {/* Key Facts Bar */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 p-4 rounded-2xl bg-slate-50 dark:bg-slatehimachal-900 border border-slate-200 dark:border-slate-800 text-xs">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs">
             <div>
               <span className="text-slate-500 dark:text-slate-400 block font-semibold">Altitude</span>
               <strong className="text-slate-900 dark:text-white text-sm">{destination.altitude}</strong>
@@ -117,7 +117,7 @@ export const DestinationDetailModal: React.FC<DestinationDetailModalProps> = ({
             <p className="text-sm text-slate-800 dark:text-slate-200 mb-3 leading-relaxed">
               {destination.secretSpot.description}
             </p>
-            <div className="bg-white/80 dark:bg-slatehimachal-900/80 p-3 rounded-xl border border-amber-200 dark:border-goldenhour-900/60 text-xs space-y-1">
+            <div className="bg-white/80 dark:bg-slate-900/80 p-3 rounded-xl border border-amber-200 dark:border-goldenhour-900/60 text-xs space-y-1">
               <p><strong className="text-amber-800 dark:text-goldenhour-400">Best Timing:</strong> {destination.secretSpot.bestTime}</p>
               <p><strong className="text-amber-800 dark:text-goldenhour-400">Creator Tip:</strong> {destination.secretSpot.creatorTip}</p>
             </div>
@@ -132,7 +132,7 @@ export const DestinationDetailModal: React.FC<DestinationDetailModalProps> = ({
               </h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {relevantStays.map(stay => (
-                  <div key={stay.id} className="p-4 rounded-2xl bg-slate-50 dark:bg-slatehimachal-900 border border-slate-200 dark:border-slate-800 flex gap-4">
+                  <div key={stay.id} className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex gap-4">
                     <img src={stay.image} alt={stay.name} className="w-20 h-20 rounded-xl object-cover" />
                     <div className="flex-1">
                       <div className="flex items-center justify-between">
@@ -166,7 +166,7 @@ export const DestinationDetailModal: React.FC<DestinationDetailModalProps> = ({
         </div>
 
         {/* Modal Footer */}
-        <div className="p-5 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slatehimachal-900/60 flex flex-wrap items-center justify-between gap-4">
+        <div className="p-5 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 flex flex-wrap items-center justify-between gap-4">
           <div className="text-xs text-slate-600 dark:text-slate-400 flex items-center gap-2">
             <ShieldCheck className="w-4 h-4 text-emerald-500" />
             <span>Protected by Creator Weather Guarantee & Direct Refund Policy</span>

@@ -28,7 +28,7 @@ export const RefundPolicyModal: React.FC<RefundPolicyModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/75 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 animate-fadeIn">
-      <div className="relative w-full max-w-4xl bg-white dark:bg-slatehimachal-900 rounded-3xl overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800 p-6 sm:p-8 space-y-6 max-h-[90vh] flex flex-col text-slate-900 dark:text-white">
+      <div className="relative w-full max-w-4xl bg-white dark:bg-slate-900 rounded-3xl overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800 p-6 sm:p-8 space-y-6 max-h-[90vh] flex flex-col text-slate-900 dark:text-white">
         
         {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
@@ -48,7 +48,7 @@ export const RefundPolicyModal: React.FC<RefundPolicyModalProps> = ({
 
           <button
             onClick={onClose}
-            className="p-2 rounded-full text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slatehimachal-800 transition-colors"
+            className="p-2 rounded-full text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -141,21 +141,21 @@ export const RefundPolicyModal: React.FC<RefundPolicyModalProps> = ({
             <div className="space-y-4">
               <h4 className="font-extrabold text-sm text-slate-900 dark:text-white">Specific Pass & Route Disruption Rules</h4>
               <div className="space-y-3">
-                <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slatehimachal-800/80 border border-slate-200 dark:border-slate-700 space-y-1">
+                <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 space-y-1">
                   <strong className="text-slate-900 dark:text-white">Kunzum Pass / Spiti Valley Closure:</strong>
                   <p className="text-slate-600 dark:text-slate-300">
                     If Kunzum Pass (4,551m) is closed by the Lahaul-Spiti administration due to sudden snowfall, the tour is automatically rerouted via the Shimla-Kinnaur all-weather circuit at no extra vehicle surcharge, or you may claim the full 1-year credit voucher.
                   </p>
                 </div>
 
-                <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slatehimachal-800/80 border border-slate-200 dark:border-slate-700 space-y-1">
+                <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 space-y-1">
                   <strong className="text-slate-900 dark:text-white">Atal Tunnel / Sissu Road Blockades:</strong>
                   <p className="text-slate-600 dark:text-slate-300">
                     If Atal Tunnel traffic is temporarily halted by police due to heavy ice/avalanche clearance, itineraries are seamlessly swapped for Sethan, Hampta Valley, or Old Manali cultural trails until the tunnel reopens.
                   </p>
                 </div>
 
-                <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slatehimachal-800/80 border border-slate-200 dark:border-slate-700 space-y-1">
+                <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 space-y-1">
                   <strong className="text-slate-900 dark:text-white">River Swell & Flooding:</strong>
                   <p className="text-slate-600 dark:text-slate-300">
                     During heavy monsoon periods in July/August, if highway advisory blocks NH-3 (Chandigarh-Manali), full rescheduling or credit notes are granted immediately.
