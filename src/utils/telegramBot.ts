@@ -40,7 +40,7 @@ export const telegramBot = {
                  `*WhatsApp:* ${req.travelerPhone || 'Not provided'}\n` +
                  `*Duration:* ${req.days} Days / ${req.nights} Nights\n` +
                  `*Destination:* ${dest}\n` +
-                 `*Group Size:* ${req.travelers || req.passengers} people\n` +
+                 `*Group Size:* ${req.travelers} people\n` +
                  `*Travel Date:* ${req.startDate}\n\n` +
                  `🔗 [Review & Quote in Admin](https://travelmonu1.vercel.app/admin)`;
 
@@ -50,7 +50,7 @@ export const telegramBot = {
   /**
    * Core dispatcher function making the secure API call
    */
-  private async dispatch(text: string) {
+  async dispatch(text: string) {
     try {
       const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
         method: 'POST',
