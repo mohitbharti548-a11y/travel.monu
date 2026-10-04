@@ -18,7 +18,7 @@ import { DESTINATIONS } from './data/mockData';
 import { storageService } from './utils/storageService';
 import { syncService } from './utils/syncService';
 import { firestoreService } from './services/firestoreService';
-import { signOutTraveler } from './utils/firebaseAuth';
+import { signOutTraveler, checkRedirectSignIn } from './utils/firebaseAuth';
 import { notificationEngine } from './services/notificationEngine';
 import { enforceBrowserProtection, enforceFrameIsolation } from './utils/securityGuard';
 
@@ -50,6 +50,23 @@ export function App() {
   useEffect(() => {
     enforceFrameIsolation();
     return enforceBrowserProtection();
+  }, []);
+
+  // Handle users returning from Google redirect sign-in (popup-blocked fallback)
+  useEffect(() => {
+    checkRedirectSignIn().then((result) => {
+      if (result?.success && result.user) {
+        setUserProfile(result.user);
+        notificationEngine.addNotification({
+          type: 'system_broadcast',
+          title: `Welcome, ${result.user.name}! 🏔️`,
+          message: `Signed in with Google (${result.user.email}). Your bookings and itineraries are now linked.`,
+          priority: 'urgent',
+          data: { linkAction: 'open_bookings' }
+        });
+      }
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Routing State: 'user' | 'admin'

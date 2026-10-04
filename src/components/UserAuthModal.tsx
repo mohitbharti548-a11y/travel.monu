@@ -47,11 +47,17 @@ export const UserAuthModal: React.FC<UserAuthModalProps> = ({
       // CRITICAL: Call Firebase auth immediately before ANY React state updates
       // so the browser does not block the popup due to lost click-context
       const resPromise = signInWithGoogle();
-      
+
       setIsLoading(true);
       setErrorMsg('');
 
       const res = await resPromise;
+
+      // Popup was blocked — redirect fallback triggered, page is about to navigate
+      if (res.redirecting) {
+        setErrorMsg('Redirecting to Google... please wait.');
+        return;
+      }
 
       if (res.success && res.user) {
         // If phone is missing, prompt optional phone or finalize directly
