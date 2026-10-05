@@ -77,13 +77,48 @@ export const signInWithGoogle = async (): Promise<{ success: boolean; user?: Use
   try {
     googleProvider.setCustomParameters({ prompt: 'select_account' });
 
-    // Use Redirect natively to completely bypass COOP/COEP header issues and strict popup blockers
-    // The page will navigate away and return to checkRedirectSignIn on load.
-    await signInWithRedirect(auth, googleProvider);
-    return { success: false, redirecting: true };
+    const result: UserCredential = await signInWithPopup(auth, googleProvider);
+    const firebaseUser = result.user;
+
+    const profile: UserProfile = {
+      phone: firebaseUser.phoneNumber ? firebaseUser.phoneNumber.replace(/\D/g, '') : '',
+      phoneNumber: firebaseUser.phoneNumber || '',
+      name: firebaseUser.displayName || 'Nomad Traveler',
+      email: firebaseUser.email || '',
+      photoURL: firebaseUser.photoURL || undefined,
+      avatarUrl: firebaseUser.photoURL || undefined,
+      isLoggedIn: true,
+      loginTime: new Date().toISOString(),
+      token: (await firebaseUser.getIdToken()) || `HN_GOOGLE_${firebaseUser.uid}`
+    };
+
+    try {
+      localStorage.setItem('hn_user_session_v4', JSON.stringify(profile));
+    } catch (e) {
+      console.warn('Session save warning:', e);
+    }
+
+    return { success: true, user: profile };
 
   } catch (err: any) {
     console.error('Firebase Google Sign-In error:', err);
+
+    // Popup was blocked or closed — automatically fall back to full-page redirect
+    // This is the Google-recommended production pattern for all strict browser environments
+    if (
+      err.code === 'auth/popup-closed-by-user' ||
+      err.code === 'auth/popup-blocked' ||
+      err.code === 'auth/cancelled-popup-request'
+    ) {
+      try {
+        googleProvider.setCustomParameters({ prompt: 'select_account' });
+        await signInWithRedirect(auth, googleProvider);
+        // Page will redirect — return a sentinel so caller can show a loading state
+        return { success: false, redirecting: true };
+      } catch (redirectErr: any) {
+        return { success: false, error: 'Sign-in failed. Please try a different browser.' };
+      }
+    }
 
     if (err.code === 'auth/unauthorized-domain') {
       return { success: false, error: 'This domain is not authorized in Firebase. Please contact support.' };
@@ -97,7 +132,7 @@ export const signInWithGoogle = async (): Promise<{ success: boolean; user?: Use
  * Must be called on app load to handle the result after signInWithRedirect returns.
  * Returns null if no redirect was in progress.
  */
-export const checkRedirectSignIn = async (): Promise<{ success: boolean; user?: UserProfile } | null> => {
+export const checkRedirectSignIn = async (): Promise<{ success: boolean; user?: UserProfile; error?: string } | null> => {
   try {
     const result = await getRedirectResult(auth);
     if (!result) return null;
@@ -122,7 +157,7 @@ export const checkRedirectSignIn = async (): Promise<{ success: boolean; user?: 
     return { success: true, user: profile };
   } catch (err: any) {
     console.error('Redirect sign-in check error:', err);
-    return null;
+    return { success: false, error: err.message || 'Failed to complete sign-in.' };
   }
 };
 
